@@ -1,0 +1,95 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import AuthorBox from '../components/AuthorBox.astro';
+import FAQ from '../components/FAQ.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { SITE, SILOS } from '../consts';
+import type { SiloKey } from '../consts';
+
+interface Props {
+  title: string;
+  description: string;
+  silo: SiloKey;
+  slug: string;
+  heroImage?: string;
+  heroImageAlt?: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author: string;
+  faq?: { question: string; answer: string }[];
+}
+
+const { title, description, silo, slug, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } =
+  Astro.props;
+
+const siloInfo = SILOS[silo];
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  author: { '@type': 'Person', name: author },
+  publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  mainEntityOfPage: new URL(`/${silo}/${slug}/`, SITE.url).toString(),
+};
+---
+
+<BaseLayout title={title} description={description} type="article" schema={[articleSchema]}>
+  <article class="container article">
+    <Breadcrumbs
+      items={[
+        { label: 'Início', href: '/' },
+        { label: siloInfo.title, href: `/${siloInfo.slug}/` },
+        { label: title, href: `/${silo}/${slug}/` },
+      ]}
+    />
+
+    <header class="article-header">
+      <p class="badge">{siloInfo.icon} {siloInfo.title}</p>
+      <h1>{title}</h1>
+      <p class="article-lead">{description}</p>
+    </header>
+
+    {heroImage && (
+      <img
+        src={heroImage}
+        alt={heroImageAlt ?? title}
+        width="900"
+        height="506"
+        loading="eager"
+        fetchpriority="high"
+        class="hero-image"
+      />
+    )}
+
+    <AuthorBox author={author} updatedDate={updatedDate ?? pubDate} />
+
+    <div class="prose">
+      <slot />
+    </div>
+
+    {faq && faq.length > 0 && <FAQ items={faq} />}
+
+    <AdSlot label={`Publicidade em ${siloInfo.title}`} />
+  </article>
+</BaseLayout>
+
+<style>
+  .article { max-width: 780px; padding-block: 2rem 3rem; }
+  .article-header { margin-bottom: 1.5rem; }
+  .article-lead { color: var(--color-text-muted); font-size: 1.1rem; }
+  .hero-image { border-radius: var(--radius); margin-bottom: 1.5rem; }
+  .prose :global(h2) { margin-top: 2.25rem; }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.25rem; }
+  .prose :global(blockquote) {
+    border-left: 4px solid var(--color-primary);
+    margin: 1.5rem 0;
+    padding: 0.25rem 1rem;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+  }
+</style>

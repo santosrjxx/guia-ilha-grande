@@ -1,0 +1,84 @@
+---
+import { getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE } from '../consts';
+
+const entry = await getEntry('pages', 'contato');
+const { Content } = await render(entry!);
+---
+
+<BaseLayout title={entry!.data.title} description={entry!.data.description}>
+  <article class="container page">
+    <h1>Fale com a gente</h1>
+    <div class="prose">
+      <Content />
+    </div>
+
+    <div class="contact-grid">
+      <!--
+        Formulário estático via FormSubmit (sem backend/JS necessário).
+        TODO: troque "SEU-EMAIL-AQUI" pelo e-mail real antes de publicar,
+        e confirme o endereço no primeiro envio de teste do FormSubmit.
+      -->
+      <form action="https://formsubmit.co/SEU-EMAIL-AQUI" method="POST" class="contact-form">
+        <input type="hidden" name="_subject" value="Novo contato — Guia Ilha Grande" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+
+        <label for="name">Nome</label>
+        <input id="name" name="name" type="text" required />
+
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" required />
+
+        <label for="subject">Assunto</label>
+        <select id="subject" name="assunto">
+          <option>Dúvida sobre viagem</option>
+          <option>Sugestão ou correção</option>
+          <option>Quero anunciar meu negócio</option>
+          <option>Outro</option>
+        </select>
+
+        <label for="message">Mensagem</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+
+        <button type="submit" class="btn btn-primary">Enviar mensagem</button>
+      </form>
+
+      <aside class="contact-info">
+        <h2>Outros canais</h2>
+        <p><strong>E-mail:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+        <p><strong>WhatsApp:</strong> <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer">Enviar mensagem</a></p>
+        <p>Quer anunciar seu restaurante, pousada ou passeio? <a href="/anuncie/">Veja nossa página de publicidade</a>.</p>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .page { max-width: 920px; padding-block: 2rem 3rem; }
+  .contact-grid {
+    display: grid;
+    gap: 2rem;
+    margin-top: 1.5rem;
+    grid-template-columns: 1fr;
+  }
+  .contact-form { display: flex; flex-direction: column; gap: 0.35rem; }
+  .contact-form label { font-weight: 600; margin-top: 0.5rem; }
+  .contact-form input, .contact-form select, .contact-form textarea {
+    padding: 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font: inherit;
+  }
+  .contact-form button { margin-top: 1rem; align-self: flex-start; }
+  .contact-info {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    height: fit-content;
+  }
+  @media (min-width: 780px) {
+    .contact-grid { grid-template-columns: 2fr 1fr; }
+  }
+</style>

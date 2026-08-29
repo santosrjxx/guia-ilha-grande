@@ -1,0 +1,29 @@
+---
+// Botão de CTA para links de afiliado. Sempre com rel="sponsored" (exigido pelo Google
+// para links pagos/afiliados) e abertura em nova aba.
+interface Props {
+  href: string;
+  label: string;
+  variant?: 'primary' | 'outline';
+  provider?: 'amazon' | 'mercadoLivre' | 'booking' | 'rentcar';
+}
+const { href, label, variant = 'primary', provider } = Astro.props;
+
+const icons: Record<string, string> = {
+  amazon: '📦',
+  mercadoLivre: '🛒',
+  booking: '🏨',
+  rentcar: '🚗',
+};
+---
+
+<a
+  href={href}
+  class={`btn ${variant === 'primary' ? 'btn-primary' : 'btn-outline'} affiliate-cta`}
+  rel="sponsored noopener noreferrer"
+  target="_blank"
+>
+  {provider && <span aria-hidden="true">{icons[provider]}</span>}
+  {label}
+  <span aria-hidden="true">↗</span>
+</a>

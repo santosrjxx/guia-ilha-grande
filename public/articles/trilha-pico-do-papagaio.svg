@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#cdeaf7"/>
+      <stop offset="1" stop-color="#f8fbf9"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22b0a6"/>
+      <stop offset="1" stop-color="#0b4f4a"/>
+    </linearGradient>
+    <linearGradient id="mountain" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4c8f68"/>
+      <stop offset="1" stop-color="#1f4a34"/>
+    </linearGradient>
+    <linearGradient id="mountain2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3c7857"/>
+      <stop offset="1" stop-color="#173d2a"/>
+    </linearGradient>
+    <radialGradient id="sun" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ffd77a"/>
+      <stop offset="1" stop-color="#f5b942"/>
+    </radialGradient>
+  </defs>
+<rect width="1200" height="675" fill="url(#sky)"/><circle cx="870" cy="160" r="90" fill="url(#sun)"/><path d="M0,470 L280,180 L430,340 L560,140 L760,470 Z" fill="url(#mountain)"/><path d="M300,470 L560,140 L900,470 Z" fill="url(#mountain2)" opacity="0.9"/><rect x="0" y="440" width="1200" height="235" fill="url(#sea)"/>
+    <g transform="translate(80,480) scale(1.0,1.0)">
+      <path d="M0,0 C-6,-70 -4,-150 6,-220" stroke="#173622" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <g fill="#1f4a34">
+        <path d="M6,-220 C-40,-235 -85,-215 -110,-180 C-70,-190 -35,-195 4,-208 Z"/>
+        <path d="M6,-220 C-30,-260 -75,-270 -115,-255 C-75,-250 -35,-240 2,-215 Z"/>
+        <path d="M6,-220 C15,-265 5,-305 -25,-330 C-10,-295 0,-260 4,-218 Z"/>
+        <path d="M6,-220 C50,-235 95,-215 118,-182 C80,-192 45,-197 6,-210 Z"/>
+        <path d="M6,-220 C40,-258 82,-268 120,-252 C82,-248 44,-238 4,-215 Z"/>
+        <path d="M6,-220 C-2,-262 10,-300 38,-322 C25,-288 15,-256 8,-218 Z"/>
+      </g>
+    </g><path d="M330,460 C400,400 420,360 470,320 C510,285 540,250 560,200" stroke="#f4f0e6" stroke-width="6" stroke-dasharray="14 12" fill="none" stroke-linecap="round"/><line x1="560" y1="140" x2="560" y2="90" stroke="#3a2a10" stroke-width="5"/><polygon points="560,90 605,105 560,120" fill="#c9812e"/></svg>

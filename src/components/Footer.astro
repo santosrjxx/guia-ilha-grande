@@ -1,0 +1,79 @@
+---
+import { SITE, SILOS, AD_CONTACT_URL } from '../consts';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-about">
+      <p class="brand">{SITE.name}</p>
+      <p>{SITE.description}</p>
+      <p class="disclosure">
+        <strong>Aviso de afiliados:</strong> este site participa de programas de afiliados
+        (Amazon, Mercado Livre, Booking.com e Rentcars). Isso significa que podemos receber
+        uma comissão quando você compra ou reserva através de alguns dos nossos links, sem
+        nenhum custo adicional para você. Todas as recomendações refletem nossa avaliação
+        editorial independente.
+      </p>
+    </div>
+
+    <nav aria-label="Silos do site">
+      <h3>Explore</h3>
+      <ul>
+        {Object.values(SILOS).map((silo) => (
+          <li><a href={`/${silo.slug}/`}>{silo.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav aria-label="Institucional">
+      <h3>Institucional</h3>
+      <ul>
+        <li><a href="/sobre/">Sobre nós</a></li>
+        <li><a href="/contato/">Contato</a></li>
+        <li><a href={AD_CONTACT_URL}>Anuncie Conosco</a></li>
+        <li><a href="/politica-editorial/">Política Editorial</a></li>
+        <li><a href="/politica-de-privacidade/">Política de Privacidade e LGPD</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>&copy; {year} {SITE.name}. Todos os direitos reservados.</p>
+    <p>Conteúdo produzido com informações verificadas em campo e fontes oficiais. Encontrou algo desatualizado? <a href="/contato/">Avise a gente</a>.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-primary-dark);
+    color: #e6efed;
+    margin-top: 3rem;
+    padding-block: 2.5rem 1.25rem;
+  }
+  .site-footer a { color: #cfe6e2; }
+  .site-footer a:hover { color: #fff; }
+  .footer-grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: 1fr;
+  }
+  .footer-about .brand { font-weight: 800; font-size: 1.1rem; color: #fff; margin-bottom: 0.5rem; }
+  .disclosure { font-size: 0.85rem; opacity: 0.85; }
+  .site-footer h3 { color: #fff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.75rem; }
+  .site-footer ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin-top: 2rem;
+    padding-top: 1.25rem;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    opacity: 0.85;
+  }
+  @media (min-width: 860px) {
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+    .footer-bottom { flex-direction: row; justify-content: space-between; }
+  }
+</style>

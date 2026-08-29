@@ -1,0 +1,173 @@
+# Painel de Admin — Guia Ilha Grande (Decap CMS)
+#
+# Backend de produção (GitHub via proxy de OAuth em /api/auth e /api/callback,
+# rodando como Cloudflare Pages Function). Preencha "repo" e "base_url" depois
+# de criar o repositório no GitHub e o projeto no Cloudflare Pages.
+backend:
+  name: github
+  repo: SEU-USUARIO/SEU-REPOSITORIO # TODO: preencher com owner/repo do GitHub
+  branch: main
+  base_url: https://SEU-DOMINIO.pages.dev # TODO: preencher com o domínio do Cloudflare Pages
+  auth_endpoint: api/auth
+
+# Permite testar o painel 100% local, sem GitHub/Cloudflare, rodando `npm run cms`
+# (decap-server) junto com `npm run dev`. Não afeta o backend de produção acima.
+local_backend: true
+
+site_url: https://www.guiailhagrande.com.br
+display_url: https://www.guiailhagrande.com.br
+logo_url: /logo-header.webp
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: articles
+    label: Artigos
+    label_singular: Artigo
+    description: Todos os artigos do blog (onde comer, o que fazer, onde ficar, guia prático).
+    folder: src/content/articles
+    create: true
+    slug: "{{slug}}"
+    extension: mdx
+    format: frontmatter
+    identifier_field: title
+    summary: "{{title}} — {{silo}}"
+    sortable_fields: [title, pubDate, silo]
+    fields:
+      - { label: Título, name: title, widget: string }
+      - { label: "Descrição (meta/SEO)", name: description, widget: text }
+      - label: Silo (categoria)
+        name: silo
+        widget: select
+        options:
+          - { label: "Onde Comer", value: "onde-comer" }
+          - { label: "O Que Fazer", value: "o-que-fazer" }
+          - { label: "Onde Ficar", value: "onde-ficar" }
+          - { label: "Guia Prático", value: "guia-pratico" }
+      - label: Imagem de destaque
+        name: heroImage
+        widget: image
+        required: false
+        media_folder: "/public/articles"
+        public_folder: "/articles"
+      - { label: "Texto alternativo da imagem (alt)", name: heroImageAlt, widget: string, required: false }
+      - { label: Data de publicação, name: pubDate, widget: datetime }
+      - { label: Data de atualização, name: updatedDate, widget: datetime, required: false }
+      - { label: Autor, name: author, widget: string, default: "Equipe Guia Ilha Grande" }
+      - label: Tags
+        name: tags
+        widget: list
+        default: []
+        required: false
+      - { label: Rascunho (não publica no site), name: draft, widget: boolean, default: false }
+      - { label: "Destaque (featured)", name: featured, widget: boolean, default: false }
+      - { label: Popular, name: popular, widget: boolean, default: false }
+      - label: Perguntas Frequentes (FAQ)
+        name: faq
+        widget: list
+        required: false
+        fields:
+          - { label: Pergunta, name: question, widget: string }
+          - { label: Resposta, name: answer, widget: text }
+      - { label: Conteúdo do artigo, name: body, widget: markdown }
+
+  - name: pages
+    label: Páginas Institucionais
+    label_singular: Página
+    description: "Textos de Sobre, Contato, Política de Privacidade e Política Editorial. Não crie nem apague itens aqui — as páginas do site apontam para estes 4 arquivos fixos."
+    folder: src/content/pages
+    create: false
+    delete: false
+    slug: "{{slug}}"
+    extension: md
+    format: frontmatter
+    fields:
+      - { label: Título, name: title, widget: string }
+      - { label: "Descrição (meta/SEO)", name: description, widget: text }
+      - { label: Conteúdo, name: body, widget: markdown }
+
+  - name: site-config
+    label: Configurações do Site
+    files:
+      - name: config
+        label: Dados Gerais, Silos e Afiliados
+        file: src/data/site-config.json
+        fields:
+          - label: Dados do Site
+            name: site
+            widget: object
+            fields:
+              - { label: Nome do site, name: name, widget: string }
+              - { label: Slogan, name: tagline, widget: string }
+              - { label: "Descrição (meta/SEO)", name: description, widget: text }
+              - { label: URL do site, name: url, widget: string }
+              - { label: E-mail de contato, name: email, widget: string }
+              - { label: WhatsApp (DDI+DDD+número, só dígitos), name: whatsapp, widget: string }
+              - { label: Nome do fundador/autor (E-E-A-T), name: founderName, widget: string }
+              - { label: Locale, name: locale, widget: string }
+              - { label: Idioma (lang), name: lang, widget: string }
+          - label: Silos (Categorias do menu)
+            name: silos
+            widget: object
+            fields:
+              - label: Onde Comer
+                name: onde-comer
+                widget: object
+                fields:
+                  - { label: Título, name: title, widget: string }
+                  - { label: Descrição curta, name: shortDescription, widget: text }
+                  - { label: Ícone (emoji), name: icon, widget: string }
+              - label: O Que Fazer
+                name: o-que-fazer
+                widget: object
+                fields:
+                  - { label: Título, name: title, widget: string }
+                  - { label: Descrição curta, name: shortDescription, widget: text }
+                  - { label: Ícone (emoji), name: icon, widget: string }
+              - label: Onde Ficar
+                name: onde-ficar
+                widget: object
+                fields:
+                  - { label: Título, name: title, widget: string }
+                  - { label: Descrição curta, name: shortDescription, widget: text }
+                  - { label: Ícone (emoji), name: icon, widget: string }
+              - label: Guia Prático
+                name: guia-pratico
+                widget: object
+                fields:
+                  - { label: Título, name: title, widget: string }
+                  - { label: Descrição curta, name: shortDescription, widget: text }
+                  - { label: Ícone (emoji), name: icon, widget: string }
+          - label: Links de Afiliados
+            name: affiliate
+            widget: object
+            fields:
+              - label: Amazon
+                name: amazon
+                widget: object
+                fields:
+                  - { label: Texto do botão, name: label, widget: string }
+                  - { label: URL base de busca, name: baseUrl, widget: string }
+                  - { label: Tag de afiliado, name: tag, widget: string }
+              - label: Mercado Livre
+                name: mercadoLivre
+                widget: object
+                fields:
+                  - { label: Texto do botão, name: label, widget: string }
+                  - { label: URL base de busca, name: baseUrl, widget: string }
+                  - { label: ID de afiliado, name: tag, widget: string }
+              - label: Booking.com
+                name: booking
+                widget: object
+                fields:
+                  - { label: Texto do botão, name: label, widget: string }
+                  - { label: URL base de busca, name: baseUrl, widget: string }
+                  - { label: Affiliate ID (aid), name: aid, widget: string }
+              - label: Rentcars
+                name: rentcar
+                widget: object
+                fields:
+                  - { label: Texto do botão, name: label, widget: string }
+                  - { label: URL base de busca, name: baseUrl, widget: string }
+                  - { label: Código de parceiro (ref), name: ref, widget: string }

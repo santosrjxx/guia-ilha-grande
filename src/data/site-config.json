@@ -1,0 +1,57 @@
+{
+  "site": {
+    "name": "Guia Ilha Grande",
+    "tagline": "O guia definitivo de Ilha Grande, Angra dos Reis",
+    "description": "Guia completo de Ilha Grande: onde comer, onde ficar, o que fazer e tudo que você precisa saber antes de viajar. Roteiros, dicas práticas e recomendações reais.",
+    "url": "https://www.guiailhagrande.com.br",
+    "locale": "pt_BR",
+    "lang": "pt-BR",
+    "email": "contato@guiailhagrande.com.br",
+    "whatsapp": "5524900000000",
+    "founderName": "[Seu Nome]"
+  },
+  "silos": {
+    "onde-comer": {
+      "title": "Onde Comer",
+      "shortDescription": "Restaurantes, bares e food trucks em Vila do Abraão e nas praias de Ilha Grande.",
+      "icon": "🍽️"
+    },
+    "o-que-fazer": {
+      "title": "O Que Fazer",
+      "shortDescription": "Trilhas, praias, passeios de barco e as melhores atrações de Ilha Grande.",
+      "icon": "🌴"
+    },
+    "onde-ficar": {
+      "title": "Onde Ficar",
+      "shortDescription": "Pousadas, hostels e hotéis para todos os perfis e orçamentos.",
+      "icon": "🏝️"
+    },
+    "guia-pratico": {
+      "title": "Guia Prático",
+      "shortDescription": "Como chegar, o que levar na mala, custos e tudo para planejar sua viagem.",
+      "icon": "🎒"
+    }
+  },
+  "affiliate": {
+    "amazon": {
+      "label": "Ver na Amazon",
+      "baseUrl": "https://www.amazon.com.br/s",
+      "tag": "SEU-TAG-AMAZON-20"
+    },
+    "mercadoLivre": {
+      "label": "Ver no Mercado Livre",
+      "baseUrl": "https://lista.mercadolivre.com.br",
+      "tag": "SEU-ID-MERCADOLIVRE"
+    },
+    "booking": {
+      "label": "Buscar hospedagem no Booking.com",
+      "baseUrl": "https://www.booking.com/searchresults.pt-br.html",
+      "aid": "SEU-AID-BOOKING"
+    },
+    "rentcar": {
+      "label": "Comparar aluguel de carro",
+      "baseUrl": "https://www.rentcars.com",
+      "ref": "SEU-REF-RENTCARS"
+    }
+  }
+}

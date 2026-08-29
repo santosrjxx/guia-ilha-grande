@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Página não encontrada" description="A página que você procura não existe ou foi movida.">
+  <div class="container not-found">
+    <h1>404 — Página não encontrada</h1>
+    <p>Essa trilha não leva a lugar nenhum. Volte para explorar o guia:</p>
+    <div class="links">
+      <a href="/" class="btn btn-primary">Página inicial</a>
+      <a href="/o-que-fazer/" class="btn btn-outline">O Que Fazer</a>
+      <a href="/onde-ficar/" class="btn btn-outline">Onde Ficar</a>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found { padding-block: 4rem; text-align: center; }
+  .links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+</style>

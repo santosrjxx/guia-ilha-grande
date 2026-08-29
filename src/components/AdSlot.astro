@@ -1,0 +1,29 @@
+---
+// Espaço de anúncio para donos de restaurantes, pousadas e guias locais.
+// Sem sponsorName preenchido, mostra CTA de venda do espaço (/anuncie/).
+import { AD_CONTACT_URL } from '../consts';
+
+interface Props {
+  label?: string;
+  sponsorName?: string;
+  sponsorUrl?: string;
+  sponsorImage?: string;
+}
+const { label = 'Publicidade local', sponsorName, sponsorUrl, sponsorImage } = Astro.props;
+---
+
+<div class="sponsored-slot" role="complementary" aria-label={label}>
+  <p class="badge">Publicidade</p>
+  {sponsorName ? (
+    <a href={sponsorUrl} rel="sponsored noopener noreferrer" target="_blank" class="sponsor-link">
+      {sponsorImage && <img src={sponsorImage} alt={sponsorName} loading="lazy" />}
+      <strong>{sponsorName}</strong>
+    </a>
+  ) : (
+    <>
+      <p><strong>Seu restaurante, pousada ou passeio aqui.</strong></p>
+      <p>Alcance milhares de turistas planejando a viagem para Ilha Grande.</p>
+      <a href={AD_CONTACT_URL} class="btn btn-outline">Anunciar neste espaço</a>
+    </>
+  )}
+</div>

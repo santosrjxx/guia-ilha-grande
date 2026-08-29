@@ -1,0 +1,42 @@
+---
+interface Row {
+  name: string;
+  cells: string[];
+  ctaHref?: string;
+  ctaLabel?: string;
+}
+interface Props {
+  headers: string[];
+  rows: Row[];
+  caption?: string;
+}
+const { headers, rows, caption } = Astro.props;
+---
+
+<div class="table-scroll">
+  <table>
+    {caption && <caption class="visually-hidden">{caption}</caption>}
+    <thead>
+      <tr>
+        <th scope="col">Nome</th>
+        {headers.map((h) => <th scope="col">{h}</th>)}
+        <th scope="col"><span class="visually-hidden">Ação</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <th scope="row">{row.name}</th>
+          {row.cells.map((cell) => <td>{cell}</td>)}
+          <td>
+            {row.ctaHref && (
+              <a href={row.ctaHref} class="btn btn-outline" rel="sponsored noopener noreferrer" target="_blank">
+                {row.ctaLabel ?? 'Ver oferta'}
+              </a>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

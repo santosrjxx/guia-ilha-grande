@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Admin — Guia Ilha Grande</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="https://unpkg.com/decap-cms@^3.3.0/dist/decap-cms.js"></script>
+  </head>
+  <body>
+    <script>
+      CMS.registerPreviewStyle('/admin/preview.css');
+
+      var ArticlePreview = createClass({
+        render: function () {
+          var entry = this.props.entry;
+          var data = entry.get('data');
+          var silo = data.get('silo');
+          var siloLabels = {
+            'onde-comer': 'Onde Comer',
+            'o-que-fazer': 'O Que Fazer',
+            'onde-ficar': 'Onde Ficar',
+            'guia-pratico': 'Guia Prático',
+          };
+          var heroImage = this.props.getAsset(data.get('heroImage'));
+          var faq = data.get('faq');
+
+          return h(
+            'article',
+            { className: 'container article', style: { paddingBlock: '2rem 3rem' } },
+            h('p', { className: 'badge' }, siloLabels[silo] || silo),
+            h('h1', {}, data.get('title')),
+            h('p', { className: 'article-lead', style: { color: 'var(--color-text-muted)', fontSize: '1.1rem' } }, data.get('description')),
+            heroImage &&
+              h('img', {
+                src: heroImage.toString(),
+                alt: data.get('heroImageAlt') || data.get('title'),
+                className: 'hero-image',
+                style: { borderRadius: 'var(--radius)', marginBlock: '1.5rem' },
+              }),
+            h('div', { className: 'prose' }, this.props.widgetFor('body')),
+            faq &&
+              faq.size > 0 &&
+              h(
+                'section',
+                { 'aria-label': 'Perguntas frequentes' },
+                h('h2', {}, 'Perguntas frequentes'),
+                faq.map(function (item, i) {
+                  return h(
+                    'details',
+                    { key: i },
+                    h('summary', {}, item.get('question')),
+                    h('p', {}, item.get('answer'))
+                  );
+                })
+              )
+          );
+        },
+      });
+
+      var PagePreview = createClass({
+        render: function () {
+          var entry = this.props.entry;
+          var data = entry.get('data');
+          return h(
+            'article',
+            { className: 'container page', style: { paddingBlock: '2rem 3rem', maxWidth: '760px' } },
+            h('h1', {}, data.get('title')),
+            h('div', { className: 'prose' }, this.props.widgetFor('body'))
+          );
+        },
+      });
+
+      CMS.registerPreviewTemplate('articles', ArticlePreview);
+      CMS.registerPreviewTemplate('pages', PagePreview);
+    </script>
+  </body>
+</html>

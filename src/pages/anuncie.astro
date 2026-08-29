@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ComparisonTable from '../components/ComparisonTable.astro';
+import { SITE } from '../consts';
+---
+
+<BaseLayout
+  title="Anuncie Conosco"
+  description="Anuncie seu restaurante, pousada ou passeio no Guia Ilha Grande e alcance turistas que estão planejando a viagem agora."
+>
+  <section class="container page">
+    <p class="badge">Publicidade local</p>
+    <h1>Coloque seu negócio na frente de quem já vai viajar para Ilha Grande</h1>
+    <p class="lead">
+      Nossos leitores não estão só navegando — estão no meio do planejamento da viagem,
+      decidindo onde comer, onde ficar e o que fazer. É o momento em que a decisão de compra
+      acontece.
+    </p>
+    <a href={`mailto:${SITE.email}?subject=Quero anunciar no Guia Ilha Grande`} class="btn btn-primary">
+      Quero anunciar meu negócio
+    </a>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>Por que anunciar no {SITE.name}</h2>
+      <div class="grid grid-3">
+        <div>
+          <h3>Público qualificado</h3>
+          <p>Tráfego 100% formado por pessoas pesquisando ativamente sobre Ilha Grande — sem desperdício de verba com público genérico.</p>
+        </div>
+        <div>
+          <h3>Anúncio contextual</h3>
+          <p>Seu espaço aparece dentro do conteúdo que o visitante já está lendo — em "Onde Comer", "Onde Ficar" ou "O Que Fazer" — não como um banner ignorado.</p>
+        </div>
+        <div>
+          <h3>Sem intermediários</h3>
+          <p>Contrato direto com o site, sem plataformas de anúncio genéricas. Você fala com quem escreve o conteúdo.</p>
+        </div>
+      </div>
+      <p class="disclaimer">
+        <em>[Dados de audiência — sessões mensais, origem de tráfego e principais páginas —
+        serão publicados aqui assim que o site tiver histórico de tráfego real no Google
+        Analytics/Search Console. Nunca publique números estimados como se fossem reais.]</em>
+      </p>
+    </div>
+  </section>
+
+  <section class="section container">
+    <h2>Formatos de anúncio</h2>
+    <ComparisonTable
+      caption="Formatos de publicidade disponíveis"
+      headers={["O que é", "Indicado para"]}
+      rows={[
+        {
+          name: "Banner na Home",
+          cells: ["Espaço de destaque na página inicial", "Marcas com maior orçamento, alta visibilidade"],
+        },
+        {
+          name: "Destaque em Silo",
+          cells: ["Espaço dentro de 'Onde Comer', 'Onde Ficar' ou 'O Que Fazer'", "Restaurantes, pousadas e passeios"],
+        },
+        {
+          name: "Publieditorial",
+          cells: ["Artigo dedicado ao seu negócio, com identificação clara de publicidade", "Quem quer contar a própria história"],
+        },
+        {
+          name: "Cupom / Oferta exclusiva",
+          cells: ["Destaque de uma oferta especial para leitores do site", "Conversão direta em reservas ou visitas"],
+        },
+      ]}
+    />
+    <p class="disclaimer">
+      <em>[Insira aqui a tabela de preços real por formato e período (mensal/trimestral) antes de publicar.]</em>
+    </p>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <h2>Como funciona</h2>
+      <ol class="steps">
+        <li>Você entra em contato pelo formulário ou e-mail abaixo;</li>
+        <li>Enviamos o media kit com formatos, prazos e valores atualizados;</li>
+        <li>Definimos juntos o melhor formato para o seu negócio e período de veiculação;</li>
+        <li>Seu anúncio entra no ar com identificação clara de publicidade, conforme as diretrizes do Google e do CDC.</li>
+      </ol>
+      <a href="/contato/" class="btn btn-outline">Falar com a equipe</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page { max-width: 760px; padding-block: 2.5rem 1rem; }
+  .lead { font-size: 1.15rem; color: var(--color-text-muted); }
+  .disclaimer { font-size: 0.85rem; color: var(--color-text-muted); margin-top: 1rem; }
+  .steps { display: flex; flex-direction: column; gap: 0.5rem; padding-left: 1.25rem; }
+</style>
