@@ -5,7 +5,7 @@
 # de criar o repositório no GitHub e o projeto no Cloudflare Pages.
 backend:
   name: github
-  repo: SEU-USUARIO/SEU-REPOSITORIO # TODO: preencher com owner/repo do GitHub
+  repo: santosrjxx/guia-ilha-grande
   branch: main
   base_url: https://SEU-DOMINIO.pages.dev # TODO: preencher com o domínio do Cloudflare Pages
   auth_endpoint: api/auth
