@@ -7,7 +7,7 @@ backend:
   name: github
   repo: santosrjxx/guia-ilha-grande
   branch: main
-  base_url: https://SEU-DOMINIO.pages.dev # TODO: preencher com o domínio do Cloudflare Pages
+  base_url: https://guia-ilha-grande.moiclub.workers.dev
   auth_endpoint: api/auth
 
 # Permite testar o painel 100% local, sem GitHub/Cloudflare, rodando `npm run cms`
