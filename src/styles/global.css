@@ -27,6 +27,13 @@ body {
   background: var(--color-bg);
   line-height: 1.6;
   font-size: 1.0625rem;
+  overflow-x: hidden;
+}
+
+/* Rede de segurança: texto colado no CMS (Word/Docs) às vezes vem com espaço-fixo,
+   o que impede quebra de linha. Isso garante que nunca estoure o layout. */
+p, li, blockquote, td, th, h1, h2, h3, h4 {
+  overflow-wrap: break-word;
 }
 
 img { max-width: 100%; height: auto; display: block; }
