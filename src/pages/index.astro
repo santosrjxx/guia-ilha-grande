@@ -6,7 +6,7 @@ import { getCollection } from 'astro:content';
 
 const allArticles = (await getCollection('articles')).filter((a) => !a.data.draft);
 const byDate = [...allArticles].sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-const byId = (id: string) => allArticles.find((a) => a.id === id)!;
+const byId = (id: string) => allArticles.find((a) => a.id === id);
 
 const fmt = (d: Date) =>
   d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -15,17 +15,25 @@ const featuredArticle = allArticles.find((a) => a.data.featured) ?? byDate[0];
 const popularArticles = allArticles.filter((a) => a.data.popular).slice(0, 4);
 const recentTabArticles = byDate.slice(0, 4);
 
-const editorsPickMain = byId('onde-ficar-em-ilha-grande');
-const editorsPickList = ['praia-de-lopes-mendes', 'como-chegar-a-ilha-grande', 'restaurantes-pos-trilha'].map(byId);
+// byId retorna undefined se o artigo virar rascunho, for renomeado ou apagado.
+// Filtramos os ausentes em vez de deixar quebrar a página inteira.
+const editorsPickMain = byId('onde-ficar-em-ilha-grande') ?? byDate[0];
+const editorsPickList = ['praia-de-lopes-mendes', 'como-chegar-a-ilha-grande', 'restaurantes-pos-trilha']
+  .map(byId)
+  .filter((a) => a !== undefined);
 
 const trendingGrid = [
   'trilha-pico-do-papagaio',
   'onde-comer-vila-do-abraao',
   'vila-do-abraao-vs-outras-praias',
   'o-que-levar-na-mala',
-].map(byId);
+]
+  .map(byId)
+  .filter((a) => a !== undefined);
 
-const inspirationDuo = ['praia-de-lopes-mendes', 'trilha-pico-do-papagaio'].map(byId);
+const inspirationDuo = ['praia-de-lopes-mendes', 'trilha-pico-do-papagaio']
+  .map(byId)
+  .filter((a) => a !== undefined);
 
 const topics = Object.values(SILOS).map((silo) => ({
   ...silo,

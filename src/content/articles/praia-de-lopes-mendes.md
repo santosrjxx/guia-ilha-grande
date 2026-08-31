@@ -3,6 +3,7 @@ title: "Praia de Lopes Mendes: Como Chegar e Dicas"
 slug: "praia-de-lopes-mendes"
 description: "Considerada uma das praias mais bonitas do Brasil: veja como chegar de trilha ou de barco, melhor época para visitar e cuidados importantes."
 silo: "o-que-fazer"
+draft: false
 popular: true
 heroImage: "/articles/praia-de-lopes-mendes.svg"
 heroImageAlt: "Ilustração da Praia de Lopes Mendes com coqueiros e mar turquesa"

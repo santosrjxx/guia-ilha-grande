@@ -3,6 +3,7 @@ title: "Trilha do Pico do Papagaio: Guia Completo"
 slug: "trilha-pico-do-papagaio"
 description: "Tudo sobre a trilha mais desafiadora de Ilha Grande: distância, tempo estimado, nível de dificuldade e dicas de segurança para chegar ao topo."
 silo: "o-que-fazer"
+draft: false
 featured: true
 heroImage: "/Ilha-grande.webp"
 heroImageAlt: "Vista aérea das águas cristalinas e ilhotas de Ilha Grande, Angra dos Reis"
