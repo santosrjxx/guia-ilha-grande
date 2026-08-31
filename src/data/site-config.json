@@ -34,7 +34,7 @@
   },
   "design": {
     "logoUrl": "/logo-header.webp",
-    "faviconUrl": "/favicon.ico",
+    "faviconUrl": "/favicon-16x16.png",
     "colors": {
       "accentDark": "#96601c",
       "primary": "#0b4f4a",
