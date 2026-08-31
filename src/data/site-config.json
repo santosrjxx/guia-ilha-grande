@@ -1,14 +1,14 @@
 {
   "site": {
     "name": "Guia Ilha Grande",
-    "tagline": "O guia definitivo de Ilha Grande, Angra dos Reis",
-    "description": "Guia completo de Ilha Grande: onde comer, onde ficar, o que fazer e tudo que você precisa saber antes de viajar. Roteiros, dicas práticas e recomendações reais.",
-    "url": "https://www.guiailhagrande.com.br",
-    "locale": "pt_BR",
     "lang": "pt-BR",
-    "email": "contato@guiailhagrande.com.br",
+    "tagline": "O guia definitivo de Ilha Grande, Angra dos Reis",
+    "url": "https://www.guiailhagrande.com.br",
     "whatsapp": "5524900000000",
-    "founderName": "[Seu Nome]"
+    "locale": "pt_BR",
+    "founderName": "[Seu Nome]",
+    "email": "contato@guiailhagrande.com.br",
+    "description": "Guia completo de Ilha Grande: onde comer, onde ficar, o que fazer e tudo que você precisa saber antes de viajar. Roteiros, dicas práticas e recomendações reais."
   },
   "silos": {
     "onde-comer": {
@@ -34,17 +34,17 @@
   },
   "design": {
     "logoUrl": "/logo-header.webp",
-    "faviconUrl": "/favicon.svg",
+    "faviconUrl": "/favicon.ico",
     "colors": {
-      "primary": "#0b4f4a",
-      "primaryDark": "#073531",
-      "accent": "#c9812e",
       "accentDark": "#96601c",
-      "background": "#ffffff",
+      "primary": "#0b4f4a",
+      "accent": "#c9812e",
+      "border": "#dde5e3",
       "surface": "#f4f8f7",
       "text": "#10201d",
-      "textMuted": "#4a5f5a",
-      "border": "#dde5e3"
+      "background": "#ffffff",
+      "primaryDark": "#073531",
+      "textMuted": "#4a5f5a"
     },
     "fonts": {
       "body": "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
