@@ -5,6 +5,11 @@ const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/articles' }),
   schema: z.object({
       title: z.string(),
+      seoTitle: z.string().optional(),
+      slug: z
+        .string()
+        .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use apenas letras minúsculas, números e hífens')
+        .optional(),
       description: z.string(),
       silo: z.enum(['onde-comer', 'o-que-fazer', 'onde-ficar', 'guia-pratico']),
       heroImage: z.string().optional(),

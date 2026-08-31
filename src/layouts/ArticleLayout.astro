@@ -9,6 +9,7 @@ import type { SiloKey } from '../consts';
 
 interface Props {
   title: string;
+  seoTitle?: string;
   description: string;
   silo: SiloKey;
   slug: string;
@@ -20,7 +21,7 @@ interface Props {
   faq?: { question: string; answer: string }[];
 }
 
-const { title, description, silo, slug, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } =
+const { title, seoTitle, description, silo, slug, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } =
   Astro.props;
 
 const siloInfo = SILOS[silo];
@@ -38,7 +39,7 @@ const articleSchema = {
 };
 ---
 
-<BaseLayout title={title} description={description} type="article" schema={[articleSchema]}>
+<BaseLayout title={seoTitle || title} description={description} type="article" schema={[articleSchema]}>
   <article class="container article">
     <Breadcrumbs
       items={[

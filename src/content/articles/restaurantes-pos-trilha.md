@@ -1,5 +1,6 @@
 ---
 title: "Restaurantes na Praia: Onde Almoçar Depois da Trilha"
+slug: "restaurantes-pos-trilha"
 description: "Fez a trilha até Lopes Mendes ou o Pico do Papagaio? Veja onde repor as energias com boas opções de comida perto das praias de Ilha Grande."
 silo: "onde-comer"
 heroImage: "/articles/restaurantes-pos-trilha.svg"

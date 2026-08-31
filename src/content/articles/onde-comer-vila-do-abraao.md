@@ -1,5 +1,6 @@
 ---
 title: "Onde Comer em Vila do Abraão: o Guia Completo"
+slug: "onde-comer-vila-do-abraao"
 description: "Descubra onde comer em Vila do Abraão, o principal vilarejo de Ilha Grande: da culinária caiçara aos cardápios para todos os bolsos."
 silo: "onde-comer"
 popular: true

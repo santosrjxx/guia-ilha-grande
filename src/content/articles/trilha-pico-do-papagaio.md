@@ -1,5 +1,6 @@
 ---
 title: "Trilha do Pico do Papagaio: Guia Completo"
+slug: "trilha-pico-do-papagaio"
 description: "Tudo sobre a trilha mais desafiadora de Ilha Grande: distância, tempo estimado, nível de dificuldade e dicas de segurança para chegar ao topo."
 silo: "o-que-fazer"
 featured: true

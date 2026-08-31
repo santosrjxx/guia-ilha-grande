@@ -2,6 +2,7 @@
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { DESIGN } from '../consts';
 import '../styles/global.css';
 
 interface Props {
@@ -19,8 +20,22 @@ const { title, description, image, type, schema } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href={DESIGN.faviconUrl} />
     <SEO title={title} description={description} image={image} type={type} schema={schema} />
+    <style set:html={`:root {
+      --color-bg: ${DESIGN.colors.background};
+      --color-surface: ${DESIGN.colors.surface};
+      --color-text: ${DESIGN.colors.text};
+      --color-text-muted: ${DESIGN.colors.textMuted};
+      --color-primary: ${DESIGN.colors.primary};
+      --color-primary-dark: ${DESIGN.colors.primaryDark};
+      --color-accent: ${DESIGN.colors.accent};
+      --color-accent-dark: ${DESIGN.colors.accentDark};
+      --color-border: ${DESIGN.colors.border};
+      --font-body: ${DESIGN.fonts.body};
+      --font-heading: ${DESIGN.fonts.heading};
+      --radius: ${DESIGN.radius};
+    }`} />
   </head>
   <body>
     <a href="#main" class="skip-link">Pular para o conteúdo</a>

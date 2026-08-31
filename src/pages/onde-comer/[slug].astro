@@ -5,21 +5,22 @@ import ArticleLayout from '../../layouts/ArticleLayout.astro';
 export async function getStaticPaths() {
   const articles = await getCollection('articles', (a) => a.data.silo === 'onde-comer' && !a.data.draft);
   return articles.map((article) => ({
-    params: { slug: article.id },
+    params: { slug: article.data.slug ?? article.id },
     props: { article },
   }));
 }
 
 const { article } = Astro.props;
 const { Content } = await render(article);
-const { title, description, silo, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } = article.data;
+const { title, seoTitle, description, silo, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } = article.data;
 ---
 
 <ArticleLayout
   title={title}
+  seoTitle={seoTitle}
   description={description}
   silo={silo}
-  slug={article.id}
+  slug={article.data.slug ?? article.id}
   heroImage={heroImage}
   heroImageAlt={heroImageAlt}
   pubDate={pubDate}

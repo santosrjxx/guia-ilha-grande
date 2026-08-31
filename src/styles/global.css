@@ -12,6 +12,7 @@
   --color-sponsored: #fff8ec;
 
   --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: var(--font-body);
   --radius: 10px;
   --max-width: 1120px;
 }
@@ -41,6 +42,7 @@ h1, h2, h3, h4 {
   line-height: 1.2;
   color: var(--color-primary-dark);
   font-weight: 800;
+  font-family: var(--font-heading);
 }
 h1 { font-size: clamp(1.9rem, 4vw, 2.75rem); }
 h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-top: 2.5rem; }

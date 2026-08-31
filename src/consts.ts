@@ -35,6 +35,24 @@ export const NAV_LINKS = [
   { href: '/contato/', label: 'Contato' },
 ];
 
+export const DESIGN = siteConfig.design as {
+  logoUrl: string;
+  faviconUrl: string;
+  colors: {
+    primary: string;
+    primaryDark: string;
+    accent: string;
+    accentDark: string;
+    background: string;
+    surface: string;
+    text: string;
+    textMuted: string;
+    border: string;
+  };
+  fonts: { body: string; heading: string };
+  radius: string;
+};
+
 export const AFFILIATE = siteConfig.affiliate as {
   amazon: { label: string; baseUrl: string; tag: string };
   mercadoLivre: { label: string; baseUrl: string; tag: string };

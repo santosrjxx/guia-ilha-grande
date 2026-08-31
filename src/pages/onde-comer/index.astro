@@ -24,7 +24,7 @@ const articles = (await getCollection('articles', (a) => a.data.silo === 'onde-c
 
     <div class="grid grid-3">
       {articles.map((article) => (
-        <a href={`/onde-comer/${article.id}/`} class="card">
+        <a href={`/onde-comer/${article.data.slug ?? article.id}/`} class="card">
           {article.data.heroImage && (
             <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} class="card-image" loading="lazy" width="1200" height="675" />
           )}

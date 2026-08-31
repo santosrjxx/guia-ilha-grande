@@ -1,12 +1,12 @@
 ---
-import { SITE, NAV_LINKS } from '../consts';
+import { SITE, DESIGN, NAV_LINKS } from '../consts';
 const currentPath = Astro.url.pathname;
 ---
 
 <header class="site-header">
   <div class="container header-inner">
     <a href="/" class="brand">
-      <img src="/logo-header.webp" alt={SITE.name} width="190" height="44" />
+      <img src={DESIGN.logoUrl} alt={SITE.name} width="190" height="44" />
     </a>
 
     <input type="checkbox" id="nav-toggle" class="nav-toggle" />

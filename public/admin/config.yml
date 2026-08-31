@@ -35,8 +35,21 @@ collections:
     summary: "{{title}} — {{silo}}"
     sortable_fields: [title, pubDate, silo]
     fields:
-      - { label: Título, name: title, widget: string }
-      - { label: "Descrição (meta/SEO)", name: description, widget: text }
+      - { label: "Título (H1 da página)", name: title, widget: string, hint: "Título principal, exibido no topo do artigo." }
+      - label: "Título para SEO (opcional)"
+        name: seoTitle
+        widget: string
+        required: false
+        hint: "Se deixado em branco, usa o Título acima. É o texto que aparece na aba do navegador e no resultado do Google — pode ser diferente do H1 para otimizar cliques."
+      - label: "Slug (endereço da URL)"
+        name: slug
+        widget: string
+        hint: "Parte final do link da página. Ex.: praia-de-lopes-mendes vira /o-que-fazer/praia-de-lopes-mendes/. Evite alterar depois de publicado, pois isso muda o link do artigo."
+        pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
+      - label: "Meta descrição (SEO)"
+        name: description
+        widget: text
+        hint: "Texto exibido no resultado de busca do Google, abaixo do título. Ideal entre 120 e 160 caracteres."
       - label: Silo (categoria)
         name: silo
         widget: select
@@ -67,10 +80,29 @@ collections:
         name: faq
         widget: list
         required: false
+        hint: "Aparece no fim do artigo, em formato sanfona, e gera dados estruturados de FAQ para o Google. A resposta aceita links em HTML, ex.: <a href=\"/pagina/\">texto</a>."
         fields:
           - { label: Pergunta, name: question, widget: string }
           - { label: Resposta, name: answer, widget: text }
-      - { label: Conteúdo do artigo, name: body, widget: markdown }
+      - label: Conteúdo do artigo
+        name: body
+        widget: markdown
+        hint: "Use os botões da barra de ferramentas para títulos (H2 a H4), negrito, listas, links e imagens. Para inserir HTML bruto (embeds, tabelas avançadas etc.), clique em \"Markdown\" no rodapé do editor para alternar para o modo texto."
+        modes: ["rich_text", "raw"]
+        buttons:
+          - bold
+          - italic
+          - code
+          - link
+          - heading-two
+          - heading-three
+          - heading-four
+          - quote
+          - bulleted-list
+          - numbered-list
+        editor_components: [image]
+        media_folder: "/public/articles/inline"
+        public_folder: "/articles/inline"
 
   - name: pages
     label: Páginas Institucionais
@@ -91,7 +123,7 @@ collections:
     label: Configurações do Site
     files:
       - name: config
-        label: Dados Gerais, Silos e Afiliados
+        label: "Dados Gerais, Aparência, Silos e Afiliados"
         file: src/data/site-config.json
         fields:
           - label: Dados do Site
@@ -107,6 +139,64 @@ collections:
               - { label: Nome do fundador/autor (E-E-A-T), name: founderName, widget: string }
               - { label: Locale, name: locale, widget: string }
               - { label: Idioma (lang), name: lang, widget: string }
+          - label: "Aparência (Logo, Cores e Fontes)"
+            name: design
+            widget: object
+            hint: "Controla o visual de todo o site. Alterações aqui afetam header, botões, títulos, links e texto em todas as páginas."
+            fields:
+              - label: Logo do cabeçalho
+                name: logoUrl
+                widget: image
+                media_folder: "/public"
+                public_folder: "/"
+                hint: "Ideal: PNG ou WEBP com fundo transparente, altura em torno de 44px."
+              - label: Favicon (ícone da aba do navegador)
+                name: faviconUrl
+                widget: image
+                media_folder: "/public"
+                public_folder: "/"
+              - label: Cores
+                name: colors
+                widget: object
+                fields:
+                  - { label: "Primária (links, botões outline, cabeçalho)", name: primary, widget: color }
+                  - { label: "Primária escura (títulos, rodapé)", name: primaryDark, widget: color }
+                  - { label: "Destaque/acento (badges)", name: accent, widget: color }
+                  - { label: "Destaque escuro (botões de CTA)", name: accentDark, widget: color }
+                  - { label: "Fundo da página", name: background, widget: color }
+                  - { label: "Fundo de seções alternadas", name: surface, widget: color }
+                  - { label: "Texto principal", name: text, widget: color }
+                  - { label: "Texto secundário/legendas", name: textMuted, widget: color }
+                  - { label: "Bordas e divisórias", name: border, widget: color }
+              - label: Fontes
+                name: fonts
+                widget: object
+                fields:
+                  - label: Fonte do corpo do texto
+                    name: body
+                    widget: select
+                    options:
+                      - { label: "Sans Moderna (padrão)", value: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" }
+                      - { label: "Serifada Elegante", value: "Georgia, 'Times New Roman', Times, serif" }
+                      - { label: "Serifada Editorial", value: "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif" }
+                      - { label: "Arredondada Amigável", value: "-apple-system, 'Segoe UI', Verdana, 'Trebuchet MS', sans-serif" }
+                  - label: Fonte dos títulos (H1-H4)
+                    name: heading
+                    widget: select
+                    options:
+                      - { label: "Sans Moderna (padrão)", value: "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" }
+                      - { label: "Serifada Elegante", value: "Georgia, 'Times New Roman', Times, serif" }
+                      - { label: "Serifada Editorial", value: "'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif" }
+                      - { label: "Arredondada Amigável", value: "-apple-system, 'Segoe UI', Verdana, 'Trebuchet MS', sans-serif" }
+              - label: Arredondamento de cantos
+                name: radius
+                widget: select
+                options:
+                  - { label: "Reto (sem arredondamento)", value: "0px" }
+                  - { label: "Levemente arredondado", value: "6px" }
+                  - { label: "Arredondado (padrão)", value: "10px" }
+                  - { label: "Bem arredondado", value: "18px" }
+                  - { label: "Pílula", value: "999px" }
           - label: Silos (Categorias do menu)
             name: silos
             widget: object
