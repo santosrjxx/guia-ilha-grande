@@ -3,6 +3,7 @@
 // (SiloKey, NAV_LINKS, AD_CONTACT_URL) é estrutural e ligado às rotas do site.
 
 import siteConfig from './data/site-config.json';
+import affiliateLinksData from './data/affiliate-links.json';
 
 export const SITE = siteConfig.site as {
   name: string;
@@ -53,12 +54,20 @@ export const DESIGN = siteConfig.design as {
   radius: string;
 };
 
-export const AFFILIATE = siteConfig.affiliate as {
-  amazon: { label: string; baseUrl: string; tag: string };
-  mercadoLivre: { label: string; baseUrl: string; tag: string };
-  booking: { label: string; baseUrl: string; aid: string };
-  rentcar: { label: string; baseUrl: string; ref: string };
-};
+export interface AffiliateLink {
+  slug: string;
+  label: string;
+  provider: 'amazon' | 'mercadoLivre' | 'booking' | 'rentcar' | 'outro';
+  destinationUrl: string;
+  active: boolean;
+}
+
+// Links de afiliado editáveis em /admin ("Links de Afiliados"). O redirecionador em si
+// (/go/<slug>) roda no worker (worker/index.ts), que importa o mesmo JSON — os dois lados
+// ficam sempre sincronizados porque vêm do mesmo arquivo.
+export const AFFILIATE_LINKS = (affiliateLinksData as { links: AffiliateLink[] }).links;
+
+export const goLink = (slug: string) => `/go/${slug}/`;
 
 export const AD_CONTACT_URL = '/anuncie/';
 

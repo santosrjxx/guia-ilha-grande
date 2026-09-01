@@ -55,27 +55,5 @@
       "heading": "system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
     },
     "radius": "10px"
-  },
-  "affiliate": {
-    "amazon": {
-      "label": "Ver na Amazon",
-      "baseUrl": "https://www.amazon.com.br/s",
-      "tag": "[PENDENTE - editar no CMS]"
-    },
-    "mercadoLivre": {
-      "label": "Ver no Mercado Livre",
-      "baseUrl": "https://lista.mercadolivre.com.br",
-      "tag": "[PENDENTE - editar no CMS]"
-    },
-    "booking": {
-      "label": "Buscar hospedagem no Booking.com",
-      "baseUrl": "https://www.booking.com/searchresults.pt-br.html",
-      "aid": "[PENDENTE - editar no CMS]"
-    },
-    "rentcar": {
-      "label": "Comparar aluguel de carro",
-      "baseUrl": "https://www.rentcars.com",
-      "ref": "[PENDENTE - editar no CMS]"
-    }
   }
 }

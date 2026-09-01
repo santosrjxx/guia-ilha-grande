@@ -6,5 +6,11 @@
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
-  }
+  },
+  "kv_namespaces": [
+    {
+      "binding": "AFFILIATE_CLICKS",
+      "id": "748ac42eb9704dc48736273254900bcc"
+    }
+  ]
 }

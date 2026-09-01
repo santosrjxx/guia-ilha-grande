@@ -1,0 +1,32 @@
+{
+  "links": [
+    {
+      "slug": "mochila-trilha",
+      "label": "Ver mochilas estanques na Amazon",
+      "provider": "amazon",
+      "destinationUrl": "https://www.amazon.com.br/s?k=mochila+estanque+trilha",
+      "active": true
+    },
+    {
+      "slug": "protetor-solar",
+      "label": "Ver kits de protetor solar e repelente no Mercado Livre",
+      "provider": "mercadoLivre",
+      "destinationUrl": "https://lista.mercadolivre.com.br/protetor-solar-repelente-viagem",
+      "active": true
+    },
+    {
+      "slug": "hospedagem-ilha-grande",
+      "label": "Ver pousadas disponíveis para suas datas",
+      "provider": "booking",
+      "destinationUrl": "https://www.booking.com/searchresults.pt-br.html?ss=Ilha+Grande%2C+Angra+dos+Reis",
+      "active": true
+    },
+    {
+      "slug": "aluguel-carro",
+      "label": "Comparar preços de aluguel de carro até Angra dos Reis",
+      "provider": "rentcar",
+      "destinationUrl": "https://www.rentcars.com",
+      "active": true
+    }
+  ]
+}

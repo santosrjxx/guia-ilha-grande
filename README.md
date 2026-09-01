@@ -1,28 +1,45 @@
 # Guia Ilha Grande
 
-Site estático (Astro SSG) do guia de turismo para Ilha Grande, RJ. Conteúdo editável via Decap CMS, deploy automático para Cloudflare Workers.
+Site estático (Astro SSG) do guia de turismo para Ilha Grande, RJ. Conteúdo editável via Sveltia CMS, deploy automático para Cloudflare Workers.
 
 ## Stack
 
 - **Astro 5** (`output: 'static'`) — zero JS por padrão
-- **Decap CMS** (`/admin`) — edição de conteúdo sem tocar em código
-- **Cloudflare Workers** (Wrangler) — hospedagem do site e proxy de autenticação OAuth do CMS
+- **Sveltia CMS** (`/admin`) — edição de conteúdo sem tocar em código (sucessor moderno e compatível do Decap/Netlify CMS)
+- **Cloudflare Workers** (Wrangler) — hospedagem do site, proxy de autenticação OAuth do CMS e o encurtador de links de afiliado (`/go/...`)
 
 ## Comandos
 
 - `npm install` — instala as dependências
-- `npm run dev` — ambiente de desenvolvimento local (`http://localhost:4321`)
+- `npm run dev` — ambiente de desenvolvimento local do site (`http://localhost:4321`), via Astro
 - `npm run build` — gera o site estático em `dist/`
 - `npm run preview` — serve o build de `dist/` localmente
-- `npm run cms` — sobe o Decap CMS local (`decap-server`) na porta padrão, para editar conteúdo sem precisar de GitHub/Cloudflare configurados. Rode em paralelo com `npm run dev` e acesse `/admin` — o `public/admin/config.yml` já tem `local_backend: true` para esse modo.
+- `npx wrangler dev` — sobe o **Worker** localmente (útil pra testar `/go/<slug>` e o proxy OAuth de verdade, coisas que `npm run dev` não executa)
+
+### Editar conteúdo localmente (sem precisar de GitHub)
+
+O Sveltia CMS não usa mais `decap-server`/proxy local (o script `npm run cms` do `package.json` é resquício do Decap CMS antigo e não faz mais nada útil). O fluxo local do Sveltia é outro, e só funciona no Chrome ou Edge:
+
+1. Rode `npm run dev` e abra `http://localhost:4321/admin/`
+2. Clique em "Work with Local Repository" e selecione a pasta raiz do projeto
+3. Edite normalmente — as mudanças vão direto pros arquivos locais. **Não há git automático**: dê `git add`/`commit`/`push` você mesmo quando terminar.
 
 ## Estrutura de conteúdo
 
 - `src/content/articles/` — artigos (Markdown/MDX), cada um pertence a um silo (`onde-comer`, `o-que-fazer`, `onde-ficar`, `guia-pratico`)
 - `src/content/pages/` — as 4 páginas institucionais fixas (Sobre, Contato, Política de Privacidade, Política Editorial)
-- `src/data/site-config.json` — dados gerais do site, cores, textos dos silos e links de afiliados
+- `src/data/site-config.json` — dados gerais do site, cores, textos dos silos
+- `src/data/affiliate-links.json` — links de afiliado (ver seção abaixo)
 
-Tudo isso é editável pelo painel `/admin` (Decap CMS) sem precisar mexer em código — o `public/admin/config.yml` espelha os campos de `src/content.config.ts` e de `site-config.json`.
+Tudo isso é editável pelo painel `/admin` sem precisar mexer em código — o `public/admin/config.yml` espelha os campos de `src/content.config.ts` e dos arquivos em `src/data/`.
+
+## Links de afiliado (`/go/...`)
+
+Em vez de colar a URL de afiliado crua em cada artigo, os links vivem centralizados em `src/data/affiliate-links.json` (editável em `/admin` → "Links de Afiliados"). Cada um tem um `slug` curto, e o Worker responde em `/go/<slug>/` redirecionando pro link real e contando o clique numa KV (`AFFILIATE_CLICKS`, ver `wrangler.jsonc`).
+
+Vantagens: trocar a URL de destino (ex.: quando a tag de afiliado real estiver disponível) não exige editar artigo por artigo, e dá pra ver quantos cliques cada link recebeu.
+
+Ver a contagem de cliques: `https://<domínio>/go/stats?key=<STATS_SECRET>` — o valor de `STATS_SECRET` está configurado como secret do Worker (veja abaixo); sem a chave certa, retorna 403.
 
 ## Deploy (produção)
 
@@ -35,18 +52,29 @@ Secrets necessários no GitHub (**Settings → Secrets and variables → Actions
 
 ## Painel de administração (`/admin`)
 
-Em produção, o login do Decap CMS usa um proxy de OAuth do GitHub rodando no próprio Worker (`worker/index.ts`, rotas `/api/auth` e `/api/callback`). Para isso funcionar, o Worker precisa de dois secrets — **não são secrets do GitHub Actions, são do Cloudflare Worker**, configurados via Wrangler:
+Em produção, o login do Sveltia CMS usa um proxy de OAuth do GitHub rodando no próprio Worker (`worker/index.ts`). O Sveltia CMS sempre abre o popup de login em `<base_url>/auth` (caminho fixo, não configurável em `config.yml`) — o Worker também responde em `/api/auth`/`/api/callback` como alias do fluxo antigo (usado antes pelo Decap CMS), então funciona independentemente de qual URL estiver cadastrada no GitHub OAuth App.
+
+Para isso funcionar, o Worker precisa de dois secrets — **não são secrets do GitHub Actions, são do Cloudflare Worker**, configurados via Wrangler:
 
 ```
 npx wrangler secret put GITHUB_OAUTH_CLIENT_ID
 npx wrangler secret put GITHUB_OAUTH_CLIENT_SECRET
+npx wrangler secret put STATS_SECRET
 ```
 
-Esses valores vêm de um GitHub OAuth App (**GitHub → Settings → Developer settings → OAuth Apps → New OAuth App**) configurado com:
+- `GITHUB_OAUTH_CLIENT_ID` / `GITHUB_OAUTH_CLIENT_SECRET` vêm de um GitHub OAuth App (**GitHub → Settings → Developer settings → OAuth Apps → New OAuth App**) configurado com:
+  - **Homepage URL**: a URL de produção do site
+  - **Authorization callback URL**: `https://<domínio-ou-subdomínio-workers.dev>/api/callback`
+- `STATS_SECRET` é uma string aleatória qualquer, escolhida por você — protege a página `/go/stats`.
 
-- **Homepage URL**: a URL de produção do site
-- **Authorization callback URL**: `https://<domínio-ou-subdomínio-workers.dev>/api/callback`
+Para testar localmente com esses valores, crie um arquivo `.dev.vars` na raiz (já está no `.gitignore`, nunca vai pro git) com:
+
+```
+GITHUB_OAUTH_CLIENT_ID=...
+GITHUB_OAUTH_CLIENT_SECRET=...
+STATS_SECRET=...
+```
 
 ## Dados pendentes
 
-Alguns campos ainda estão com o marcador `[PENDENTE - editar no CMS]` no lugar de um dado real (ex.: WhatsApp, tags de afiliado) — nenhum deles aparece no site público enquanto estiver com esse valor; os blocos que dependem deles ficam ocultos até serem preenchidos. Edite direto pelo `/admin`, em "Configurações do Site → Dados do Site" e "→ Links de Afiliados".
+Alguns campos ainda estão com o marcador `[PENDENTE - editar no CMS]` no lugar de um dado real (ex.: WhatsApp) — nenhum deles aparece no site público enquanto estiver com esse valor; os blocos que dependem deles ficam ocultos até serem preenchidos. Edite direto pelo `/admin`, em "Configurações do Site → Dados do Site".

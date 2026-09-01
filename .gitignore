@@ -2,5 +2,7 @@ dist/
 .astro/
 node_modules/
 .env
+.dev.vars
+.wrangler/
 .DS_Store
 npm-debug.log*

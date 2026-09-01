@@ -1,17 +1,17 @@
-# Painel de Admin — Guia Ilha Grande (Decap CMS)
+# Painel de Admin — Guia Ilha Grande (Sveltia CMS, compatível com o formato de
+# config.yml do Decap CMS)
 #
-# Backend de produção (GitHub via proxy de OAuth em /api/auth e /api/callback,
-# rodando como Cloudflare Pages Function). Preencha "repo" e "base_url" depois
-# de criar o repositório no GitHub e o projeto no Cloudflare Pages.
+# Backend de produção (GitHub via proxy de OAuth rodando no Cloudflare Worker
+# do próprio site — worker/index.ts). O Sveltia CMS sempre abre o popup de
+# login em "<base_url>/auth" (caminho fixo, não configurável aqui).
 backend:
   name: github
   repo: santosrjxx/guia-ilha-grande
   branch: main
   base_url: https://guia-ilha-grande.moiclub.workers.dev
-  auth_endpoint: api/auth
 
-# Permite testar o painel 100% local, sem GitHub/Cloudflare, rodando `npm run cms`
-# (decap-server) junto com `npm run dev`. Não afeta o backend de produção acima.
+# Ignorado pelo Sveltia CMS (que não usa decap-server/netlify-cms-proxy-server — o modo
+# local dele é outro, veja o README). Deixado aqui sem efeito, inofensivo.
 local_backend: true
 
 site_url: https://www.guiailhagrande.com.br
@@ -135,7 +135,7 @@ collections:
     label: Configurações do Site
     files:
       - name: config
-        label: "Dados Gerais, Aparência, Silos e Afiliados"
+        label: "Dados Gerais, Aparência e Silos"
         file: src/data/site-config.json
         fields:
           - label: Dados do Site
@@ -245,35 +245,37 @@ collections:
                   - { label: "Título completo (H1 da página do silo)", name: heading, widget: string }
                   - { label: Descrição curta, name: shortDescription, widget: text }
                   - { label: Ícone (emoji), name: icon, widget: string }
-          - label: Links de Afiliados
-            name: affiliate
-            widget: object
+
+  - name: affiliate-links
+    label: Links de Afiliados
+    description: "Cada link daqui vira um endereço curto /go/<slug>/ que redireciona pro link real e conta os cliques. Troque a URL de destino aqui quando tiver a tag de afiliado real — não precisa editar os artigos."
+    files:
+      - name: links
+        label: "Todos os links"
+        file: src/data/affiliate-links.json
+        fields:
+          - label: Links
+            name: links
+            widget: list
+            summary: "{{fields.slug}} — {{fields.label}}"
             fields:
-              - label: Amazon
-                name: amazon
-                widget: object
-                fields:
-                  - { label: Texto do botão, name: label, widget: string }
-                  - { label: URL base de busca, name: baseUrl, widget: string }
-                  - { label: Tag de afiliado, name: tag, widget: string }
-              - label: Mercado Livre
-                name: mercadoLivre
-                widget: object
-                fields:
-                  - { label: Texto do botão, name: label, widget: string }
-                  - { label: URL base de busca, name: baseUrl, widget: string }
-                  - { label: ID de afiliado, name: tag, widget: string }
-              - label: Booking.com
-                name: booking
-                widget: object
-                fields:
-                  - { label: Texto do botão, name: label, widget: string }
-                  - { label: URL base de busca, name: baseUrl, widget: string }
-                  - { label: Affiliate ID (aid), name: aid, widget: string }
-              - label: Rentcars
-                name: rentcar
-                widget: object
-                fields:
-                  - { label: Texto do botão, name: label, widget: string }
-                  - { label: URL base de busca, name: baseUrl, widget: string }
-                  - { label: Código de parceiro (ref), name: ref, widget: string }
+              - label: "Slug (endereço curto)"
+                name: slug
+                widget: string
+                hint: "Vira /go/<slug>/. Ex.: mochila-trilha. Só letras minúsculas, números e hífen — evite mudar depois de publicado em algum artigo."
+                pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
+              - { label: "Rótulo (texto do botão)", name: label, widget: string }
+              - label: Provedor
+                name: provider
+                widget: select
+                options:
+                  - { label: Amazon, value: amazon }
+                  - { label: Mercado Livre, value: mercadoLivre }
+                  - { label: Booking.com, value: booking }
+                  - { label: Rentcars, value: rentcar }
+                  - { label: Outro, value: outro }
+              - label: "URL de destino (com a tag de afiliado real)"
+                name: destinationUrl
+                widget: string
+                hint: "Link completo pra onde o visitante é redirecionado, já com o parâmetro de afiliado (ex.: &tag=SEUCODIGO)."
+              - { label: "Ativo (se desmarcado, o link some do site)", name: active, widget: boolean, default: true }
