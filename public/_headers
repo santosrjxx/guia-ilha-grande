@@ -2,6 +2,15 @@
 # ASSETS do Worker via Wrangler, mesmo mecanismo do Cloudflare Pages).
 # As respostas geradas pelo próprio worker (/api/auth, /api/callback) têm seus
 # headers definidos em worker/index.ts, pois não passam pelo binding ASSETS.
+#
+# Uma única CSP para o site inteiro, incluindo /admin: quando duas regras de
+# _headers combinam para o mesmo request (ex.: "/*" e "/admin/*" batendo na
+# mesma URL), o Cloudflare envia as DUAS linhas Content-Security-Policy, e o
+# navegador aplica a interseção das duas (a mais restritiva prevalece em cada
+# diretiva) — não a última sobrescrevendo a primeira. Duas CSPs diferentes
+# aqui quebrariam o carregamento do decap-cms.js via unpkg no /admin. Por
+# isso a CSP abaixo já inclui o que o painel precisa (unpkg.com, unsafe-eval),
+# mesmo não sendo usado pelas páginas públicas.
 
 /*
   X-Content-Type-Options: nosniff
@@ -9,9 +18,4 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
-
-# O painel /admin (Decap CMS) carrega o bundle da CMS via unpkg e roda scripts
-# inline de preview — precisa de uma CSP mais permissiva que a do site público.
-/admin/*
-  Content-Security-Policy: default-src 'self' https://unpkg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://github.com https://unpkg.com; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://unpkg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; connect-src 'self' https://api.github.com https://github.com https://unpkg.com; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
