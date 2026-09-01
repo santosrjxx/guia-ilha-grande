@@ -18,4 +18,4 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://unpkg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; connect-src 'self' https://api.github.com https://github.com https://unpkg.com; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; font-src 'self' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://api.github.com https://github.com https://unpkg.com https://cdn.jsdelivr.net; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
