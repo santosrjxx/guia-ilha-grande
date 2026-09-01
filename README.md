@@ -5,7 +5,7 @@ Site estático (Astro SSG) do guia de turismo para Ilha Grande, RJ. Conteúdo ed
 ## Stack
 
 - **Astro 5** (`output: 'static'`) — zero JS por padrão
-- **Sveltia CMS** (`/admin`) — edição de conteúdo sem tocar em código (sucessor moderno e compatível do Decap/Netlify CMS)
+- **Sveltia CMS** (`/admin/cms/`) — edição de conteúdo sem tocar em código (sucessor moderno e compatível do Decap/Netlify CMS), atrás de um dashboard próprio em `/admin/`
 - **Cloudflare Workers** (Wrangler) — hospedagem do site, proxy de autenticação OAuth do CMS e o encurtador de links de afiliado (`/go/...`)
 
 ## Comandos
@@ -20,8 +20,8 @@ Site estático (Astro SSG) do guia de turismo para Ilha Grande, RJ. Conteúdo ed
 
 O Sveltia CMS não usa mais `decap-server`/proxy local (o script `npm run cms` do `package.json` é resquício do Decap CMS antigo e não faz mais nada útil). O fluxo local do Sveltia é outro, e só funciona no Chrome ou Edge:
 
-1. Rode `npm run dev` e abra `http://localhost:4321/admin/`
-2. Clique em "Work with Local Repository" e selecione a pasta raiz do projeto
+1. Rode `npm run dev` e abra `http://localhost:4321/admin/cms/`
+2. Clique em "Trabalhar com Repositório Local" e selecione a pasta raiz do projeto
 3. Edite normalmente — as mudanças vão direto pros arquivos locais. **Não há git automático**: dê `git add`/`commit`/`push` você mesmo quando terminar.
 
 ## Estrutura de conteúdo
@@ -31,11 +31,17 @@ O Sveltia CMS não usa mais `decap-server`/proxy local (o script `npm run cms` d
 - `src/data/site-config.json` — dados gerais do site, cores, textos dos silos
 - `src/data/affiliate-links.json` — links de afiliado (ver seção abaixo)
 
-Tudo isso é editável pelo painel `/admin` sem precisar mexer em código — o `public/admin/config.yml` espelha os campos de `src/content.config.ts` e dos arquivos em `src/data/`.
+Tudo isso é editável pelo editor em `/admin/cms/` sem precisar mexer em código — o `public/admin/cms/config.yml` espelha os campos de `src/content.config.ts` e dos arquivos em `src/data/`.
+
+## Painel (`/admin/`) e editor (`/admin/cms/`)
+
+`/admin/` é um dashboard estático (gerado pelo Astro, `src/pages/admin/index.astro`) com estatísticas reais do conteúdo (total de artigos, publicados, rascunhos, links de afiliado ativos) e atalhos organizados por seção — é só um "hall de entrada", não tem login nem edita nada diretamente. A edição de verdade (criar/editar artigos, páginas, configurações) acontece no Sveltia CMS, em `/admin/cms/`, pra onde os atalhos do dashboard levam direto (inclusive já abrindo a coleção ou o registro certo).
+
+Como o dashboard só mostra contagens (nenhum título, nenhum conteúdo), não tem proteção própria — a mesma exposição que `/admin/cms/` já tinha antes.
 
 ## Links de afiliado (`/go/...`)
 
-Em vez de colar a URL de afiliado crua em cada artigo, os links vivem centralizados em `src/data/affiliate-links.json` (editável em `/admin` → "Links de Afiliados"). Cada um tem um `slug` curto, e o Worker responde em `/go/<slug>/` redirecionando pro link real e contando o clique numa KV (`AFFILIATE_CLICKS`, ver `wrangler.jsonc`).
+Em vez de colar a URL de afiliado crua em cada artigo, os links vivem centralizados em `src/data/affiliate-links.json` (editável em `/admin/cms/` → "Links de Afiliados"). Cada um tem um `slug` curto, e o Worker responde em `/go/<slug>/` redirecionando pro link real e contando o clique numa KV (`AFFILIATE_CLICKS`, ver `wrangler.jsonc`).
 
 Vantagens: trocar a URL de destino (ex.: quando a tag de afiliado real estiver disponível) não exige editar artigo por artigo, e dá pra ver quantos cliques cada link recebeu.
 
@@ -50,7 +56,7 @@ Secrets necessários no GitHub (**Settings → Secrets and variables → Actions
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
 
-## Painel de administração (`/admin`)
+## Autenticação do editor (`/admin/cms/`)
 
 Em produção, o login do Sveltia CMS usa um proxy de OAuth do GitHub rodando no próprio Worker (`worker/index.ts`). O Sveltia CMS sempre abre o popup de login em `<base_url>/auth` (caminho fixo, não configurável em `config.yml`) — o Worker também responde em `/api/auth`/`/api/callback` como alias do fluxo antigo (usado antes pelo Decap CMS), então funciona independentemente de qual URL estiver cadastrada no GitHub OAuth App.
 
@@ -77,4 +83,4 @@ STATS_SECRET=...
 
 ## Dados pendentes
 
-Alguns campos ainda estão com o marcador `[PENDENTE - editar no CMS]` no lugar de um dado real (ex.: WhatsApp) — nenhum deles aparece no site público enquanto estiver com esse valor; os blocos que dependem deles ficam ocultos até serem preenchidos. Edite direto pelo `/admin`, em "Configurações do Site → Dados do Site".
+Alguns campos ainda estão com o marcador `[PENDENTE - editar no CMS]` no lugar de um dado real (ex.: WhatsApp) — nenhum deles aparece no site público enquanto estiver com esse valor; os blocos que dependem deles ficam ocultos até serem preenchidos. Edite direto pelo `/admin/cms/`, em "Configurações do Site → Dados do Site".

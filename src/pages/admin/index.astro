@@ -1,0 +1,251 @@
+---
+// Dashboard do painel administrativo. Só um "hall de entrada" com atalhos e
+// estatísticas reais (calculadas do conteúdo a cada build) — a edição em si
+// continua acontecendo no editor de verdade, em /admin/cms/ (Sveltia CMS).
+// Página estática gerada pelo Astro, não indexada (noindex).
+import { getCollection } from 'astro:content';
+import { SITE, DESIGN, AFFILIATE_LINKS } from '../../consts';
+
+const articles = await getCollection('articles');
+const published = articles.filter((a) => !a.data.draft).length;
+const drafts = articles.filter((a) => a.data.draft).length;
+const activeLinks = AFFILIATE_LINKS.filter((l) => l.active !== false).length;
+
+const stats = [
+  { label: 'Total de artigos', value: articles.length, icon: '📄' },
+  { label: 'Publicados', value: published, icon: '✅' },
+  { label: 'Rascunhos', value: drafts, icon: '✏️' },
+  { label: 'Links de afiliado ativos', value: activeLinks, icon: '🔗' },
+];
+
+const quickActions = [
+  { label: 'Novo Artigo', desc: 'Escrever e publicar um novo post', href: '/admin/cms/#/collections/articles/new', primary: true },
+  { label: 'Ver Artigos', desc: 'Gerenciar todos os artigos', href: '/admin/cms/#/collections/articles' },
+  { label: 'Configurações', desc: 'Nome do site, cores e fontes', href: '/admin/cms/#/collections/site-config/entries/config' },
+];
+
+const pageLinks = [
+  { label: 'Sobre', href: '/admin/cms/#/collections/pages/entries/sobre' },
+  { label: 'Contato', href: '/admin/cms/#/collections/pages/entries/contato' },
+  { label: 'Política de Privacidade', href: '/admin/cms/#/collections/pages/entries/politica-de-privacidade' },
+  { label: 'Política Editorial', href: '/admin/cms/#/collections/pages/entries/politica-editorial' },
+];
+
+const systemLinks = [
+  { label: 'Links de Afiliados', href: '/admin/cms/#/collections/affiliate-links/entries/links' },
+  { label: 'Configurações', href: '/admin/cms/#/collections/site-config/entries/config' },
+];
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Painel — {SITE.name}</title>
+    <link rel="icon" href={DESIGN.faviconUrl} />
+    <style set:html={`:root {
+      --color-primary: ${DESIGN.colors.primary};
+      --color-primary-dark: ${DESIGN.colors.primaryDark};
+      --color-accent-dark: ${DESIGN.colors.accentDark};
+      --color-border: ${DESIGN.colors.border};
+      --color-surface: ${DESIGN.colors.surface};
+      --color-text: ${DESIGN.colors.text};
+      --color-text-muted: ${DESIGN.colors.textMuted};
+    }`} />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-badge" aria-hidden="true">🏝️</span>
+          <span>Painel · {SITE.name}</span>
+        </div>
+
+        <nav aria-label="Navegação do painel">
+          <p class="nav-group-label">Principal</p>
+          <ul class="nav-list">
+            <li><a href="/admin/" class="active">Dashboard</a></li>
+            <li><a href="/admin/cms/#/collections/articles">Artigos</a></li>
+          </ul>
+
+          <p class="nav-group-label">Páginas</p>
+          <ul class="nav-list">
+            {pageLinks.map((p) => <li><a href={p.href}>{p.label}</a></li>)}
+          </ul>
+
+          <p class="nav-group-label">Sistema</p>
+          <ul class="nav-list">
+            {systemLinks.map((s) => <li><a href={s.href}>{s.label}</a></li>)}
+          </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a href="/">↗ Ver site</a>
+          <a href="/admin/cms/">Abrir editor completo</a>
+        </div>
+      </aside>
+
+      <main>
+        <h1>Dashboard</h1>
+        <p class="lead">Bem-vindo ao painel do {SITE.name}.</p>
+
+        <h2 class="section-label">Estatísticas</h2>
+        <div class="stats-grid">
+          {stats.map((s) => (
+            <div class="stat-card">
+              <div class="stat-top">
+                <span class="stat-label">{s.label}</span>
+                <span aria-hidden="true">{s.icon}</span>
+              </div>
+              <p class="stat-value">{s.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="actions-grid">
+          {quickActions.map((a) => (
+            <a href={a.href} class={`action-card ${a.primary ? 'action-primary' : ''}`}>
+              <strong>{a.label}</strong>
+              <span>{a.desc}</span>
+            </a>
+          ))}
+        </div>
+      </main>
+    </div>
+
+    <style>
+      :root { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--color-surface);
+        color: var(--color-text);
+      }
+      .shell { display: flex; min-height: 100vh; }
+
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: #fff;
+        border-right: 1px solid var(--color-border);
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        padding: 0 0.25rem;
+      }
+      .brand-badge { font-size: 1.3rem; }
+      .nav-group-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-text-muted);
+        margin: 1.25rem 0 0.4rem;
+        padding: 0 0.5rem;
+      }
+      .nav-list { list-style: none; margin: 0; padding: 0; }
+      .nav-list a {
+        display: block;
+        padding: 0.5rem 0.6rem;
+        border-radius: 8px;
+        color: var(--color-text);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .nav-list a:hover { background: var(--color-surface); }
+      .nav-list a.active { background: var(--color-primary); color: #fff; }
+
+      .sidebar-footer {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-border);
+      }
+      .sidebar-footer a {
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+        border-radius: 8px;
+      }
+      .sidebar-footer a:hover { background: var(--color-surface); color: var(--color-text); }
+
+      main { flex: 1; padding: 2rem 2.5rem; max-width: 1100px; }
+      h1 { margin: 0; font-size: 1.6rem; }
+      .lead { color: var(--color-text-muted); margin: 0.35rem 0 2rem; }
+      .section-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--color-text-muted);
+        margin: 0 0 0.75rem;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .stat-card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+      }
+      .stat-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+      }
+      .stat-value { font-size: 1.9rem; font-weight: 800; margin: 0.4rem 0 0; }
+
+      .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      .action-card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.1rem 1.25rem;
+        text-decoration: none;
+        color: var(--color-text);
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+      .action-card strong { font-size: 1.02rem; }
+      .action-card span { font-size: 0.85rem; color: var(--color-text-muted); }
+      .action-primary {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+      }
+      .action-primary strong,
+      .action-primary span { color: #fff; }
+      .action-primary span { opacity: 0.85; }
+
+      @media (max-width: 860px) {
+        .shell { flex-direction: column; }
+        .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--color-border); }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .actions-grid { grid-template-columns: 1fr; }
+        main { padding: 1.5rem; }
+      }
+    </style>
+  </body>
+</html>
