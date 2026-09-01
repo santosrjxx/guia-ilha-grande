@@ -20,10 +20,10 @@ export type SiloKey = 'onde-comer' | 'o-que-fazer' | 'onde-ficar' | 'guia-pratic
 
 export const SILOS: Record<
   SiloKey,
-  { title: string; slug: SiloKey; shortDescription: string; icon: string }
+  { title: string; heading: string; slug: SiloKey; shortDescription: string; icon: string }
 > = Object.fromEntries(
   Object.entries(siteConfig.silos).map(([slug, data]) => [slug, { ...data, slug }])
-) as Record<SiloKey, { title: string; slug: SiloKey; shortDescription: string; icon: string }>;
+) as Record<SiloKey, { title: string; heading: string; slug: SiloKey; shortDescription: string; icon: string }>;
 
 export const NAV_LINKS = [
   { href: '/', label: 'Início' },
@@ -61,3 +61,9 @@ export const AFFILIATE = siteConfig.affiliate as {
 };
 
 export const AD_CONTACT_URL = '/anuncie/';
+
+// Marcador para campos de dado real que ainda não foram preenchidos (ex.: WhatsApp,
+// tag de afiliado). Nunca deve aparecer visível pro visitante — todo trecho que
+// consome um desses campos precisa checar `isPending` antes de renderizar.
+export const PENDING = '[PENDENTE - editar no CMS]';
+export const isPending = (value: string) => value.trim() === PENDING;

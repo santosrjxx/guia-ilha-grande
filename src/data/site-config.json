@@ -4,30 +4,34 @@
     "lang": "pt-BR",
     "tagline": "O guia definitivo de Ilha Grande, Angra dos Reis",
     "url": "https://www.guiailhagrande.com.br",
-    "whatsapp": "5524900000000",
+    "whatsapp": "[PENDENTE - editar no CMS]",
     "locale": "pt_BR",
-    "founderName": "[Seu Nome]",
-    "email": "contato@guiailhagrande.com.br",
+    "founderName": "Equipe Guia Ilha Grande",
+    "email": "guiadeilhagrande@gmail.com",
     "description": "Guia completo de Ilha Grande: onde comer, onde ficar, o que fazer e tudo que você precisa saber antes de viajar. Roteiros, dicas práticas e recomendações reais."
   },
   "silos": {
     "onde-comer": {
       "title": "Onde Comer",
+      "heading": "Onde Comer em Ilha Grande",
       "shortDescription": "Restaurantes, bares e food trucks em Vila do Abraão e nas praias de Ilha Grande.",
       "icon": "🍽️"
     },
     "o-que-fazer": {
       "title": "O Que Fazer",
+      "heading": "O Que Fazer em Ilha Grande",
       "shortDescription": "Trilhas, praias, passeios de barco e as melhores atrações de Ilha Grande.",
       "icon": "🌴"
     },
     "onde-ficar": {
       "title": "Onde Ficar",
+      "heading": "Onde Ficar em Ilha Grande",
       "shortDescription": "Pousadas, hostels e hotéis para todos os perfis e orçamentos.",
       "icon": "🏝️"
     },
     "guia-pratico": {
       "title": "Guia Prático",
+      "heading": "Guia Prático de Ilha Grande",
       "shortDescription": "Como chegar, o que levar na mala, custos e tudo para planejar sua viagem.",
       "icon": "🎒"
     }
@@ -56,22 +60,22 @@
     "amazon": {
       "label": "Ver na Amazon",
       "baseUrl": "https://www.amazon.com.br/s",
-      "tag": "SEU-TAG-AMAZON-20"
+      "tag": "[PENDENTE - editar no CMS]"
     },
     "mercadoLivre": {
       "label": "Ver no Mercado Livre",
       "baseUrl": "https://lista.mercadolivre.com.br",
-      "tag": "SEU-ID-MERCADOLIVRE"
+      "tag": "[PENDENTE - editar no CMS]"
     },
     "booking": {
       "label": "Buscar hospedagem no Booking.com",
       "baseUrl": "https://www.booking.com/searchresults.pt-br.html",
-      "aid": "SEU-AID-BOOKING"
+      "aid": "[PENDENTE - editar no CMS]"
     },
     "rentcar": {
       "label": "Comparar aluguel de carro",
       "baseUrl": "https://www.rentcars.com",
-      "ref": "SEU-REF-RENTCARS"
+      "ref": "[PENDENTE - editar no CMS]"
     }
   }
 }

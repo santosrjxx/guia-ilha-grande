@@ -1,0 +1,17 @@
+# Headers de segurança aplicados a todo o site estático (servidos pelo binding
+# ASSETS do Worker via Wrangler, mesmo mecanismo do Cloudflare Pages).
+# As respostas geradas pelo próprio worker (/api/auth, /api/callback) têm seus
+# headers definidos em worker/index.ts, pois não passam pelo binding ASSETS.
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
+
+# O painel /admin (Decap CMS) carrega o bundle da CMS via unpkg e roda scripts
+# inline de preview — precisa de uma CSP mais permissiva que a do site público.
+/admin/*
+  Content-Security-Policy: default-src 'self' https://unpkg.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https:; connect-src 'self' https://api.github.com https://github.com https://unpkg.com; frame-ancestors 'none'; base-uri 'self'

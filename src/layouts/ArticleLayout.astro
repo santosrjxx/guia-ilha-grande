@@ -15,14 +15,29 @@ interface Props {
   slug: string;
   heroImage?: string;
   heroImageAlt?: string;
+  heroImageWidth: number;
+  heroImageHeight: number;
   pubDate: Date;
   updatedDate?: Date;
   author: string;
   faq?: { question: string; answer: string }[];
 }
 
-const { title, seoTitle, description, silo, slug, heroImage, heroImageAlt, pubDate, updatedDate, author, faq } =
-  Astro.props;
+const {
+  title,
+  seoTitle,
+  description,
+  silo,
+  slug,
+  heroImage,
+  heroImageAlt,
+  heroImageWidth,
+  heroImageHeight,
+  pubDate,
+  updatedDate,
+  author,
+  faq,
+} = Astro.props;
 
 const siloInfo = SILOS[silo];
 
@@ -31,6 +46,7 @@ const articleSchema = {
   '@type': 'Article',
   headline: title,
   description,
+  image: new URL(heroImage ?? '/Ilha-grande.webp', SITE.url).toString(),
   author: { '@type': 'Person', name: author },
   publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
   datePublished: pubDate.toISOString(),
@@ -39,7 +55,13 @@ const articleSchema = {
 };
 ---
 
-<BaseLayout title={seoTitle || title} description={description} type="article" schema={[articleSchema]}>
+<BaseLayout
+  title={seoTitle || title}
+  description={description}
+  image={heroImage}
+  type="article"
+  schema={[articleSchema]}
+>
   <article class="container article">
     <Breadcrumbs
       items={[
@@ -59,8 +81,8 @@ const articleSchema = {
       <img
         src={heroImage}
         alt={heroImageAlt ?? title}
-        width="900"
-        height="506"
+        width={heroImageWidth}
+        height={heroImageHeight}
         loading="eager"
         fetchpriority="high"
         class="hero-image"

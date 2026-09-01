@@ -65,6 +65,18 @@ collections:
         media_folder: "/public/articles"
         public_folder: "/articles"
       - { label: "Texto alternativo da imagem (alt)", name: heroImageAlt, widget: string, required: false }
+      - label: "Largura real da imagem (px)"
+        name: heroImageWidth
+        widget: number
+        value_type: int
+        required: false
+        hint: "Só preencha se a imagem NÃO for widescreen 16:9 (ex.: uma foto). Evita que a página 'pule' visualmente ao carregar. Deixe em branco para ilustrações padrão do site."
+      - label: "Altura real da imagem (px)"
+        name: heroImageHeight
+        widget: number
+        value_type: int
+        required: false
+        hint: "Use junto com a largura real, na mesma proporção da imagem enviada."
       - { label: Data de publicação, name: pubDate, widget: datetime }
       - { label: Data de atualização, name: updatedDate, widget: datetime, required: false }
       - { label: Autor, name: author, widget: string, default: "Equipe Guia Ilha Grande" }
@@ -205,28 +217,32 @@ collections:
                 name: onde-comer
                 widget: object
                 fields:
-                  - { label: Título, name: title, widget: string }
+                  - { label: Título (menu e cards), name: title, widget: string }
+                  - { label: "Título completo (H1 da página do silo)", name: heading, widget: string }
                   - { label: Descrição curta, name: shortDescription, widget: text }
                   - { label: Ícone (emoji), name: icon, widget: string }
               - label: O Que Fazer
                 name: o-que-fazer
                 widget: object
                 fields:
-                  - { label: Título, name: title, widget: string }
+                  - { label: Título (menu e cards), name: title, widget: string }
+                  - { label: "Título completo (H1 da página do silo)", name: heading, widget: string }
                   - { label: Descrição curta, name: shortDescription, widget: text }
                   - { label: Ícone (emoji), name: icon, widget: string }
               - label: Onde Ficar
                 name: onde-ficar
                 widget: object
                 fields:
-                  - { label: Título, name: title, widget: string }
+                  - { label: Título (menu e cards), name: title, widget: string }
+                  - { label: "Título completo (H1 da página do silo)", name: heading, widget: string }
                   - { label: Descrição curta, name: shortDescription, widget: text }
                   - { label: Ícone (emoji), name: icon, widget: string }
               - label: Guia Prático
                 name: guia-pratico
                 widget: object
                 fields:
-                  - { label: Título, name: title, widget: string }
+                  - { label: Título (menu e cards), name: title, widget: string }
+                  - { label: "Título completo (H1 da página do silo)", name: heading, widget: string }
                   - { label: Descrição curta, name: shortDescription, widget: text }
                   - { label: Ícone (emoji), name: icon, widget: string }
           - label: Links de Afiliados

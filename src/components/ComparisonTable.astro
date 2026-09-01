@@ -30,7 +30,13 @@ const { headers, rows, caption } = Astro.props;
           {row.cells.map((cell) => <td>{cell}</td>)}
           <td>
             {row.ctaHref && (
-              <a href={row.ctaHref} class="btn btn-outline" rel="sponsored noopener noreferrer" target="_blank">
+              <a
+                href={row.ctaHref}
+                class="btn btn-outline"
+                rel="sponsored noopener noreferrer"
+                target="_blank"
+                aria-label={`${row.ctaLabel ?? 'Ver oferta'} — ${row.name}`}
+              >
                 {row.ctaLabel ?? 'Ver oferta'}
               </a>
             )}

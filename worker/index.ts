@@ -12,7 +12,14 @@ export interface Env {
 }
 
 function html(body: string): Response {
-  return new Response(body, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+    },
+  });
 }
 
 function escapeHtml(value: string): string {
@@ -35,6 +42,10 @@ function renderSuccess(token: string): Response {
   (function () {
     var message = ${JSON.stringify(payload)};
     function receiveMessage(e) {
+      // Só repassa o token se o pedido de confirmação veio da própria origem
+      // (a aba do /admin que abriu este popup) — evita repassar o token a
+      // uma origem arbitrária que consiga mandar uma mensagem pra esta janela.
+      if (e.origin !== window.location.origin) return;
       window.opener.postMessage(message, e.origin);
       window.removeEventListener('message', receiveMessage, false);
     }

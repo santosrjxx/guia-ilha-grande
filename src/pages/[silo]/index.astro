@@ -1,0 +1,72 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import AffiliateCTA from '../../components/AffiliateCTA.astro';
+import { SILOS } from '../../consts';
+import type { SiloKey } from '../../consts';
+import { getCollection } from 'astro:content';
+
+export function getStaticPaths() {
+  return (Object.keys(SILOS) as SiloKey[]).map((silo) => ({ params: { silo } }));
+}
+
+const { silo: siloKey } = Astro.params as { silo: SiloKey };
+const silo = SILOS[siloKey];
+const articles = (await getCollection('articles', (a) => a.data.silo === siloKey && !a.data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+
+<BaseLayout title={silo.heading} description={silo.shortDescription}>
+  <div class="container">
+    <Breadcrumbs items={[{ label: 'Início', href: '/' }, { label: silo.title, href: `/${siloKey}/` }]} />
+    <header class="silo-header">
+      <p class="badge">{silo.icon} Silo: {silo.title}</p>
+      <h1>{silo.heading}</h1>
+      <p class="silo-lead">{silo.shortDescription}</p>
+      {siloKey === 'onde-ficar' && (
+        <AffiliateCTA
+          href="https://www.booking.com/searchresults.pt-br.html?ss=Ilha+Grande%2C+Angra+dos+Reis"
+          label="Ver disponibilidade no Booking.com"
+          provider="booking"
+        />
+      )}
+    </header>
+
+    <div class="grid grid-3">
+      {articles.map((article) => (
+        <a href={`/${siloKey}/${article.data.slug ?? article.id}/`} class="card">
+          {article.data.heroImage && (
+            <img
+              src={article.data.heroImage}
+              alt={article.data.heroImageAlt ?? article.data.title}
+              class="card-image"
+              loading="lazy"
+              width="1200"
+              height="675"
+            />
+          )}
+          <div class="card-body">
+            <h2>{article.data.title}</h2>
+            <p>{article.data.description}</p>
+          </div>
+        </a>
+      ))}
+    </div>
+
+    <AdSlot label={`Publicidade em ${silo.title}`} />
+  </div>
+</BaseLayout>
+
+<style>
+  .silo-header {
+    max-width: 680px;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .silo-lead { color: var(--color-text-muted); font-size: 1.1rem; }
+</style>

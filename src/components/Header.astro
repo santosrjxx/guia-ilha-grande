@@ -51,7 +51,18 @@ const currentPath = Astro.url.pathname;
     height: 44px;
     width: auto;
   }
-  .nav-toggle { display: none; }
+  .nav-toggle {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+  .nav-toggle:focus-visible ~ .nav-toggle-label {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
   .nav-toggle-label {
     display: flex;
     flex-direction: column;
@@ -90,6 +101,10 @@ const currentPath = Astro.url.pathname;
   .nav-toggle:checked ~ .main-nav { display: block; }
 
   @media (min-width: 860px) {
+    /* Acima do breakpoint o menu já fica sempre visível (ver .main-nav abaixo),
+       então o toggle não tem função — display:none aqui é seguro (não tira teclado
+       de nada que funcione) e evita um elemento focável fantasma na navegação. */
+    .nav-toggle { display: none; }
     .nav-toggle-label { display: none; }
     .main-nav {
       display: flex !important;

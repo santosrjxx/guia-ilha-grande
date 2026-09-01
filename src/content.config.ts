@@ -14,6 +14,12 @@ const articles = defineCollection({
       silo: z.enum(['onde-comer', 'o-que-fazer', 'onde-ficar', 'guia-pratico']),
       heroImage: z.string().optional(),
       heroImageAlt: z.string().optional(),
+      // Dimensões reais da imagem (evita layout shift no hero do artigo, que é
+      // renderizado responsivo sem object-fit). Padrão 16:9, igual às ilustrações
+      // SVG do site — só precisa ser preenchido quando a imagem for uma foto com
+      // outra proporção.
+      heroImageWidth: z.number().int().positive().default(1200),
+      heroImageHeight: z.number().int().positive().default(675),
       pubDate: z.coerce.date(),
       updatedDate: z.coerce.date().optional(),
       author: z.string().default('Equipe Guia Ilha Grande'),

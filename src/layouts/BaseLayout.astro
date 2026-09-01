@@ -20,7 +20,9 @@ const { title, description, image, type, schema } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href={DESIGN.faviconUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href={DESIGN.faviconUrl} sizes="any" />
+    <link rel="apple-touch-icon" href="/android-chrome-192x192.png" />
     <SEO title={title} description={description} image={image} type={type} schema={schema} />
     <style set:html={`:root {
       --color-bg: ${DESIGN.colors.background};

@@ -7,7 +7,7 @@ O Guia Ilha Grande nasceu para resolver um problema comum de quem pesquisa a via
 
 ## Quem escreve
 
-**[Seu Nome]** — *[complete aqui com sua experiência real: quantas vezes visitou Ilha Grande, formação relevante (ex: jornalismo, turismo, guia de trilha credenciado), ou qualquer credencial que comprove experiência prática com o destino. Essa informação é essencial para o Google avaliar a expertise (E-E-A-T) do site.]*
+O conteúdo do Guia Ilha Grande é escrito e revisado pela **Equipe Guia Ilha Grande** — o mesmo crédito que você vê em cada artigo do site. Visitamos a ilha regularmente e atualizamos os textos a cada nova temporada; veja exatamente como isso funciona no tópico abaixo.
 
 ## Como produzimos o conteúdo
 
