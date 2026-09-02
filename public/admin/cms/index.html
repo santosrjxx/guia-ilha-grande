@@ -6,6 +6,23 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Editor — Guia Ilha Grande</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      /* Aplica a cor verde-petróleo do site (--color-primary do site-config) nos
+         botões, links e destaques do painel do Sveltia CMS, no lugar do azul
+         padrão. Valores encontrados inspecionando as CSS custom properties que
+         o Sveltia usa internamente (prefixo --sui-*). */
+      /* !important é necessário: o CSS do próprio Sveltia CMS carrega depois
+         deste <style> (via script mais abaixo) e re-declara essas mesmas
+         variáveis em :root, então uma regra sem !important seria sobrescrita. */
+      :root {
+        --sui-primary-accent-color: hsl(176 76% 18%) !important;
+        --sui-primary-accent-color-light: hsl(176 76% 24%) !important;
+        --sui-primary-accent-color-dark: hsl(176 77% 12%) !important;
+        --sui-primary-accent-color-text: hsl(176 55% 45%) !important;
+        --sui-primary-accent-color-translucent: hsl(176 76% 30% / 60%) !important;
+        --sui-primary-accent-color-translucent-light: hsl(176 76% 30% / 40%) !important;
+      }
+    </style>
   </head>
   <body>
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>

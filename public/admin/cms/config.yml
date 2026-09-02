@@ -35,21 +35,8 @@ collections:
     summary: "{{title}} — {{silo}}"
     sortable_fields: [title, pubDate, silo]
     fields:
+      # --- Essencial: o que você mexe em quase todo artigo ---
       - { label: "Título (H1 da página)", name: title, widget: string, hint: "Título principal, exibido no topo do artigo." }
-      - label: "Título para SEO (opcional)"
-        name: seoTitle
-        widget: string
-        required: false
-        hint: "Se deixado em branco, usa o Título acima. É o texto que aparece na aba do navegador e no resultado do Google — pode ser diferente do H1 para otimizar cliques."
-      - label: "Slug (endereço da URL)"
-        name: slug
-        widget: string
-        hint: "Parte final do link da página. Ex.: praia-de-lopes-mendes vira /o-que-fazer/praia-de-lopes-mendes/. Evite alterar depois de publicado, pois isso muda o link do artigo."
-        pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
-      - label: "Meta descrição (SEO)"
-        name: description
-        widget: text
-        hint: "Texto exibido no resultado de busca do Google, abaixo do título. Ideal entre 120 e 160 caracteres."
       - label: Silo (categoria)
         name: silo
         widget: select
@@ -65,6 +52,49 @@ collections:
         media_folder: "/public/articles"
         public_folder: "/articles"
       - { label: "Texto alternativo da imagem (alt)", name: heroImageAlt, widget: string, required: false }
+      - label: Conteúdo do artigo
+        name: body
+        widget: markdown
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"+\" dentro do texto para inserir um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube, widget de afiliado etc. sem precisar mexer em código)."
+        modes: ["rich_text", "raw"]
+        buttons:
+          - bold
+          - italic
+          - code
+          - link
+          - heading-two
+          - heading-three
+          - heading-four
+          - quote
+          - bulleted-list
+          - numbered-list
+        editor_components: [image, destaque, html]
+        media_folder: "/public/articles/inline"
+        public_folder: "/articles/inline"
+      - label: Perguntas Frequentes (FAQ)
+        name: faq
+        widget: list
+        required: false
+        hint: "Aparece no fim do artigo, em formato sanfona, e gera dados estruturados de FAQ para o Google. A resposta aceita links em HTML, ex.: <a href=\"/pagina/\">texto</a>."
+        fields:
+          - { label: Pergunta, name: question, widget: string }
+          - { label: Resposta, name: answer, widget: text }
+
+      # --- SEO e detalhes técnicos: preenche uma vez e raramente mexe de novo ---
+      - label: "Meta descrição (SEO)"
+        name: description
+        widget: text
+        hint: "Texto exibido no resultado de busca do Google, abaixo do título. Ideal entre 120 e 160 caracteres."
+      - label: "Título para SEO (opcional)"
+        name: seoTitle
+        widget: string
+        required: false
+        hint: "Se deixado em branco, usa o Título acima. É o texto que aparece na aba do navegador e no resultado do Google — pode ser diferente do H1 para otimizar cliques."
+      - label: "Slug (endereço da URL)"
+        name: slug
+        widget: string
+        hint: "Parte final do link da página. Ex.: praia-de-lopes-mendes vira /o-que-fazer/praia-de-lopes-mendes/. Evite alterar depois de publicado, pois isso muda o link do artigo."
+        pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
       - label: "Largura real da imagem (px)"
         name: heroImageWidth
         widget: number
@@ -88,33 +118,6 @@ collections:
       - { label: Rascunho (não publica no site), name: draft, widget: boolean, default: false }
       - { label: "Destaque (featured)", name: featured, widget: boolean, default: false }
       - { label: Popular, name: popular, widget: boolean, default: false }
-      - label: Perguntas Frequentes (FAQ)
-        name: faq
-        widget: list
-        required: false
-        hint: "Aparece no fim do artigo, em formato sanfona, e gera dados estruturados de FAQ para o Google. A resposta aceita links em HTML, ex.: <a href=\"/pagina/\">texto</a>."
-        fields:
-          - { label: Pergunta, name: question, widget: string }
-          - { label: Resposta, name: answer, widget: text }
-      - label: Conteúdo do artigo
-        name: body
-        widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"+\" dentro do texto para inserir um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube, widget de afiliado etc. sem precisar mexer em código)."
-        modes: ["rich_text", "raw"]
-        buttons:
-          - bold
-          - italic
-          - code
-          - link
-          - heading-two
-          - heading-three
-          - heading-four
-          - quote
-          - bulleted-list
-          - numbered-list
-        editor_components: [image, destaque, html]
-        media_folder: "/public/articles/inline"
-        public_folder: "/articles/inline"
 
   - name: pages
     label: Páginas Institucionais
