@@ -5,23 +5,23 @@ const articles = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/articles' }),
   schema: z.object({
       title: z.string(),
-      seoTitle: z.string().optional(),
+      seoTitle: z.string().nullish(),
       slug: z
         .string()
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use apenas letras minúsculas, números e hífens')
-        .optional(),
+        .nullish(),
       description: z.string(),
       silo: z.enum(['onde-comer', 'o-que-fazer', 'onde-ficar', 'guia-pratico']),
-      heroImage: z.string().optional(),
-      heroImageAlt: z.string().optional(),
+      heroImage: z.string().nullish(),
+      heroImageAlt: z.string().nullish(),
       // Dimensões reais da imagem (evita layout shift no hero do artigo, que é
       // renderizado responsivo sem object-fit). Padrão 16:9, igual às ilustrações
       // SVG do site — só precisa ser preenchido quando a imagem for uma foto com
       // outra proporção.
-      heroImageWidth: z.number().int().positive().default(1200),
-      heroImageHeight: z.number().int().positive().default(675),
+      heroImageWidth: z.number().int().positive().nullable().optional().transform((v) => v ?? 1200),
+      heroImageHeight: z.number().int().positive().nullable().optional().transform((v) => v ?? 675),
       pubDate: z.coerce.date(),
-      updatedDate: z.coerce.date().optional(),
+      updatedDate: z.coerce.date().nullish(),
       author: z.string().default('Equipe Guia Ilha Grande'),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
@@ -34,7 +34,7 @@ const articles = defineCollection({
             answer: z.string(),
           })
         )
-        .optional(),
+        .nullish(),
     }),
 });
 

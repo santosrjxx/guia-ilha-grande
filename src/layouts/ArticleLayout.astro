@@ -115,4 +115,30 @@ const articleSchema = {
     color: var(--color-text-muted);
     background: var(--color-surface);
   }
+  .prose :global(.callout) {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--color-primary);
+    background: var(--color-surface);
+  }
+  .prose :global(.callout p:first-child) { margin-top: 0; }
+  .prose :global(.callout p:last-child) { margin-bottom: 0; }
+  .prose :global(.callout::before) {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    color: var(--color-primary-dark);
+  }
+  .prose :global(.callout-dica::before) { content: '💡 Dica'; }
+  .prose :global(.callout-atencao) {
+    border-left-color: var(--color-accent-dark);
+    background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  }
+  .prose :global(.callout-atencao::before) { content: '⚠️ Atenção'; color: var(--color-accent-dark); }
+  .prose :global(.callout-importante) {
+    border-left-color: var(--color-accent-dark);
+    background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
+  }
+  .prose :global(.callout-importante::before) { content: '❗ Importante'; color: var(--color-accent-dark); }
 </style>

@@ -99,7 +99,7 @@ collections:
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Use os botões da barra de ferramentas para títulos (H2 a H4), negrito, listas, links e imagens. Para inserir HTML bruto (embeds, tabelas avançadas etc.), clique em \"Markdown\" no rodapé do editor para alternar para o modo texto."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"+\" dentro do texto para inserir um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube, widget de afiliado etc. sem precisar mexer em código)."
         modes: ["rich_text", "raw"]
         buttons:
           - bold
@@ -112,7 +112,7 @@ collections:
           - quote
           - bulleted-list
           - numbered-list
-        editor_components: [image]
+        editor_components: [image, destaque, html]
         media_folder: "/public/articles/inline"
         public_folder: "/articles/inline"
 

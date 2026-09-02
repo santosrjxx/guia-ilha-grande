@@ -12,6 +12,57 @@
     <script>
       CMS.registerPreviewStyle('/admin/cms/preview.css');
 
+      CMS.registerEditorComponent({
+        id: 'destaque',
+        label: 'Destaque (caixa colorida)',
+        fields: [
+          {
+            name: 'tipo',
+            label: 'Tipo de destaque',
+            widget: 'select',
+            options: [
+              { label: '💡 Dica', value: 'dica' },
+              { label: '⚠️ Atenção', value: 'atencao' },
+              { label: '❗ Importante', value: 'importante' },
+            ],
+            default: 'dica',
+          },
+          { name: 'texto', label: 'Texto do destaque', widget: 'text' },
+        ],
+        pattern: /^<div class="callout callout-(dica|atencao|importante)">\n\n([\s\S]*?)\n\n<\/div>$/,
+        fromBlock: function (match) {
+          return { tipo: match[1], texto: match[2] };
+        },
+        toBlock: function (obj) {
+          return '<div class="callout callout-' + obj.tipo + '">\n\n' + (obj.texto || '') + '\n\n</div>';
+        },
+        toPreview: function (obj) {
+          return '<div class="callout callout-' + obj.tipo + '">' + (obj.texto || '') + '</div>';
+        },
+      });
+
+      CMS.registerEditorComponent({
+        id: 'html',
+        label: 'Código HTML (embed)',
+        fields: [
+          {
+            name: 'code',
+            label: 'Cole aqui o código HTML (ex.: embed do Google Maps, YouTube, widget de afiliado)',
+            widget: 'text',
+          },
+        ],
+        pattern: /^<!-- html-embed -->\n([\s\S]*?)\n<!-- \/html-embed -->$/,
+        fromBlock: function (match) {
+          return { code: match[1] };
+        },
+        toBlock: function (obj) {
+          return '<!-- html-embed -->\n' + (obj.code || '') + '\n<!-- /html-embed -->';
+        },
+        toPreview: function (obj) {
+          return obj.code || '';
+        },
+      });
+
       var ArticlePreview = createClass({
         render: function () {
           var entry = this.props.entry;
