@@ -5,7 +5,7 @@
       "label": "Ver mochilas estanques na Amazon",
       "provider": "amazon",
       "destinationUrl": "https://www.amazon.com.br/s?k=mochila+estanque+trilha",
-      "active": true
+      "active": false
     },
     {
       "slug": "protetor-solar",
