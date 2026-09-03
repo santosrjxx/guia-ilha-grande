@@ -141,4 +141,145 @@ const articleSchema = {
     background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
   }
   .prose :global(.callout-importante::before) { content: '❗ Importante'; color: var(--color-accent-dark); }
+
+  /* Card de Produto (sem preço, foco em E-E-A-T) e Card de Estabelecimento
+     (pousada/restaurante/hotel). Inseridos como HTML puro pelo editor do CMS
+     (blocos "Card de Produto" / "Card de Estabelecimento"), por isso o estilo
+     mora aqui e não num componente Astro — veja public/admin/cms/index.html. */
+  .prose :global(.card-produto),
+  .prose :global(.card-lugar) {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 1.75rem 0;
+  }
+  .prose :global(.card-produto .foto-wrap),
+  .prose :global(.card-lugar .foto-wrap) {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--color-surface);
+  }
+  .prose :global(.card-produto .foto-wrap) { padding: 1.25rem; }
+  .prose :global(.card-produto .foto-wrap img),
+  .prose :global(.card-lugar .foto-wrap img) {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .prose :global(.card-produto .foto-wrap img) { object-fit: contain; }
+  .prose :global(.card-lugar .foto-wrap img) { object-fit: cover; }
+  .prose :global(.card-produto .tipo-badge),
+  .prose :global(.card-lugar .tipo-badge) {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-primary-dark);
+    background: rgba(255, 255, 255, 0.94);
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .prose :global(.card-produto .conteudo),
+  .prose :global(.card-lugar .conteudo) {
+    padding: 1.1rem 1.2rem 1.25rem;
+  }
+  .prose :global(.card-produto h3),
+  .prose :global(.card-lugar h3) {
+    font-size: 1.1rem;
+    margin: 0 0 0.45rem;
+  }
+  .prose :global(.card-produto .why),
+  .prose :global(.card-lugar .descricao) {
+    font-size: 0.94rem;
+    color: var(--color-text);
+    margin: 0 0 0.9rem;
+  }
+  .prose :global(.card-produto .ctas),
+  .prose :global(.card-lugar .links) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  .prose :global(.card-produto .ctas) { margin-bottom: 0.6rem; }
+  .prose :global(.card-produto .btn-loja),
+  .prose :global(.card-lugar .btn-link) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 2px solid transparent;
+  }
+  /* Cor real de cada marca — reconhecível de cara converte mais do que um
+     botão genérico da cor do site. Nome da loja em texto estilizado, não a
+     logo oficial (a da Amazon nem existe em bibliotecas de ícone abertas —
+     removida por risco de marca — e a do Mercado Livre só existe pro Mercado
+     Pago, marca irmã diferente). */
+  .prose :global(.card-produto .btn-loja) {
+    justify-content: space-between;
+    min-width: 200px;
+  }
+  .prose :global(.card-produto .btn-loja--outro) {
+    justify-content: center;
+    min-width: 0;
+  }
+  .prose :global(.card-produto .btn-loja .loja-nome) {
+    font-weight: 800;
+    font-size: 0.92rem;
+  }
+  .prose :global(.card-produto .btn-loja--amazon .loja-nome) {
+    text-transform: lowercase;
+  }
+  .prose :global(.card-produto .btn-loja .loja-cta) {
+    background: #fff;
+    color: var(--color-primary-dark);
+    font-weight: 800;
+    font-size: 0.76rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+  }
+  .prose :global(.card-produto .btn-loja--outro .loja-cta) {
+    background: transparent;
+    color: #fff;
+    padding: 0;
+    border-radius: 0;
+  }
+  .prose :global(.card-produto .btn-loja--amazon) { background: #ff9900; color: #0f1111; }
+  .prose :global(.card-produto .btn-loja--amazon:hover) { background: #e68a00; }
+  .prose :global(.card-produto .btn-loja--mercadolivre) { background: #ffe600; color: #2d3277; }
+  .prose :global(.card-produto .btn-loja--mercadolivre:hover) { background: #f5d800; }
+  .prose :global(.card-produto .btn-loja--booking) { background: #003580; color: #fff; }
+  .prose :global(.card-produto .btn-loja--booking:hover) { background: #002a66; }
+  .prose :global(.card-produto .btn-loja--rentcar) { background: #00a65a; color: #fff; }
+  .prose :global(.card-produto .btn-loja--rentcar:hover) { background: #00893f; }
+  .prose :global(.card-produto .btn-loja--outro) { background: var(--color-accent-dark); color: #fff; }
+  .prose :global(.card-produto .btn-loja--outro:hover) { background: #7d4f17; }
+  /* Mapa e Instagram preenchidos (não contorno) — botão sólido converte mais
+     que outline, e a cor de cada um remete ao app real. */
+  .prose :global(.card-lugar .btn-link) {
+    background: #ea4335;
+    color: #fff;
+  }
+  .prose :global(.card-lugar .btn-link:hover) { background: #d33426; }
+  .prose :global(.card-lugar .btn-link.insta) {
+    background: linear-gradient(45deg, #feda75, #d62976 60%, #4f5bd5);
+    color: #fff;
+  }
+  .prose :global(.card-lugar .btn-link.insta:hover) { filter: brightness(0.92); }
+  .prose :global(.card-produto .disclosure) {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
 </style>

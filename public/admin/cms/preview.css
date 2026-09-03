@@ -172,6 +172,146 @@ blockquote {
 }
 .callout-importante::before { content: '❗ Importante'; color: var(--color-accent-dark); }
 
+/* Card de Produto e Card de Estabelecimento — espelha o CSS de
+   src/layouts/ArticleLayout.astro (mesmas classes), só que sem o wrapper
+   :global() do Astro, já que aqui é uma folha de estilo simples. */
+.card-produto,
+.card-lugar {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1.75rem 0;
+}
+.card-produto .foto-wrap,
+.card-lugar .foto-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--color-surface);
+}
+.card-produto .foto-wrap { padding: 1.25rem; }
+.card-produto .foto-wrap img,
+.card-lugar .foto-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.card-produto .foto-wrap img { object-fit: contain; }
+.card-lugar .foto-wrap img { object-fit: cover; }
+.card-produto .tipo-badge,
+.card-lugar .tipo-badge {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-primary-dark);
+  background: rgba(255, 255, 255, 0.94);
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.card-produto .conteudo,
+.card-lugar .conteudo {
+  padding: 1.1rem 1.2rem 1.25rem;
+}
+.card-produto h3,
+.card-lugar h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.45rem;
+}
+.card-produto .why,
+.card-lugar .descricao {
+  font-size: 0.94rem;
+  color: var(--color-text);
+  margin: 0 0 0.9rem;
+}
+.card-produto .ctas,
+.card-lugar .links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.card-produto .ctas { margin-bottom: 0.6rem; }
+.card-produto .btn-loja,
+.card-lugar .btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  border: 2px solid transparent;
+}
+/* Cor real de cada marca — reconhecível de cara converte mais do que um
+   botão genérico da cor do site. Nome da loja em texto estilizado, não a
+   logo oficial (a da Amazon nem existe em bibliotecas de ícone abertas —
+   removida por risco de marca — e a do Mercado Livre só existe pro Mercado
+   Pago, marca irmã diferente). */
+.card-produto .btn-loja {
+  justify-content: space-between;
+  min-width: 200px;
+}
+.card-produto .btn-loja--outro {
+  justify-content: center;
+  min-width: 0;
+}
+.card-produto .btn-loja .loja-nome {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+.card-produto .btn-loja--amazon .loja-nome {
+  text-transform: lowercase;
+}
+.card-produto .btn-loja .loja-cta {
+  background: #fff;
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  font-size: 0.76rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+.card-produto .btn-loja--outro .loja-cta {
+  background: transparent;
+  color: #fff;
+  padding: 0;
+  border-radius: 0;
+}
+.card-produto .btn-loja--amazon { background: #ff9900; color: #0f1111; }
+.card-produto .btn-loja--amazon:hover { background: #e68a00; }
+.card-produto .btn-loja--mercadolivre { background: #ffe600; color: #2d3277; }
+.card-produto .btn-loja--mercadolivre:hover { background: #f5d800; }
+.card-produto .btn-loja--booking { background: #003580; color: #fff; }
+.card-produto .btn-loja--booking:hover { background: #002a66; }
+.card-produto .btn-loja--rentcar { background: #00a65a; color: #fff; }
+.card-produto .btn-loja--rentcar:hover { background: #00893f; }
+.card-produto .btn-loja--outro { background: var(--color-accent-dark); color: #fff; }
+.card-produto .btn-loja--outro:hover { background: #7d4f17; }
+/* Mapa e Instagram preenchidos (não contorno) — botão sólido converte mais
+   que outline, e a cor de cada um remete ao app real. */
+.card-lugar .btn-link {
+  background: #ea4335;
+  color: #fff;
+}
+.card-lugar .btn-link:hover { background: #d33426; }
+.card-lugar .btn-link.insta {
+  background: linear-gradient(45deg, #feda75, #d62976 60%, #4f5bd5);
+  color: #fff;
+}
+.card-lugar .btn-link.insta:hover { filter: brightness(0.92); }
+.card-produto .disclosure {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
 .sponsored-slot {
   background: var(--color-sponsored);
   border: 1px dashed var(--color-accent-dark);

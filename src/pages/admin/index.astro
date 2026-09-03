@@ -36,22 +36,22 @@ const stats = [
 ];
 
 const quickActions = [
-  { label: 'Novo Artigo', desc: 'Escrever e publicar um novo post', href: '/admin/cms/#/collections/articles/new', primary: true },
-  { label: 'Ver Artigos', desc: 'Gerenciar todos os artigos', href: '/admin/cms/#/collections/articles' },
+  { label: 'Novo Artigo', desc: 'Escrever e publicar um novo post', href: '/admin/cms/index.html#/collections/articles/new', primary: true },
+  { label: 'Ver Artigos', desc: 'Gerenciar todos os artigos', href: '/admin/cms/index.html#/collections/articles' },
   { label: 'Cliques em Afiliados', desc: 'Ver o link curto e os cliques de cada afiliado', href: '/admin/links/' },
-  { label: 'Configurações', desc: 'Nome do site, cores e fontes', href: '/admin/cms/#/collections/site-config/entries/config' },
+  { label: 'Configurações', desc: 'Nome do site, cores e fontes', href: '/admin/cms/index.html#/collections/site-config/entries/config' },
 ];
 
 const pageLinks = [
-  { label: 'Sobre', href: '/admin/cms/#/collections/pages/entries/sobre' },
-  { label: 'Contato', href: '/admin/cms/#/collections/pages/entries/contato' },
-  { label: 'Política de Privacidade', href: '/admin/cms/#/collections/pages/entries/politica-de-privacidade' },
-  { label: 'Política Editorial', href: '/admin/cms/#/collections/pages/entries/politica-editorial' },
+  { label: 'Sobre', href: '/admin/cms/index.html#/collections/pages/entries/sobre' },
+  { label: 'Contato', href: '/admin/cms/index.html#/collections/pages/entries/contato' },
+  { label: 'Política de Privacidade', href: '/admin/cms/index.html#/collections/pages/entries/politica-de-privacidade' },
+  { label: 'Política Editorial', href: '/admin/cms/index.html#/collections/pages/entries/politica-editorial' },
 ];
 
 const systemLinks = [
-  { label: 'Links de Afiliados', href: '/admin/cms/#/collections/affiliate-links/entries/links' },
-  { label: 'Configurações', href: '/admin/cms/#/collections/site-config/entries/config' },
+  { label: 'Links de Afiliados', href: '/admin/cms/index.html#/collections/affiliate-links/entries/links' },
+  { label: 'Configurações', href: '/admin/cms/index.html#/collections/site-config/entries/config' },
 ];
 ---
 
@@ -85,7 +85,7 @@ const systemLinks = [
           <p class="nav-group-label">Principal</p>
           <ul class="nav-list">
             <li><a href="/admin/" class="active">Dashboard</a></li>
-            <li><a href="/admin/cms/#/collections/articles">Artigos</a></li>
+            <li><a href="/admin/cms/index.html#/collections/articles">Artigos</a></li>
             <li><a href="/admin/links/">Cliques em Afiliados</a></li>
           </ul>
 
@@ -102,7 +102,7 @@ const systemLinks = [
 
         <div class="sidebar-footer">
           <a href="/">↗ Ver site</a>
-          <a href="/admin/cms/">Abrir editor completo</a>
+          <a href="/admin/cms/index.html">Abrir editor completo</a>
         </div>
       </aside>
 
@@ -112,7 +112,7 @@ const systemLinks = [
 
         {linkCollisions.length > 0 && (
           <div class="warning">
-            <strong>Atenção:</strong> {linkCollisions.length === 1 ? 'este link de afiliado usa' : 'estes links de afiliado usam'} o mesmo endereço de uma página do site e por isso {linkCollisions.length === 1 ? 'não vai funcionar' : 'não vão funcionar'} — troque o slug em <a href="/admin/cms/#/collections/affiliate-links/entries/links">Links de Afiliados</a>:
+            <strong>Atenção:</strong> {linkCollisions.length === 1 ? 'este link de afiliado usa' : 'estes links de afiliado usam'} o mesmo endereço de uma página do site e por isso {linkCollisions.length === 1 ? 'não vai funcionar' : 'não vão funcionar'} — troque o slug em <a href="/admin/cms/index.html#/collections/affiliate-links/entries/links">Links de Afiliados</a>:
             <ul>
               {linkCollisions.map((c) => <li><code>/{c.slug}/</code> — {c.label}</li>)}
             </ul>

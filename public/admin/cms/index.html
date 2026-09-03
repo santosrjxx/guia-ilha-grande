@@ -58,6 +58,277 @@
         },
       });
 
+      function escapeHtml(str) {
+        return (str || '').replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      // Inverso de escapeHtml — usado pra reconstruir o texto original a partir
+      // do HTML visível quando o editor reabre um bloco pra edição (fromBlock).
+      // Ordem importa: &amp; precisa ser desfeito por último, senão um "&amp;lt;"
+      // vira "<" em vez de "&lt;".
+      function unescapeHtml(str) {
+        return (str || '')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&amp;/g, '&');
+      }
+
+      // Cor de cada loja é a cor real da marca (laranja da Amazon, amarelo do
+      // Mercado Livre etc.) — botão reconhecível de cara converte mais do que
+      // um botão genérico da cor do site. O nome da loja aparece em texto
+      // (não a logo oficial: a da Amazon nem existe em bibliotecas de ícone
+      // abertas — foi removida por risco de marca — e a do Mercado Livre só
+      // existe pro Mercado Pago, marca irmã diferente).
+      var PROVIDER_INFO = {
+        amazon: { cls: 'btn-loja--amazon', nome: 'amazon' },
+        mercadoLivre: { cls: 'btn-loja--mercadolivre', nome: 'Mercado Livre' },
+        booking: { cls: 'btn-loja--booking', nome: 'Booking.com' },
+        rentcar: { cls: 'btn-loja--rentcar', nome: 'Rentcars' },
+      };
+
+      function renderCardProduto(data) {
+        var lojas = (data.lojas || [])
+          .map(function (loja) {
+            var info = PROVIDER_INFO[loja.provider];
+            var cls = 'btn-loja ' + (info ? info.cls : 'btn-loja--outro');
+            var nomeSpan = info ? '<span class="loja-nome">' + info.nome + '</span>' : '';
+            return (
+              '<a class="' + cls + '" href="' + escapeHtml(loja.url || '#') +
+              '" rel="sponsored noopener noreferrer" target="_blank">' +
+              nomeSpan + '<span class="loja-cta">' + escapeHtml(loja.label || 'Ver oferta') + ' ↗</span></a>'
+            );
+          })
+          .join('\n      ');
+        return (
+          '<div class="card-produto">\n' +
+          '  <div class="foto-wrap">\n' +
+          '    <img src="' + escapeHtml(data.foto || '') + '" alt="' + escapeHtml(data.fotoAlt || data.nome || '') +
+          '" loading="lazy" width="600" height="450" />\n' +
+          (data.selo ? '    <span class="tipo-badge">' + escapeHtml(data.selo) + '</span>\n' : '') +
+          '  </div>\n' +
+          '  <div class="conteudo">\n' +
+          '    <h3>' + escapeHtml(data.nome || '') + '</h3>\n' +
+          '    <p class="why">' + escapeHtml(data.porque || '') + '</p>\n' +
+          '    <div class="ctas">\n      ' + lojas + '\n    </div>\n' +
+          '    <p class="disclosure">Link de afiliado — sem custo extra pra você.</p>\n' +
+          '  </div>\n' +
+          '</div>'
+        );
+      }
+
+      var TIPO_LUGAR_LABELS = {
+        pousada: '🏨 Pousada',
+        restaurante: '🍽️ Restaurante',
+        hotel: '🏝️ Hotel',
+      };
+
+      function renderCardLugar(data) {
+        var links = '';
+        if (data.mapsUrl) {
+          links +=
+            '<a class="btn-link" href="' + escapeHtml(data.mapsUrl) +
+            '" rel="noopener noreferrer" target="_blank">📍 Ver no Mapa ↗</a>';
+        }
+        if (data.instagramUrl) {
+          links +=
+            (links ? '\n      ' : '') +
+            '<a class="btn-link insta" href="' + escapeHtml(data.instagramUrl) +
+            '" rel="noopener noreferrer" target="_blank">📷 Ver no Instagram ↗</a>';
+        }
+        return (
+          '<div class="card-lugar">\n' +
+          '  <div class="foto-wrap">\n' +
+          '    <img src="' + escapeHtml(data.foto || '') + '" alt="' + escapeHtml(data.fotoAlt || data.nome || '') +
+          '" loading="lazy" width="800" height="600" />\n' +
+          '    <span class="tipo-badge">' + (TIPO_LUGAR_LABELS[data.tipo] || '📍 Estabelecimento') + '</span>\n' +
+          '  </div>\n' +
+          '  <div class="conteudo">\n' +
+          '    <h3>' + escapeHtml(data.nome || '') + '</h3>\n' +
+          '    <p class="descricao">' + escapeHtml(data.descricao || '') + '</p>\n' +
+          '    <div class="links">\n      ' + links + '\n    </div>\n' +
+          '  </div>\n' +
+          '</div>'
+        );
+      }
+
+      CMS.registerEditorComponent({
+        id: 'card-produto',
+        label: '🃏 Card de Produto (sem preço)',
+        fields: [
+          {
+            name: 'foto',
+            label: 'Foto do produto',
+            widget: 'image',
+            media_folder: '/public/articles/inline',
+            public_folder: '/articles/inline',
+          },
+          { name: 'fotoAlt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
+          {
+            name: 'selo',
+            label: 'Selo sobre a foto',
+            widget: 'string',
+            required: false,
+            hint: 'Categoria ou contexto de uso — ex.: "Pra trilha", "Pra praia". NUNCA uma alegação de teste (ex.: "testado pela equipe"). Deixe em branco pra não mostrar selo.',
+          },
+          { name: 'nome', label: 'Nome do produto', widget: 'string' },
+          {
+            name: 'porque',
+            label: 'Por que faz sentido pra quem vai a Ilha Grande',
+            widget: 'text',
+            hint: 'Frase curta de contexto/uso ligada à viagem (clima, trilha, praia). Não alegue ter testado o produto.',
+          },
+          {
+            name: 'lojas',
+            label: 'Lojas (botões)',
+            widget: 'list',
+            min: 1,
+            max: 3,
+            summary: '{{fields.label}}',
+            fields: [
+              {
+                name: 'provider',
+                label: 'Loja',
+                widget: 'select',
+                options: [
+                  { label: '📦 Amazon', value: 'amazon' },
+                  { label: '🛒 Mercado Livre', value: 'mercadoLivre' },
+                  { label: '🏨 Booking.com', value: 'booking' },
+                  { label: '🚗 Rentcars', value: 'rentcar' },
+                  { label: '🔗 Outra loja', value: 'outro' },
+                ],
+                default: 'amazon',
+                hint: 'Define a cor do botão (a cor real de cada marca converte mais do que um botão genérico).',
+              },
+              {
+                name: 'label',
+                label: 'Texto do botão',
+                widget: 'string',
+                default: 'Ver oferta',
+                hint: 'Pra Amazon/Mercado Livre/Booking/Rentcars não precisa repetir o nome da loja — ele já aparece do lado esquerdo do botão. Se escolher "Outra loja", inclua o nome aqui (ex.: "Ver na Shopee").',
+              },
+              {
+                name: 'url',
+                label: 'Link',
+                widget: 'string',
+                hint: 'Cole aqui o link curto criado em "Links de Afiliados" (ex.: /protetor-solar/am/), nunca a URL de destino direta.',
+              },
+            ],
+          },
+        ],
+        // Não guarda JSON escondido: os campos são lidos de volta direto do HTML
+        // visível (igual ao bloco "Destaque"). Evita depender de sintaxe de
+        // comentário — HTML puro (<!-- -->) quebra o build em .mdx, e comentário
+        // de MDX ({/* */}) aparece como texto cru nesta pré-visualização, que
+        // renderiza o corpo como Markdown puro, não MDX.
+        pattern: /^<div class="card-produto">[\s\S]*<\/div>$/,
+        fromBlock: function (match) {
+          var block = match[0];
+          function pick(re) {
+            var m = block.match(re);
+            return m ? unescapeHtml(m[1]) : '';
+          }
+          var PROVIDER_FROM_CLASS = {
+            'btn-loja--amazon': 'amazon',
+            'btn-loja--mercadolivre': 'mercadoLivre',
+            'btn-loja--booking': 'booking',
+            'btn-loja--rentcar': 'rentcar',
+            'btn-loja--outro': 'outro',
+          };
+          var lojas = [];
+          var lojaRe = /<a class="btn-loja (btn-loja--[a-z]+)" href="([^"]*)"[^>]*>(?:<span class="loja-nome">[^<]*<\/span>)?<span class="loja-cta">([\s\S]*?)\s*↗<\/span><\/a>/g;
+          var lm;
+          while ((lm = lojaRe.exec(block))) {
+            lojas.push({
+              provider: PROVIDER_FROM_CLASS[lm[1]] || 'outro',
+              url: unescapeHtml(lm[2]),
+              label: unescapeHtml(lm[3]),
+            });
+          }
+          return {
+            foto: pick(/<img src="([^"]*)"/),
+            fotoAlt: pick(/<img[^>]*\balt="([^"]*)"/),
+            selo: pick(/<span class="tipo-badge">([^<]*)<\/span>/),
+            nome: pick(/<h3>([^<]*)<\/h3>/),
+            porque: pick(/<p class="why">([\s\S]*?)<\/p>/),
+            lojas: lojas,
+          };
+        },
+        toBlock: function (data) {
+          return renderCardProduto(data);
+        },
+        toPreview: function (data) {
+          return renderCardProduto(data);
+        },
+      });
+
+      CMS.registerEditorComponent({
+        id: 'card-lugar',
+        label: '🃏 Card de Estabelecimento',
+        fields: [
+          {
+            name: 'tipo',
+            label: 'Tipo',
+            widget: 'select',
+            options: [
+              { label: '🏨 Pousada', value: 'pousada' },
+              { label: '🍽️ Restaurante', value: 'restaurante' },
+              { label: '🏝️ Hotel', value: 'hotel' },
+            ],
+            default: 'pousada',
+          },
+          {
+            name: 'foto',
+            label: 'Foto do lugar',
+            widget: 'image',
+            media_folder: '/public/articles/inline',
+            public_folder: '/articles/inline',
+            hint: 'Ideal: paisagem 4:3 (ex.: 800×600px), foto real do lugar — não use banco de imagens.',
+          },
+          { name: 'fotoAlt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
+          { name: 'nome', label: 'Nome do estabelecimento', widget: 'string' },
+          {
+            name: 'descricao',
+            label: 'Descrição curta',
+            widget: 'text',
+            hint: '1–2 frases, até uns 140 caracteres — o "porquê" de ir.',
+          },
+          { name: 'mapsUrl', label: 'Link do Google Maps', widget: 'string', required: false },
+          { name: 'instagramUrl', label: 'Link do Instagram', widget: 'string', required: false },
+        ],
+        pattern: /^<div class="card-lugar">[\s\S]*<\/div>$/,
+        fromBlock: function (match) {
+          var block = match[0];
+          function pick(re) {
+            var m = block.match(re);
+            return m ? unescapeHtml(m[1]) : '';
+          }
+          var tipoLabel = pick(/<span class="tipo-badge">([^<]*)<\/span>/);
+          var tipo =
+            Object.keys(TIPO_LUGAR_LABELS).find(function (key) {
+              return TIPO_LUGAR_LABELS[key] === tipoLabel;
+            }) || 'pousada';
+          return {
+            tipo: tipo,
+            foto: pick(/<img src="([^"]*)"/),
+            fotoAlt: pick(/<img[^>]*\balt="([^"]*)"/),
+            nome: pick(/<h3>([^<]*)<\/h3>/),
+            descricao: pick(/<p class="descricao">([\s\S]*?)<\/p>/),
+            mapsUrl: pick(/<a class="btn-link" href="([^"]*)"/),
+            instagramUrl: pick(/<a class="btn-link insta" href="([^"]*)"/),
+          };
+        },
+        toBlock: function (data) {
+          return renderCardLugar(data);
+        },
+        toPreview: function (data) {
+          return renderCardLugar(data);
+        },
+      });
+
       CMS.registerEditorComponent({
         id: 'html',
         label: 'Código HTML (embed)',
@@ -68,12 +339,22 @@
             widget: 'text',
           },
         ],
-        pattern: /^<!-- html-embed -->\n([\s\S]*?)\n<!-- \/html-embed -->$/,
+        // O código colado fica visível dentro da div (é isso que deve rodar no
+        // site), e uma cópia escapada fica no atributo data-code só pra
+        // recuperar o texto original ao reabrir — atributo HTML nunca aparece
+        // como texto, então funciona igual no site (MDX) e nesta prévia
+        // (Markdown puro), sem precisar de sintaxe de comentário.
+        pattern: /^<div class="html-embed" data-code="[\s\S]*?">[\s\S]*<\/div>$/,
         fromBlock: function (match) {
-          return { code: match[1] };
+          var m = match[0].match(/^<div class="html-embed" data-code="([\s\S]*?)">/);
+          return { code: m ? unescapeHtml(m[1]) : '' };
         },
         toBlock: function (obj) {
-          return '<!-- html-embed -->\n' + (obj.code || '') + '\n<!-- /html-embed -->';
+          return (
+            '<div class="html-embed" data-code="' + escapeHtml(obj.code || '') + '">\n' +
+            (obj.code || '') +
+            '\n</div>'
+          );
         },
         toPreview: function (obj) {
           return obj.code || '';

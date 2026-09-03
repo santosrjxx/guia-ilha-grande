@@ -55,7 +55,7 @@ collections:
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"+\" dentro do texto para inserir um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube, widget de afiliado etc. sem precisar mexer em código)."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante), Card de Produto (recomendação de produto sem preço, com foto e botões de loja), Card de Estabelecimento (pousada/restaurante/hotel, com foto, Mapa e Instagram) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código)."
         modes: ["rich_text", "raw"]
         buttons:
           - bold
@@ -68,7 +68,7 @@ collections:
           - quote
           - bulleted-list
           - numbered-list
-        editor_components: [image, destaque, html]
+        editor_components: [image, destaque, card-produto, card-lugar, html]
         media_folder: "/public/articles/inline"
         public_folder: "/articles/inline"
       - label: Perguntas Frequentes (FAQ)
