@@ -249,6 +249,10 @@ const websiteSchema = {
           <form action={`https://formsubmit.co/${SITE.email}`} method="POST" class="newsletter-form">
             <input type="hidden" name="_subject" value="Nova inscrição na newsletter — Guia Ilha Grande" />
             <input type="email" name="email" placeholder="Seu e-mail" required aria-label="Seu e-mail" />
+            <label class="newsletter-consent">
+              <input type="checkbox" required />
+              Concordo com a <a href="/politica-de-privacidade/">Política de Privacidade</a>
+            </label>
             <button type="submit" class="btn btn-primary">Inscrever-se</button>
           </form>
         </div>
@@ -432,6 +436,16 @@ const websiteSchema = {
   .newsletter-form input {
     padding: 0.65rem; border-radius: 8px; border: none; font: inherit;
   }
+  .newsletter-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 400;
+    opacity: 0.9;
+  }
+  .newsletter-consent input { width: auto; margin-top: 0.2rem; }
+  .newsletter-consent a { color: #fff; text-decoration: underline; }
   .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   .tag-pill {
     background: var(--color-surface);

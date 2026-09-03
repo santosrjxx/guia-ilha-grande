@@ -13,6 +13,10 @@ Esta política explica como o Guia Ilha Grande coleta, usa e protege informaçõ
 - Dados de navegação coletados por ferramentas de análise de audiência (ex.: Google Analytics), quando ativas;
 - Cookies técnicos e, se aplicável, cookies de terceiros usados por redes de afiliados e publicidade.
 
+## Base legal e por quanto tempo guardamos
+
+Tratamos seus dados com base no seu consentimento (Art. 7º, I, da LGPD), dado de forma livre e informada ao marcar a caixa de aceite no formulário antes de enviá-lo. Você pode retirar esse consentimento a qualquer momento pelo e-mail abaixo. Guardamos os dados de contato e newsletter apenas pelo tempo necessário para responder à sua mensagem ou manter o envio de novidades, e os excluímos mediante solicitação ou quando deixarem de ser necessários.
+
 ## Como usamos esses dados
 
 Usamos os dados apenas para responder a contatos, entender como o site é utilizado e melhorar o conteúdo. Não vendemos dados pessoais a terceiros.
