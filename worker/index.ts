@@ -9,12 +9,19 @@
 //    nada mantê-los e evita qualquer risco de o login quebrar caso o callback URL
 //    registrado no GitHub OAuth App ainda aponte pra lá.
 //
-// 2. Encurtador/redirecionador de links de afiliado: /go/<slug> → redireciona pro link real
-//    (definido em src/data/affiliate-links.json, editável pelo painel /admin) e conta o
-//    clique numa KV. Equivalente caseiro ao Pretty Links.
+// 2. Encurtador/redirecionador de links de afiliado: /<slug> (na raiz do domínio, ex.:
+//    guiailhagrande.com.br/mochila-trilha/) → redireciona pro link real (definido em
+//    src/data/affiliate-links.json, editável pelo painel /admin) e conta o clique numa KV.
+//    Equivalente caseiro ao Pretty Links. Uma página ou artigo real do site SEMPRE tem
+//    prioridade sobre um slug de afiliado igual (só tentamos o afiliado depois de a busca
+//    normal pelo arquivo estático dar 404) — assim um link de afiliado nunca derruba uma
+//    página existente. /go/<slug> antigo continua funcionando (redireciona direto, sem
+//    passo intermediário) pra não quebrar links já publicados em artigos antes da migração
+//    pra links na raiz.
 //
-// 3. /go/stats?key=... — painel simples (somente leitura) com a contagem de cliques por
-//    link, protegido por um segredo (STATS_SECRET) pra não ficar público.
+// 3. /go/stats?key=... (HTML) e /go/stats.json?key=... — painel com a contagem de cliques
+//    por link, protegido por um segredo (STATS_SECRET) pra não ficar público. O JSON
+//    alimenta a tela "Cliques em Afiliados" dentro de /admin.
 
 import affiliateLinks from '../src/data/affiliate-links.json';
 
@@ -138,20 +145,14 @@ async function handleCallback(request: Request, env: Env): Promise<Response> {
   return renderSuccess(tokenData.access_token);
 }
 
-async function handleGo(slug: string, env: Env, ctx: ExecutionContext): Promise<Response> {
+// Conta o clique numa KV (get-then-put: não é atômico, então sob rajadas concorrentes pode
+// subcontar um pouco — aceitável pro volume de tráfego deste site, não é uma métrica
+// financeira crítica) e devolve o redirecionamento pro link real. Não bloqueia a resposta
+// (ctx.waitUntil). Retorna null se o slug não corresponde a nenhum link de afiliado ativo.
+function redirectAffiliate(slug: string, env: Env, ctx: ExecutionContext): Response | null {
   const link = AFFILIATE_LINKS.find((l) => l.slug === slug && l.active !== false);
+  if (!link) return null;
 
-  if (!link) {
-    return html(
-      '<!doctype html><html><body><p>Link não encontrado.</p></body></html>',
-      { 'X-Robots-Tag': 'noindex' },
-      404
-    );
-  }
-
-  // Contador simples (get-then-put): não é atômico, então sob rajadas concorrentes pode
-  // subcontar um pouco — aceitável pro volume de tráfego deste site, não é uma métrica
-  // financeira crítica. Não bloqueia o redirecionamento (ctx.waitUntil).
   ctx.waitUntil(
     (async () => {
       const current = Number((await env.AFFILIATE_CLICKS.get(slug)) ?? '0') || 0;
@@ -162,11 +163,39 @@ async function handleGo(slug: string, env: Env, ctx: ExecutionContext): Promise<
   return Response.redirect(link.destinationUrl, 302);
 }
 
-async function handleStats(request: Request, env: Env): Promise<Response> {
-  const url = new URL(request.url);
-  const key = url.searchParams.get('key');
+async function getStatsRows(env: Env, origin: string) {
+  const rows = await Promise.all(
+    AFFILIATE_LINKS.map(async (link) => ({
+      ...link,
+      shortUrl: `${origin}/${link.slug}/`,
+      clicks: Number((await env.AFFILIATE_CLICKS.get(link.slug)) ?? '0') || 0,
+    }))
+  );
+  rows.sort((a, b) => b.clicks - a.clicks);
+  return rows;
+}
 
-  if (!env.STATS_SECRET || key !== env.STATS_SECRET) {
+function checkStatsKey(request: Request, env: Env): boolean {
+  const key = new URL(request.url).searchParams.get('key');
+  return Boolean(env.STATS_SECRET) && key === env.STATS_SECRET;
+}
+
+async function handleStatsJson(request: Request, env: Env): Promise<Response> {
+  if (!checkStatsKey(request, env)) {
+    return new Response(JSON.stringify({ error: 'Acesso negado' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Robots-Tag': 'noindex' },
+    });
+  }
+
+  const rows = await getStatsRows(env, new URL(request.url).origin);
+  return new Response(JSON.stringify(rows), {
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Robots-Tag': 'noindex' },
+  });
+}
+
+async function handleStats(request: Request, env: Env): Promise<Response> {
+  if (!checkStatsKey(request, env)) {
     return html(
       '<!doctype html><html><body><p>Acesso negado.</p></body></html>',
       { 'X-Robots-Tag': 'noindex' },
@@ -174,22 +203,16 @@ async function handleStats(request: Request, env: Env): Promise<Response> {
     );
   }
 
-  const rows = await Promise.all(
-    AFFILIATE_LINKS.map(async (link) => ({
-      ...link,
-      clicks: Number((await env.AFFILIATE_CLICKS.get(link.slug)) ?? '0') || 0,
-    }))
-  );
-  rows.sort((a, b) => b.clicks - a.clicks);
+  const rows = await getStatsRows(env, new URL(request.url).origin);
 
   const tableRows = rows
     .map(
       (r) => `<tr>
-        <td>${escapeHtml(r.slug)}${r.active ? '' : ' <em>(inativo)</em>'}</td>
+        <td><a href="${escapeHtml(r.shortUrl)}">${escapeHtml(r.shortUrl)}</a>${r.active ? '' : ' <em>(inativo)</em>'}</td>
         <td>${escapeHtml(r.label)}</td>
         <td>${escapeHtml(r.provider)}</td>
         <td style="text-align:right">${r.clicks}</td>
-        <td><a href="${escapeHtml(r.destinationUrl)}" target="_blank" rel="noopener noreferrer">abrir</a></td>
+        <td><a href="${escapeHtml(r.destinationUrl)}" target="_blank" rel="noopener noreferrer">abrir destino</a></td>
       </tr>`
     )
     .join('');
@@ -205,8 +228,9 @@ async function handleStats(request: Request, env: Env): Promise<Response> {
       </style>
       </head><body>
       <h1>Cliques em links de afiliado</h1>
+      <p>Versão mais fácil de usar: <a href="/admin/links/">/admin/links/</a> (dentro do painel, sem precisar digitar a chave toda vez).</p>
       <table>
-        <thead><tr><th>Slug (/go/...)</th><th>Rótulo</th><th>Provedor</th><th>Cliques</th><th>Destino</th></tr></thead>
+        <thead><tr><th>Link curto</th><th>Rótulo</th><th>Provedor</th><th>Cliques</th><th>Destino</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
     </body></html>`,
@@ -230,14 +254,33 @@ export default {
       return handleCallback(request, env);
     }
 
-    if (pathname === '/go/stats') {
+    if (pathname === '/go/stats' || pathname === '/go/stats/') {
       return handleStats(request, env);
     }
-    if (pathname.startsWith('/go/')) {
-      const slug = pathname.slice('/go/'.length).replace(/\/$/, '');
-      return handleGo(slug, env, ctx);
+    if (pathname === '/go/stats.json') {
+      return handleStatsJson(request, env);
     }
 
-    return env.ASSETS.fetch(request);
+    // Compatibilidade: links antigos publicados como /go/<slug>/ (formato usado antes da
+    // migração pra links na raiz do domínio) continuam funcionando e contando clique.
+    if (pathname.startsWith('/go/')) {
+      const legacySlug = pathname.slice('/go/'.length).replace(/\/$/, '');
+      const redirect = redirectAffiliate(legacySlug, env, ctx);
+      if (redirect) return redirect;
+    }
+
+    const assetResponse = await env.ASSETS.fetch(request);
+    if (assetResponse.status !== 404) return assetResponse;
+
+    // Nenhuma página ou artigo real bate com esse endereço: tenta como link de afiliado na
+    // raiz (ex.: /mochila-trilha/). Uma página real SEMPRE tem prioridade — um link de
+    // afiliado só "ativa" quando não existe nenhuma página com o mesmo slug.
+    const rootSlug = pathname.replace(/^\/+|\/+$/g, '');
+    if (rootSlug && !rootSlug.includes('/')) {
+      const redirect = redirectAffiliate(rootSlug, env, ctx);
+      if (redirect) return redirect;
+    }
+
+    return assetResponse;
   },
 };

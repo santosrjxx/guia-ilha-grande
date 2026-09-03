@@ -26,7 +26,7 @@ const articles = (await getCollection('articles', (a) => a.data.silo === siloKey
       <h1>{silo.heading}</h1>
       <p class="silo-lead">{silo.shortDescription}</p>
       {siloKey === 'onde-ficar' && (
-        <AffiliateCTA href="/go/hospedagem-ilha-grande/" label="Ver disponibilidade no Booking.com" provider="booking" />
+        <AffiliateCTA href="/hospedagem-ilha-grande/" label="Ver disponibilidade no Booking.com" provider="booking" />
       )}
     </header>
 

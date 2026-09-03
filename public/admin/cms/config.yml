@@ -251,7 +251,7 @@ collections:
 
   - name: affiliate-links
     label: Links de Afiliados
-    description: "Cada link daqui vira um endereço curto /go/<slug>/ que redireciona pro link real e conta os cliques. Troque a URL de destino aqui quando tiver a tag de afiliado real — não precisa editar os artigos."
+    description: "Cada link daqui vira um endereço curto na raiz do site, tipo guiailhagrande.com.br/<slug>/ (ex.: /mochila-trilha/) que redireciona pro link real e conta os cliques — igual ao Pretty Links do WordPress. Troque a URL de destino aqui quando tiver a tag de afiliado real — não precisa editar os artigos. Pra ver quantos cliques cada link recebeu, acesse /admin/links/ no painel."
     files:
       - name: links
         label: "Todos os links"
@@ -260,12 +260,12 @@ collections:
           - label: Links
             name: links
             widget: list
-            summary: "{{fields.slug}} — {{fields.label}}"
+            summary: "/{{fields.slug}}/ — {{fields.label}}"
             fields:
               - label: "Slug (endereço curto)"
                 name: slug
                 widget: string
-                hint: "Vira /go/<slug>/. Ex.: mochila-trilha. Só letras minúsculas, números e hífen — evite mudar depois de publicado em algum artigo."
+                hint: "Vira o link guiailhagrande.com.br/<slug>/ — é ESSE endereço que você deve colar nos artigos e compartilhar, nunca a URL de destino abaixo. Ex.: mochila-trilha vira /mochila-trilha/. Só letras minúsculas, números e hífen. IMPORTANTE: não use o mesmo slug de uma página ou seção já existente do site (ex.: sobre, contato, onde-comer, o-que-fazer, onde-ficar, guia-pratico) — nesse caso a página real sempre ganha e o link de afiliado simplesmente não funciona. Evite mudar depois de publicado em algum artigo."
                 pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
               - { label: "Rótulo (texto do botão)", name: label, widget: string }
               - label: Provedor
@@ -277,8 +277,8 @@ collections:
                   - { label: Booking.com, value: booking }
                   - { label: Rentcars, value: rentcar }
                   - { label: Outro, value: outro }
-              - label: "URL de destino (com a tag de afiliado real)"
+              - label: "URL de destino (link real, com a tag de afiliado — fica oculto do visitante)"
                 name: destinationUrl
                 widget: string
-                hint: "Link completo pra onde o visitante é redirecionado, já com o parâmetro de afiliado (ex.: &tag=SEUCODIGO)."
+                hint: "Link completo e feio de verdade (Amazon, Mercado Livre etc.), já com o parâmetro de afiliado (ex.: &tag=SEUCODIGO). O visitante NUNCA vê esse link — ele só vê o endereço curto do campo Slug acima. Troque aqui sempre que precisar atualizar a tag de afiliado, sem mexer nos artigos."
               - { label: "Ativo (se desmarcado, o link some do site)", name: active, widget: boolean, default: true }

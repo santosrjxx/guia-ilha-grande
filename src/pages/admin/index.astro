@@ -11,6 +11,23 @@ const published = articles.filter((a) => !a.data.draft).length;
 const drafts = articles.filter((a) => a.data.draft).length;
 const activeLinks = AFFILIATE_LINKS.filter((l) => l.active !== false).length;
 
+// Se um link de afiliado usar o mesmo slug de uma página/seção real do site, a página real
+// sempre vence e o link de afiliado nunca ativa — avisa aqui pra não passar despercebido.
+const reservedRootSlugs = new Set([
+  'onde-comer',
+  'o-que-fazer',
+  'onde-ficar',
+  'guia-pratico',
+  'sobre',
+  'contato',
+  'anuncie',
+  'politica-de-privacidade',
+  'politica-editorial',
+  'admin',
+  'go',
+]);
+const linkCollisions = AFFILIATE_LINKS.filter((l) => reservedRootSlugs.has(l.slug));
+
 const stats = [
   { label: 'Total de artigos', value: articles.length, icon: '📄' },
   { label: 'Publicados', value: published, icon: '✅' },
@@ -21,6 +38,7 @@ const stats = [
 const quickActions = [
   { label: 'Novo Artigo', desc: 'Escrever e publicar um novo post', href: '/admin/cms/#/collections/articles/new', primary: true },
   { label: 'Ver Artigos', desc: 'Gerenciar todos os artigos', href: '/admin/cms/#/collections/articles' },
+  { label: 'Cliques em Afiliados', desc: 'Ver o link curto e os cliques de cada afiliado', href: '/admin/links/' },
   { label: 'Configurações', desc: 'Nome do site, cores e fontes', href: '/admin/cms/#/collections/site-config/entries/config' },
 ];
 
@@ -68,6 +86,7 @@ const systemLinks = [
           <ul class="nav-list">
             <li><a href="/admin/" class="active">Dashboard</a></li>
             <li><a href="/admin/cms/#/collections/articles">Artigos</a></li>
+            <li><a href="/admin/links/">Cliques em Afiliados</a></li>
           </ul>
 
           <p class="nav-group-label">Páginas</p>
@@ -90,6 +109,15 @@ const systemLinks = [
       <main>
         <h1>Dashboard</h1>
         <p class="lead">Bem-vindo ao painel do {SITE.name}.</p>
+
+        {linkCollisions.length > 0 && (
+          <div class="warning">
+            <strong>Atenção:</strong> {linkCollisions.length === 1 ? 'este link de afiliado usa' : 'estes links de afiliado usam'} o mesmo endereço de uma página do site e por isso {linkCollisions.length === 1 ? 'não vai funcionar' : 'não vão funcionar'} — troque o slug em <a href="/admin/cms/#/collections/affiliate-links/entries/links">Links de Afiliados</a>:
+            <ul>
+              {linkCollisions.map((c) => <li><code>/{c.slug}/</code> — {c.label}</li>)}
+            </ul>
+          </div>
+        )}
 
         <h2 class="section-label">Estatísticas</h2>
         <div class="stats-grid">
@@ -184,6 +212,17 @@ const systemLinks = [
       main { flex: 1; padding: 2rem 2.5rem; max-width: 1100px; }
       h1 { margin: 0; font-size: 1.6rem; }
       .lead { color: var(--color-text-muted); margin: 0.35rem 0 2rem; }
+      .warning {
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        color: #7c2d12;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        margin: -1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      .warning a { color: inherit; font-weight: 700; }
+      .warning ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
       .section-label {
         font-size: 0.75rem;
         text-transform: uppercase;

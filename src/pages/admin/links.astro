@@ -1,0 +1,268 @@
+---
+// Tela "Cliques em Afiliados" — mostra o link curto de cada link de afiliado (raiz do
+// domínio, ex.: /mochila-trilha/) e quantos cliques recebeu. Os cliques ficam guardados
+// numa KV do Cloudflare Worker (worker/index.ts), então essa página busca os dados ao
+// vivo no navegador (fetch client-side pro endpoint /go/stats.json), diferente do resto
+// do painel que é 100% estático. A chave de acesso (STATS_SECRET) fica salva no
+// localStorage do navegador pra não precisar digitar toda vez.
+import { SITE, DESIGN, AFFILIATE_LINKS } from '../../consts';
+
+// Endereços da raiz do site que já existem de verdade — se algum link de afiliado usar um
+// desses slugs, a página real sempre vence e o redirecionamento do afiliado nunca ativa.
+// Aviso simples pra evitar essa armadilha, sem precisar quebrar o build.
+const reservedRootSlugs = new Set([
+  'onde-comer',
+  'o-que-fazer',
+  'onde-ficar',
+  'guia-pratico',
+  'sobre',
+  'contato',
+  'anuncie',
+  'politica-de-privacidade',
+  'politica-editorial',
+  'admin',
+  'go',
+]);
+const collisions = AFFILIATE_LINKS.filter((l) => reservedRootSlugs.has(l.slug));
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Cliques em Afiliados — {SITE.name}</title>
+    <link rel="icon" href={DESIGN.faviconUrl} />
+    <style set:html={`:root {
+      --color-primary: ${DESIGN.colors.primary};
+      --color-primary-dark: ${DESIGN.colors.primaryDark};
+      --color-accent-dark: ${DESIGN.colors.accentDark};
+      --color-border: ${DESIGN.colors.border};
+      --color-surface: ${DESIGN.colors.surface};
+      --color-text: ${DESIGN.colors.text};
+      --color-text-muted: ${DESIGN.colors.textMuted};
+    }`} />
+  </head>
+  <body>
+    <div class="shell">
+      <main>
+        <a href="/admin/" class="back-link">← Voltar ao painel</a>
+        <h1>Cliques em Afiliados</h1>
+        <p class="lead">
+          Link curto de cada afiliado (o que você deve colar nos artigos) e quantos cliques recebeu até agora.
+        </p>
+
+        {collisions.length > 0 && (
+          <div class="warning">
+            <strong>Atenção:</strong> {collisions.length === 1 ? 'este link usa' : 'estes links usam'} o mesmo endereço de uma página do site e por isso {collisions.length === 1 ? 'não vai funcionar' : 'não vão funcionar'} — troque o slug no CMS:
+            <ul>
+              {collisions.map((c) => <li><code>/{c.slug}/</code> — {c.label}</li>)}
+            </ul>
+          </div>
+        )}
+
+        <div id="key-form" class="card">
+          <label for="key-input">Chave de acesso às estatísticas</label>
+          <p class="hint">A mesma chave (STATS_SECRET) configurada no Cloudflare Worker. Fica salva neste navegador — não precisa digitar de novo.</p>
+          <div class="key-row">
+            <input id="key-input" type="password" placeholder="Cole a chave aqui" autocomplete="off" />
+            <button id="key-save" type="button">Ver cliques</button>
+          </div>
+          <p id="key-error" class="error" hidden>Chave incorreta. Confira e tente de novo.</p>
+        </div>
+
+        <div id="loading" class="hint" hidden>Carregando…</div>
+
+        <div id="table-wrap" hidden>
+          <table>
+            <thead>
+              <tr>
+                <th>Link curto</th>
+                <th>Rótulo</th>
+                <th>Provedor</th>
+                <th class="num">Cliques</th>
+                <th>Destino</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+          <button id="key-forget" type="button" class="forget-link">Trocar chave de acesso</button>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'affiliateStatsKey';
+
+      const keyForm = document.getElementById('key-form') as HTMLDivElement;
+      const keyInput = document.getElementById('key-input') as HTMLInputElement;
+      const keySave = document.getElementById('key-save') as HTMLButtonElement;
+      const keyError = document.getElementById('key-error') as HTMLParagraphElement;
+      const keyForget = document.getElementById('key-forget') as HTMLButtonElement;
+      const loading = document.getElementById('loading') as HTMLDivElement;
+      const tableWrap = document.getElementById('table-wrap') as HTMLDivElement;
+      const tableBody = document.getElementById('table-body') as HTMLTableSectionElement;
+
+      interface Row {
+        slug: string;
+        label: string;
+        provider: string;
+        destinationUrl: string;
+        active?: boolean;
+        shortUrl: string;
+        clicks: number;
+      }
+
+      async function loadStats(key: string) {
+        keyError.hidden = true;
+        loading.hidden = false;
+        tableWrap.hidden = true;
+
+        const res = await fetch(`/go/stats.json?key=${encodeURIComponent(key)}`);
+        loading.hidden = true;
+
+        if (res.status === 403) {
+          localStorage.removeItem(STORAGE_KEY);
+          keyForm.hidden = false;
+          keyError.hidden = false;
+          return;
+        }
+
+        const rows: Row[] = await res.json();
+        tableBody.innerHTML = rows
+          .map((r) => {
+            const inactive = r.active === false ? ' <em>(inativo)</em>' : '';
+            return `<tr>
+              <td>
+                <button type="button" class="copy-btn" data-url="${escapeHtml(r.shortUrl)}">📋</button>
+                <a href="${escapeHtml(r.shortUrl)}" target="_blank" rel="noopener">${escapeHtml(r.shortUrl)}</a>${inactive}
+              </td>
+              <td>${escapeHtml(r.label)}</td>
+              <td>${escapeHtml(r.provider)}</td>
+              <td class="num">${r.clicks}</td>
+              <td><a href="${escapeHtml(r.destinationUrl)}" target="_blank" rel="noopener sponsored">abrir destino ↗</a></td>
+            </tr>`;
+          })
+          .join('');
+
+        keyForm.hidden = true;
+        tableWrap.hidden = false;
+
+        tableBody.querySelectorAll<HTMLButtonElement>('.copy-btn').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const url = btn.dataset.url || '';
+            try {
+              await navigator.clipboard.writeText(url);
+              const original = btn.textContent;
+              btn.textContent = '✅';
+              setTimeout(() => (btn.textContent = original), 1200);
+            } catch {
+              // clipboard indisponível (ex.: navegador antigo) — o link já fica visível ao lado pra copiar manualmente
+            }
+          });
+        });
+      }
+
+      function escapeHtml(value: string): string {
+        return value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      const savedKey = localStorage.getItem(STORAGE_KEY);
+      if (savedKey) {
+        keyForm.hidden = true;
+        loadStats(savedKey);
+      }
+
+      keySave.addEventListener('click', () => {
+        const key = keyInput.value.trim();
+        if (!key) return;
+        localStorage.setItem(STORAGE_KEY, key);
+        loadStats(key);
+      });
+      keyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') keySave.click();
+      });
+      keyForget.addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        keyInput.value = '';
+        keyForm.hidden = false;
+        tableWrap.hidden = true;
+      });
+    </script>
+
+    <style>
+      :root { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--color-surface); color: var(--color-text); }
+      .shell { min-height: 100vh; }
+      main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+      .back-link { color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem; }
+      .back-link:hover { color: var(--color-text); }
+
+      h1 { margin: 0.75rem 0 0.25rem; font-size: 1.6rem; }
+      .lead { color: var(--color-text-muted); margin: 0 0 1.5rem; }
+
+      .warning {
+        background: #fff7ed;
+        border: 1px solid #fdba74;
+        color: #7c2d12;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+      }
+      .warning ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+      .card label { font-weight: 700; display: block; margin-bottom: 0.25rem; }
+      .hint { color: var(--color-text-muted); font-size: 0.85rem; margin: 0 0 0.75rem; }
+      .key-row { display: flex; gap: 0.5rem; }
+      #key-input {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+      #key-save {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .error { color: #b91c1c; font-size: 0.85rem; margin: 0.6rem 0 0; }
+
+      table { border-collapse: collapse; width: 100%; background: #fff; border-radius: 12px; overflow: hidden; }
+      th, td { border: 1px solid var(--color-border); padding: 0.6rem 0.75rem; text-align: left; font-size: 0.9rem; }
+      th { background: #f4f8f7; }
+      td.num, th.num { text-align: right; }
+      .copy-btn { border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 0.3rem; }
+
+      .forget-link {
+        margin-top: 1rem;
+        background: none;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 0.82rem;
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0;
+      }
+    </style>
+  </body>
+</html>
