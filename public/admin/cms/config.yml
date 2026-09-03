@@ -251,7 +251,7 @@ collections:
 
   - name: affiliate-links
     label: Links de Afiliados
-    description: "Cada link daqui vira um endereço curto na raiz do site, tipo guiailhagrande.com.br/<slug>/ (ex.: /mochila-trilha/) que redireciona pro link real e conta os cliques — igual ao Pretty Links do WordPress. Troque a URL de destino aqui quando tiver a tag de afiliado real — não precisa editar os artigos. Pra ver quantos cliques cada link recebeu, acesse /admin/links/ no painel."
+    description: "Cada link daqui vira um endereço curto na raiz do site, tipo guiailhagrande.com.br/<slug>/<código>/ (ex.: /mochila-trilha/am/) que redireciona pro link real e conta os cliques — igual ao Pretty Links do WordPress. O código de 2 letras no final é automático, de acordo com o Provedor escolhido abaixo (Amazon=am, Mercado Livre=ml, Booking=bk, Rentcars=rc, Outro=ot) — não precisa digitar. Troque a URL de destino aqui quando tiver a tag de afiliado real — não precisa editar os artigos. Pra ver o link pronto de cada item e quantos cliques recebeu, acesse /admin/links/ no painel."
     files:
       - name: links
         label: "Todos os links"
@@ -265,18 +265,18 @@ collections:
               - label: "Slug (endereço curto)"
                 name: slug
                 widget: string
-                hint: "Vira o link guiailhagrande.com.br/<slug>/ — é ESSE endereço que você deve colar nos artigos e compartilhar, nunca a URL de destino abaixo. Ex.: mochila-trilha vira /mochila-trilha/. Só letras minúsculas, números e hífen. IMPORTANTE: não use o mesmo slug de uma página ou seção já existente do site (ex.: sobre, contato, onde-comer, o-que-fazer, onde-ficar, guia-pratico) — nesse caso a página real sempre ganha e o link de afiliado simplesmente não funciona. Evite mudar depois de publicado em algum artigo."
+                hint: "Vira o link guiailhagrande.com.br/<slug>/<código-do-provedor>/ — veja o link completo pronto em /admin/links/ depois de salvar. É ESSE endereço que você deve colar nos artigos e compartilhar, nunca a URL de destino abaixo. Ex.: mochila-trilha + Amazon vira /mochila-trilha/am/. Só letras minúsculas, números e hífen. IMPORTANTE: não use o mesmo slug de uma página ou seção já existente do site (ex.: sobre, contato, onde-comer, o-que-fazer, onde-ficar, guia-pratico) — nesse caso a página real sempre ganha e o link de afiliado simplesmente não funciona. Evite mudar depois de publicado em algum artigo."
                 pattern: ['^[a-z0-9]+(-[a-z0-9]+)*$', "Use apenas letras minúsculas, números e hífens, sem espaços ou acentos"]
               - { label: "Rótulo (texto do botão)", name: label, widget: string }
-              - label: Provedor
+              - label: "Provedor (define o código de 2 letras no final do link: am, ml, bk, rc ou ot)"
                 name: provider
                 widget: select
                 options:
-                  - { label: Amazon, value: amazon }
-                  - { label: Mercado Livre, value: mercadoLivre }
-                  - { label: Booking.com, value: booking }
-                  - { label: Rentcars, value: rentcar }
-                  - { label: Outro, value: outro }
+                  - { label: "Amazon (código: am)", value: amazon }
+                  - { label: "Mercado Livre (código: ml)", value: mercadoLivre }
+                  - { label: "Booking.com (código: bk)", value: booking }
+                  - { label: "Rentcars (código: rc)", value: rentcar }
+                  - { label: "Outro (código: ot)", value: outro }
               - label: "URL de destino (link real, com a tag de afiliado — fica oculto do visitante)"
                 name: destinationUrl
                 widget: string

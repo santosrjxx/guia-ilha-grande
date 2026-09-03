@@ -64,12 +64,22 @@ export interface AffiliateLink {
 
 // Links de afiliado editáveis em /admin ("Links de Afiliados"). O redirecionador em si
 // roda no worker (worker/index.ts), que importa o mesmo JSON — os dois lados ficam sempre
-// sincronizados porque vêm do mesmo arquivo. O link curto fica na raiz do domínio
-// (ex.: /mochila-trilha/, não /go/mochila-trilha/); o worker só ativa esse redirecionamento
-// quando não existe nenhuma página ou artigo real com o mesmo slug.
+// sincronizados porque vêm do mesmo arquivo. O link curto fica na raiz do domínio, com um
+// código de 2 letras do provedor no final (ex.: /mochila-trilha/am/ pra Amazon); o worker só
+// ativa esse redirecionamento quando não existe nenhuma página ou artigo real com o mesmo
+// endereço. Precisa bater exatamente com PROVIDER_CODES em worker/index.ts.
 export const AFFILIATE_LINKS = (affiliateLinksData as { links: AffiliateLink[] }).links;
 
-export const goLink = (slug: string) => `/${slug}/`;
+const PROVIDER_CODES: Record<AffiliateLink['provider'], string> = {
+  amazon: 'am',
+  mercadoLivre: 'ml',
+  booking: 'bk',
+  rentcar: 'rc',
+  outro: 'ot',
+};
+
+export const goLink = (slug: string, provider: AffiliateLink['provider']) =>
+  `/${slug}/${PROVIDER_CODES[provider]}/`;
 
 export const AD_CONTACT_URL = '/anuncie/';
 

@@ -43,6 +43,40 @@ interface AffiliateLink {
 
 const AFFILIATE_LINKS = (affiliateLinks as { links: AffiliateLink[] }).links;
 
+// Código de 2 letras anexado ao fim do link curto, derivado automaticamente do campo
+// "Provedor" escolhido no CMS — não é um campo separado no JSON, pra não ter como ficar
+// dessincronizado. Ex.: guiailhagrande.com.br/mochila-trilha/am/ (Amazon).
+const PROVIDER_CODES: Record<string, string> = {
+  amazon: 'am',
+  mercadoLivre: 'ml',
+  booking: 'bk',
+  rentcar: 'rc',
+  outro: 'ot',
+};
+
+function providerCode(provider: string): string {
+  return PROVIDER_CODES[provider] ?? 'ot';
+}
+
+// Chave usada na KV de cliques. Inclui o provedor porque dois links diferentes (ex.: a
+// mesma mochila na Amazon e no Mercado Livre) podem compartilhar o mesmo slug base e
+// precisam de contadores separados.
+function clickKey(link: AffiliateLink): string {
+  return `${link.slug}::${providerCode(link.provider)}`;
+}
+
+function findLinkBySlugAndCode(slug: string, code: string): AffiliateLink | undefined {
+  return AFFILIATE_LINKS.find(
+    (l) => l.slug === slug && providerCode(l.provider) === code && l.active !== false
+  );
+}
+
+// Usado só pelos formatos antigos (/go/<slug>/ e /<slug>/ sem código de provedor), de antes
+// dessa mudança — pega o primeiro link ativo com aquele slug, ignorando o provedor.
+function findLinkBySlug(slug: string): AffiliateLink | undefined {
+  return AFFILIATE_LINKS.find((l) => l.slug === slug && l.active !== false);
+}
+
 function html(body: string, extraHeaders: Record<string, string> = {}, status = 200): Response {
   return new Response(body, {
     status,
@@ -148,15 +182,19 @@ async function handleCallback(request: Request, env: Env): Promise<Response> {
 // Conta o clique numa KV (get-then-put: não é atômico, então sob rajadas concorrentes pode
 // subcontar um pouco — aceitável pro volume de tráfego deste site, não é uma métrica
 // financeira crítica) e devolve o redirecionamento pro link real. Não bloqueia a resposta
-// (ctx.waitUntil). Retorna null se o slug não corresponde a nenhum link de afiliado ativo.
-function redirectAffiliate(slug: string, env: Env, ctx: ExecutionContext): Response | null {
-  const link = AFFILIATE_LINKS.find((l) => l.slug === slug && l.active !== false);
+// (ctx.waitUntil). Retorna null se `link` for undefined (nenhum link de afiliado bateu).
+function redirectAffiliate(
+  link: AffiliateLink | undefined,
+  env: Env,
+  ctx: ExecutionContext
+): Response | null {
   if (!link) return null;
+  const key = clickKey(link);
 
   ctx.waitUntil(
     (async () => {
-      const current = Number((await env.AFFILIATE_CLICKS.get(slug)) ?? '0') || 0;
-      await env.AFFILIATE_CLICKS.put(slug, String(current + 1));
+      const current = Number((await env.AFFILIATE_CLICKS.get(key)) ?? '0') || 0;
+      await env.AFFILIATE_CLICKS.put(key, String(current + 1));
     })()
   );
 
@@ -167,8 +205,8 @@ async function getStatsRows(env: Env, origin: string) {
   const rows = await Promise.all(
     AFFILIATE_LINKS.map(async (link) => ({
       ...link,
-      shortUrl: `${origin}/${link.slug}/`,
-      clicks: Number((await env.AFFILIATE_CLICKS.get(link.slug)) ?? '0') || 0,
+      shortUrl: `${origin}/${link.slug}/${providerCode(link.provider)}/`,
+      clicks: Number((await env.AFFILIATE_CLICKS.get(clickKey(link))) ?? '0') || 0,
     }))
   );
   rows.sort((a, b) => b.clicks - a.clicks);
@@ -265,7 +303,7 @@ export default {
     // migração pra links na raiz do domínio) continuam funcionando e contando clique.
     if (pathname.startsWith('/go/')) {
       const legacySlug = pathname.slice('/go/'.length).replace(/\/$/, '');
-      const redirect = redirectAffiliate(legacySlug, env, ctx);
+      const redirect = redirectAffiliate(findLinkBySlug(legacySlug), env, ctx);
       if (redirect) return redirect;
     }
 
@@ -273,11 +311,18 @@ export default {
     if (assetResponse.status !== 404) return assetResponse;
 
     // Nenhuma página ou artigo real bate com esse endereço: tenta como link de afiliado na
-    // raiz (ex.: /mochila-trilha/). Uma página real SEMPRE tem prioridade — um link de
-    // afiliado só "ativa" quando não existe nenhuma página com o mesmo slug.
-    const rootSlug = pathname.replace(/^\/+|\/+$/g, '');
-    if (rootSlug && !rootSlug.includes('/')) {
-      const redirect = redirectAffiliate(rootSlug, env, ctx);
+    // raiz. Uma página real SEMPRE tem prioridade — um link de afiliado só "ativa" quando
+    // não existe nenhuma página com o mesmo endereço.
+    const segments = pathname.split('/').filter(Boolean);
+
+    if (segments.length === 2) {
+      // Formato atual: /<slug>/<código-do-provedor>/ (ex.: /mochila-trilha/am/).
+      const redirect = redirectAffiliate(findLinkBySlugAndCode(segments[0], segments[1]), env, ctx);
+      if (redirect) return redirect;
+    } else if (segments.length === 1) {
+      // Compatibilidade com o formato de raiz sem código de provedor (/<slug>/), usado
+      // brevemente antes da introdução do código de 2 letras.
+      const redirect = redirectAffiliate(findLinkBySlug(segments[0]), env, ctx);
       if (redirect) return redirect;
     }
 
