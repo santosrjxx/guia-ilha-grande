@@ -1,0 +1,57 @@
+---
+---
+
+<div id="cookie-consent" class="cookie-consent" hidden>
+  <p>
+    Usamos cookies essenciais ao funcionamento do site. Ao continuar navegando, você concorda com nossa
+    <a href="/politica-de-privacidade/">Política de Privacidade</a>.
+  </p>
+  <button type="button" id="cookie-consent-accept" class="btn btn-primary">OK, entendi</button>
+</div>
+
+<style>
+  .cookie-consent {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--color-primary-dark);
+    color: #fff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+  }
+  .cookie-consent[hidden] {
+    display: none;
+  }
+  .cookie-consent p {
+    margin: 0;
+    font-size: 0.9rem;
+    max-width: 60ch;
+  }
+  .cookie-consent a {
+    color: #fff;
+    text-decoration: underline;
+  }
+  .cookie-consent button {
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  const STORAGE_KEY = 'cookie-consent-accepted';
+  const banner = document.getElementById('cookie-consent');
+
+  if (banner && !localStorage.getItem(STORAGE_KEY)) {
+    banner.hidden = false;
+  }
+
+  document.getElementById('cookie-consent-accept')?.addEventListener('click', () => {
+    localStorage.setItem(STORAGE_KEY, '1');
+    if (banner) banner.hidden = true;
+  });
+</script>
