@@ -25,7 +25,6 @@ const articles = defineCollection({
       author: z.string().default('Equipe Guia Ilha Grande'),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
-      featured: z.boolean().default(false),
       popular: z.boolean().default(false),
       faq: z
         .array(

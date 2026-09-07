@@ -116,7 +116,6 @@ collections:
         default: []
         required: false
       - { label: Rascunho (não publica no site), name: draft, widget: boolean, default: false }
-      - { label: "Destaque (featured)", name: featured, widget: boolean, default: false }
       - { label: Popular, name: popular, widget: boolean, default: false }
 
   - name: pages
