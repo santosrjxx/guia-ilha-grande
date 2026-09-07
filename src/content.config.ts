@@ -21,7 +21,7 @@ const articles = defineCollection({
       heroImageWidth: z.number().int().positive().nullable().optional().transform((v) => v ?? 1200),
       heroImageHeight: z.number().int().positive().nullable().optional().transform((v) => v ?? 675),
       pubDate: z.coerce.date(),
-      updatedDate: z.coerce.date().nullish(),
+      updatedDate: z.preprocess((v) => (v === '' ? undefined : v), z.coerce.date().nullish()),
       author: z.string().default('Equipe Guia Ilha Grande'),
       tags: z.array(z.string()).default([]),
       draft: z.boolean().default(false),
