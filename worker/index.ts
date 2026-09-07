@@ -10,7 +10,7 @@
 //    registrado no GitHub OAuth App ainda aponte pra lá.
 //
 // 2. Encurtador/redirecionador de links de afiliado: /<slug> (na raiz do domínio, ex.:
-//    guiailhagrande.com.br/mochila-trilha/) → redireciona pro link real (definido em
+//    guiadeilhagrande.com.br/mochila-trilha/) → redireciona pro link real (definido em
 //    src/data/affiliate-links.json, editável pelo painel /admin) e conta o clique numa KV.
 //    Equivalente caseiro ao Pretty Links. Uma página ou artigo real do site SEMPRE tem
 //    prioridade sobre um slug de afiliado igual (só tentamos o afiliado depois de a busca
@@ -45,7 +45,7 @@ const AFFILIATE_LINKS = (affiliateLinks as { links: AffiliateLink[] }).links;
 
 // Código de 2 letras anexado ao fim do link curto, derivado automaticamente do campo
 // "Provedor" escolhido no CMS — não é um campo separado no JSON, pra não ter como ficar
-// dessincronizado. Ex.: guiailhagrande.com.br/mochila-trilha/am/ (Amazon).
+// dessincronizado. Ex.: guiadeilhagrande.com.br/mochila-trilha/am/ (Amazon).
 const PROVIDER_CODES: Record<string, string> = {
   amazon: 'am',
   mercadoLivre: 'ml',

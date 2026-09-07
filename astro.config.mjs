@@ -5,7 +5,7 @@ import remarkFixNbsp from './src/remark-fix-nbsp.mjs';
 
 // Protocolo Genilson: Astro SSG estático, zero JS por padrão, foco em Core Web Vitals.
 export default defineConfig({
-  site: 'https://www.guiailhagrande.com.br',
+  site: 'https://www.guiadeilhagrande.com.br',
   output: 'static',
   trailingSlash: 'always',
   integrations: [sitemap(), mdx()],
