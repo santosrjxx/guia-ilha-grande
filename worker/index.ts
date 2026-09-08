@@ -102,6 +102,16 @@ function renderError(message: string): Response {
   return html(`<!doctype html><html><body><p>Erro de autenticação: ${escapeHtml(message)}</p></body></html>`);
 }
 
+// Domínios de onde o painel /admin pode ser aberto. O popup de OAuth roda sempre em
+// guia-ilha-grande.moiclub.workers.dev (é o "base_url" fixo no config.yml), que é uma
+// origem DIFERENTE do domínio do site — comparar com window.location.origin (bug antigo)
+// nunca dava match e travava o login numa tela branca. Por isso validamos contra uma
+// lista explícita do(s) domínio(s) do site em vez da origem do próprio popup.
+const ALLOWED_OPENER_ORIGINS = [
+  'https://www.guiadeilhagrande.com.br',
+  'https://guiadeilhagrande.com.br',
+];
+
 function renderSuccess(token: string): Response {
   const payload = 'authorization:github:success:' + JSON.stringify({ token, provider: 'github' });
   return html(`<!doctype html>
@@ -109,11 +119,12 @@ function renderSuccess(token: string): Response {
 <script>
   (function () {
     var message = ${JSON.stringify(payload)};
+    var allowedOrigins = ${JSON.stringify(ALLOWED_OPENER_ORIGINS)};
     function receiveMessage(e) {
       // Só repassa o token se a mensagem for exatamente o handshake esperado
-      // ("authorizing:github") E tiver vindo da própria origem (a aba do /admin
-      // que abriu este popup) — evita repassar o token a uma origem arbitrária.
-      if (e.origin !== window.location.origin) return;
+      // ("authorizing:github") E tiver vindo da aba do /admin que abriu este popup
+      // (um dos domínios do site) — evita repassar o token a uma origem arbitrária.
+      if (allowedOrigins.indexOf(e.origin) === -1) return;
       if (e.data !== 'authorizing:github') return;
       window.opener.postMessage(message, e.origin);
       window.removeEventListener('message', receiveMessage, false);
