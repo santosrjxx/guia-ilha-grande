@@ -93,3 +93,10 @@ export const AD_CONTACT_URL = '/anuncie/';
 // consome um desses campos precisa checar `isPending` antes de renderizar.
 export const PENDING = '[PENDENTE - editar no CMS]';
 export const isPending = (value: string) => value.trim() === PENDING;
+
+// Tolera o erro comum de colar a tag <meta ...> inteira em vez de só o código de
+// verificação: se o valor vier com content="...", extrai só o que está dentro das aspas.
+export const extractVerificationCode = (value: string) => {
+  const match = value.match(/content=["']([^"']+)["']/);
+  return match ? match[1] : value.trim();
+};

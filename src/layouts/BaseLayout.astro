@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieConsent from '../components/CookieConsent.astro';
 import Analytics from '../components/Analytics.astro';
-import { ANALYTICS, DESIGN, isPending } from '../consts';
+import { ANALYTICS, DESIGN, extractVerificationCode, isPending } from '../consts';
 import '../styles/global.css';
 
 interface Props {
@@ -27,7 +27,7 @@ const { title, description, image, type, schema } = Astro.props;
     <link rel="apple-touch-icon" href="/android-chrome-192x192.png" />
     <SEO title={title} description={description} image={image} type={type} schema={schema} />
     {!isPending(ANALYTICS.searchConsoleVerification) && (
-      <meta name="google-site-verification" content={ANALYTICS.searchConsoleVerification} />
+      <meta name="google-site-verification" content={extractVerificationCode(ANALYTICS.searchConsoleVerification)} />
     )}
     <style set:html={`:root {
       --color-bg: ${DESIGN.colors.background};
