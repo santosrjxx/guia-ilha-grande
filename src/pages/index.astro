@@ -405,11 +405,16 @@ const websiteSchema = {
   /* Recent + sidebar */
   .recent-layout { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
   .recent-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1.5rem; }
-  .recent-item { display: flex; gap: 1.25rem; text-decoration: none; color: inherit; }
-  .recent-item img { width: 200px; height: 130px; object-fit: cover; border-radius: var(--radius); flex-shrink: 0; }
+  .recent-item { display: flex; flex-direction: column; gap: 0.75rem; text-decoration: none; color: inherit; }
+  .recent-item img { width: 100%; height: auto; aspect-ratio: 320 / 200; object-fit: cover; border-radius: var(--radius); flex-shrink: 0; }
   .recent-item-meta { font-size: 0.8rem; color: var(--color-text-muted); margin: 0 0 0.25rem; }
   .recent-item-body h3 { margin: 0 0 0.35rem; }
   .recent-item-body p { margin: 0; color: var(--color-text-muted); }
+
+  @media (min-width: 560px) {
+    .recent-item { flex-direction: row; gap: 1.25rem; }
+    .recent-item img { width: 200px; height: 130px; }
+  }
 
   .sidebar { display: flex; flex-direction: column; gap: 1.75rem; }
   .widget {
