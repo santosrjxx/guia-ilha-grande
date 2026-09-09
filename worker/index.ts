@@ -22,6 +22,16 @@
 // 3. /go/stats?key=... (HTML) e /go/stats.json?key=... — painel com a contagem de cliques
 //    por link, protegido por um segredo (STATS_SECRET) pra não ficar público. O JSON
 //    alimenta a tela "Cliques em Afiliados" dentro de /admin.
+//
+// 4. Comentários nos artigos: POST /api/comments (público, qualquer visitante manda um
+//    comentário, que fica pendente de aprovação — nunca aparece no ar sozinho), GET
+//    /api/comments?slug=... (público, só os comentários já aprovados daquele artigo — é o
+//    que o componente Comments.astro busca ao vivo no navegador), GET
+//    /api/comments/pending?key=... e POST /api/comments/moderate (protegidos pelo mesmo
+//    STATS_SECRET do item 3) — alimentam a tela de moderação em /admin/comments. Guardados
+//    numa KV própria (COMMENTS), uma lista JSON por artigo, mais um índice separado
+//    (comments:_index) com a lista de slugs que já receberam algum comentário, pra dar pra
+//    achar tudo que está pendente sem precisar varrer a KV inteira.
 
 import affiliateLinks from '../src/data/affiliate-links.json';
 
@@ -30,7 +40,16 @@ export interface Env {
   GITHUB_OAUTH_CLIENT_ID: string;
   GITHUB_OAUTH_CLIENT_SECRET: string;
   AFFILIATE_CLICKS: KVNamespace;
+  COMMENTS: KVNamespace;
   STATS_SECRET: string;
+}
+
+interface Comment {
+  id: string;
+  name: string;
+  message: string;
+  createdAt: string;
+  approved: boolean;
 }
 
 interface AffiliateLink {
@@ -229,6 +248,160 @@ function checkStatsKey(request: Request, env: Env): boolean {
   return Boolean(env.STATS_SECRET) && key === env.STATS_SECRET;
 }
 
+const COMMENTS_INDEX_KEY = 'comments:_index';
+const commentsKey = (slug: string) => `comments:${slug}`;
+
+async function getComments(env: Env, slug: string): Promise<Comment[]> {
+  const raw = await env.COMMENTS.get(commentsKey(slug));
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as Comment[];
+  } catch {
+    return [];
+  }
+}
+
+async function putComments(env: Env, slug: string, comments: Comment[]): Promise<void> {
+  await env.COMMENTS.put(commentsKey(slug), JSON.stringify(comments));
+}
+
+async function getSlugIndex(env: Env): Promise<string[]> {
+  const raw = await env.COMMENTS.get(COMMENTS_INDEX_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as string[];
+  } catch {
+    return [];
+  }
+}
+
+async function addToSlugIndex(env: Env, slug: string): Promise<void> {
+  const index = await getSlugIndex(env);
+  if (!index.includes(slug)) {
+    index.push(slug);
+    await env.COMMENTS.put(COMMENTS_INDEX_KEY, JSON.stringify(index));
+  }
+}
+
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'X-Robots-Tag': 'noindex' },
+  });
+}
+
+// Aceita comentário novo. Nunca fica visível sozinho — entra como pendente e só aparece pro
+// público depois que alguém aprovar em /admin/comments (POST /api/comments/moderate).
+async function handleCommentSubmit(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  let body: { slug?: string; name?: string; message?: string; honeypot?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Corpo inválido' }, 400);
+  }
+
+  const slug = (body.slug ?? '').trim();
+  const name = (body.name ?? '').trim();
+  const message = (body.message ?? '').trim();
+
+  // Campo-armadilha: invisível pra gente de verdade (escondido via CSS no formulário),
+  // mas robôs de spam costumam preencher todo campo que encontram. Se veio preenchido,
+  // finge que deu certo (não avisa o robô) mas não guarda nada.
+  if (body.honeypot) {
+    return jsonResponse({ ok: true });
+  }
+
+  if (!slug || name.length < 2 || name.length > 80 || message.length < 3 || message.length > 2000) {
+    return jsonResponse({ error: 'Dados inválidos' }, 400);
+  }
+
+  const comment: Comment = {
+    id: crypto.randomUUID(),
+    name,
+    message,
+    createdAt: new Date().toISOString(),
+    approved: false,
+  };
+
+  ctx.waitUntil(
+    (async () => {
+      const comments = await getComments(env, slug);
+      comments.push(comment);
+      await putComments(env, slug, comments);
+      await addToSlugIndex(env, slug);
+    })()
+  );
+
+  return jsonResponse({ ok: true });
+}
+
+// Lista pública: só os comentários já aprovados de um artigo, pro componente Comments.astro
+// exibir na página. Nunca revela os pendentes.
+async function handleCommentsList(request: Request, env: Env): Promise<Response> {
+  const slug = new URL(request.url).searchParams.get('slug') ?? '';
+  if (!slug) return jsonResponse([]);
+
+  const comments = await getComments(env, slug);
+  const approved = comments
+    .filter((c) => c.approved)
+    .map((c) => ({ id: c.id, name: c.name, message: c.message, createdAt: c.createdAt }))
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+  return jsonResponse(approved);
+}
+
+// Lista protegida (mesma chave do painel de cliques): todos os comentários pendentes de
+// todo o site, pra tela de moderação em /admin/comments.
+async function handleCommentsPending(request: Request, env: Env): Promise<Response> {
+  if (!checkStatsKey(request, env)) {
+    return jsonResponse({ error: 'Acesso negado' }, 403);
+  }
+
+  const slugs = await getSlugIndex(env);
+  const pending = (
+    await Promise.all(
+      slugs.map(async (slug) => {
+        const comments = await getComments(env, slug);
+        return comments.filter((c) => !c.approved).map((c) => ({ ...c, slug }));
+      })
+    )
+  )
+    .flat()
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+
+  return jsonResponse(pending);
+}
+
+// Aprova ou apaga um comentário pendente (ou já aprovado, no caso de apagar). Protegido pela
+// mesma chave do painel de cliques.
+async function handleCommentModerate(request: Request, env: Env): Promise<Response> {
+  let body: { key?: string; slug?: string; id?: string; action?: 'approve' | 'delete' };
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Corpo inválido' }, 400);
+  }
+
+  if (!env.STATS_SECRET || body.key !== env.STATS_SECRET) {
+    return jsonResponse({ error: 'Acesso negado' }, 403);
+  }
+
+  const slug = body.slug ?? '';
+  const id = body.id ?? '';
+  if (!slug || !id || (body.action !== 'approve' && body.action !== 'delete')) {
+    return jsonResponse({ error: 'Dados inválidos' }, 400);
+  }
+
+  const comments = await getComments(env, slug);
+  const next =
+    body.action === 'delete'
+      ? comments.filter((c) => c.id !== id)
+      : comments.map((c) => (c.id === id ? { ...c, approved: true } : c));
+
+  await putComments(env, slug, next);
+  return jsonResponse({ ok: true });
+}
+
 async function handleStatsJson(request: Request, env: Env): Promise<Response> {
   if (!checkStatsKey(request, env)) {
     return new Response(JSON.stringify({ error: 'Acesso negado' }), {
@@ -308,6 +481,19 @@ export default {
     }
     if (pathname === '/go/stats.json') {
       return handleStatsJson(request, env);
+    }
+
+    if (pathname === '/api/comments' && request.method === 'POST') {
+      return handleCommentSubmit(request, env, ctx);
+    }
+    if (pathname === '/api/comments' && request.method === 'GET') {
+      return handleCommentsList(request, env);
+    }
+    if (pathname === '/api/comments/pending') {
+      return handleCommentsPending(request, env);
+    }
+    if (pathname === '/api/comments/moderate' && request.method === 'POST') {
+      return handleCommentModerate(request, env);
     }
 
     // Compatibilidade: links antigos publicados como /go/<slug>/ (formato usado antes da

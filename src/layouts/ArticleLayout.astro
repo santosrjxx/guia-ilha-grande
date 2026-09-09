@@ -4,6 +4,7 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import AuthorBox from '../components/AuthorBox.astro';
 import FAQ from '../components/FAQ.astro';
 import AdSlot from '../components/AdSlot.astro';
+import Comments from '../components/Comments.astro';
 import { SITE, SILOS } from '../consts';
 import type { SiloKey } from '../consts';
 
@@ -98,6 +99,8 @@ const articleSchema = {
     {faq && faq.length > 0 && <FAQ items={faq} />}
 
     <AdSlot label={`Publicidade em ${siloInfo.title}`} />
+
+    <Comments slug={`${silo}/${slug}`} />
   </article>
 </BaseLayout>
 

@@ -11,6 +11,10 @@
     {
       "binding": "AFFILIATE_CLICKS",
       "id": "748ac42eb9704dc48736273254900bcc"
+    },
+    {
+      "binding": "COMMENTS",
+      "id": "9f57a8229a614489b185c13038fe5076"
     }
   ]
 }

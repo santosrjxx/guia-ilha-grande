@@ -1,0 +1,261 @@
+---
+// Tela de moderação de comentários — lista os comentários pendentes de todos os artigos
+// (guardados numa KV do Worker, worker/index.ts) e permite aprovar ou apagar cada um.
+// Protegida pela mesma chave de acesso (STATS_SECRET) da tela "Cliques em Afiliados",
+// buscada ao vivo no navegador — igual ao padrão de admin/links.astro.
+import { SITE, DESIGN } from '../../consts';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Comentários — {SITE.name}</title>
+    <link rel="icon" href={DESIGN.faviconUrl} />
+    <style set:html={`:root {
+      --color-primary: ${DESIGN.colors.primary};
+      --color-primary-dark: ${DESIGN.colors.primaryDark};
+      --color-accent-dark: ${DESIGN.colors.accentDark};
+      --color-border: ${DESIGN.colors.border};
+      --color-surface: ${DESIGN.colors.surface};
+      --color-text: ${DESIGN.colors.text};
+      --color-text-muted: ${DESIGN.colors.textMuted};
+    }`} />
+  </head>
+  <body>
+    <div class="shell">
+      <main>
+        <a href="/admin/" class="back-link">← Voltar ao painel</a>
+        <h1>Comentários pendentes</h1>
+        <p class="lead">Comentários enviados pelos visitantes, aguardando aprovação antes de aparecer no artigo.</p>
+
+        <div id="key-form" class="card">
+          <label for="key-input">Chave de acesso</label>
+          <p class="hint">A mesma chave (STATS_SECRET) usada em "Cliques em Afiliados". Fica salva neste navegador.</p>
+          <div class="key-row">
+            <input id="key-input" type="password" placeholder="Cole a chave aqui" autocomplete="off" />
+            <button id="key-save" type="button">Ver comentários</button>
+          </div>
+          <p id="key-error" class="error" hidden>Chave incorreta. Confira e tente de novo.</p>
+        </div>
+
+        <div id="loading" class="hint" hidden>Carregando…</div>
+        <p id="empty" class="hint" hidden>Nenhum comentário pendente no momento. 🎉</p>
+
+        <div id="list-wrap" hidden>
+          <ul id="comment-list" class="comment-list"></ul>
+          <button id="key-forget" type="button" class="forget-link">Trocar chave de acesso</button>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'affiliateStatsKey';
+
+      const keyForm = document.getElementById('key-form') as HTMLDivElement;
+      const keyInput = document.getElementById('key-input') as HTMLInputElement;
+      const keySave = document.getElementById('key-save') as HTMLButtonElement;
+      const keyError = document.getElementById('key-error') as HTMLParagraphElement;
+      const keyForget = document.getElementById('key-forget') as HTMLButtonElement;
+      const loading = document.getElementById('loading') as HTMLDivElement;
+      const empty = document.getElementById('empty') as HTMLParagraphElement;
+      const listWrap = document.getElementById('list-wrap') as HTMLDivElement;
+      const commentList = document.getElementById('comment-list') as HTMLUListElement;
+
+      interface PendingComment {
+        id: string;
+        slug: string;
+        name: string;
+        message: string;
+        createdAt: string;
+      }
+
+      function escapeHtml(value: string): string {
+        return value
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      function fmtDate(iso: string): string {
+        return new Date(iso).toLocaleString('pt-BR');
+      }
+
+      let currentKey = '';
+
+      async function loadPending() {
+        keyError.hidden = true;
+        loading.hidden = false;
+        listWrap.hidden = true;
+        empty.hidden = true;
+
+        const res = await fetch(`/api/comments/pending?key=${encodeURIComponent(currentKey)}`);
+        loading.hidden = true;
+
+        if (res.status === 403) {
+          localStorage.removeItem(STORAGE_KEY);
+          keyForm.hidden = false;
+          keyError.hidden = false;
+          return;
+        }
+
+        const rows: PendingComment[] = await res.json();
+
+        if (rows.length === 0) {
+          keyForm.hidden = true;
+          empty.hidden = false;
+          return;
+        }
+
+        commentList.innerHTML = rows
+          .map(
+            (r) => `<li class="comment-card" data-slug="${escapeHtml(r.slug)}" data-id="${escapeHtml(r.id)}">
+              <div class="comment-head">
+                <strong>${escapeHtml(r.name)}</strong>
+                <span class="comment-slug">/${escapeHtml(r.slug)}/</span>
+                <time>${fmtDate(r.createdAt)}</time>
+              </div>
+              <p>${escapeHtml(r.message)}</p>
+              <div class="comment-actions">
+                <button type="button" class="btn-approve" data-action="approve">Aprovar</button>
+                <button type="button" class="btn-delete" data-action="delete">Apagar</button>
+              </div>
+            </li>`
+          )
+          .join('');
+
+        keyForm.hidden = true;
+        listWrap.hidden = false;
+
+        commentList.querySelectorAll<HTMLButtonElement>('button[data-action]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            const card = btn.closest<HTMLLIElement>('.comment-card')!;
+            const slug = card.dataset.slug || '';
+            const id = card.dataset.id || '';
+            const action = btn.dataset.action as 'approve' | 'delete';
+
+            card.querySelectorAll('button').forEach((b) => (b.disabled = true));
+
+            await fetch('/api/comments/moderate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: currentKey, slug, id, action }),
+            });
+
+            card.remove();
+            if (!commentList.querySelector('.comment-card')) {
+              listWrap.hidden = true;
+              empty.hidden = false;
+            }
+          });
+        });
+      }
+
+      const savedKey = localStorage.getItem(STORAGE_KEY);
+      if (savedKey) {
+        currentKey = savedKey;
+        keyForm.hidden = true;
+        loadPending();
+      }
+
+      keySave.addEventListener('click', () => {
+        const key = keyInput.value.trim();
+        if (!key) return;
+        currentKey = key;
+        localStorage.setItem(STORAGE_KEY, key);
+        loadPending();
+      });
+      keyInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') keySave.click();
+      });
+      keyForget.addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        keyInput.value = '';
+        keyForm.hidden = false;
+        listWrap.hidden = true;
+        empty.hidden = true;
+      });
+    </script>
+
+    <style>
+      :root { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--color-surface); color: var(--color-text); }
+      .shell { min-height: 100vh; }
+      main { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+      .back-link { color: var(--color-text-muted); text-decoration: none; font-size: 0.85rem; }
+      .back-link:hover { color: var(--color-text); }
+
+      h1 { margin: 0.75rem 0 0.25rem; font-size: 1.6rem; }
+      .lead { color: var(--color-text-muted); margin: 0 0 1.5rem; }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+      }
+      .card label { font-weight: 700; display: block; margin-bottom: 0.25rem; }
+      .hint { color: var(--color-text-muted); font-size: 0.85rem; margin: 0 0 0.75rem; }
+      .key-row { display: flex; gap: 0.5rem; }
+      #key-input {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--color-border);
+        border-radius: 8px;
+        font-size: 0.95rem;
+      }
+      #key-save {
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .error { color: #b91c1c; font-size: 0.85rem; margin: 0.6rem 0 0; }
+
+      .comment-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+      .comment-card {
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+      }
+      .comment-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; margin-bottom: 0.5rem; }
+      .comment-head strong { font-size: 0.98rem; }
+      .comment-slug { font-size: 0.8rem; color: var(--color-text-muted); }
+      .comment-head time { font-size: 0.78rem; color: var(--color-text-muted); margin-left: auto; }
+      .comment-card p { margin: 0 0 0.9rem; }
+      .comment-actions { display: flex; gap: 0.6rem; }
+      .comment-actions button {
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem 0.9rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .btn-approve { background: var(--color-primary); color: #fff; }
+      .btn-delete { background: #fee2e2; color: #b91c1c; }
+      .comment-actions button:disabled { opacity: 0.6; cursor: default; }
+
+      .forget-link {
+        margin-top: 1rem;
+        background: none;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 0.82rem;
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0;
+      }
+    </style>
+  </body>
+</html>

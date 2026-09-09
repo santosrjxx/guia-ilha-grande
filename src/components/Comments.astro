@@ -1,0 +1,186 @@
+---
+// Comentários por artigo. Guardados numa KV do Cloudflare Worker (worker/index.ts,
+// endpoints /api/comments), então tanto a lista quanto o envio acontecem ao vivo no
+// navegador (fetch client-side) — a página em si continua estática. Todo comentário
+// novo entra pendente e só aparece aqui depois de aprovado em /admin/comments.
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<section class="comments" aria-label="Comentários" data-slug={slug}>
+  <h2>Comentários</h2>
+  <p class="comments-loading" data-role="loading">Carregando comentários…</p>
+  <ol class="comments-list" data-role="list" hidden></ol>
+  <p class="comments-empty" data-role="empty" hidden>Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+
+  <form class="comments-form" data-role="form">
+    <h3>Deixe seu comentário</h3>
+    <p class="comments-hint">Seu comentário aparece aqui depois de revisado pela nossa equipe.</p>
+
+    <input
+      type="text"
+      name="honeypot"
+      class="comments-honeypot"
+      tabindex="-1"
+      autocomplete="off"
+      aria-hidden="true"
+    />
+
+    <label for="comment-name">Nome</label>
+    <input id="comment-name" name="name" type="text" required maxlength="80" />
+
+    <label for="comment-message">Comentário</label>
+    <textarea id="comment-message" name="message" rows="4" required maxlength="2000"></textarea>
+
+    <label class="comments-consent">
+      <input type="checkbox" required />
+      Concordo que meu nome e comentário podem ser publicados no site após aprovação, conforme a
+      <a href="/politica-de-privacidade/">Política de Privacidade</a>.
+    </label>
+
+    <button type="submit" class="btn btn-primary">Enviar comentário</button>
+    <p class="comments-status" data-role="status" role="status" hidden></p>
+  </form>
+</section>
+
+<script>
+  function escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function fmtDate(iso: string): string {
+    return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  }
+
+  document.querySelectorAll<HTMLElement>('.comments').forEach((section) => {
+    const slug = section.dataset.slug || '';
+    const loading = section.querySelector<HTMLElement>('[data-role="loading"]')!;
+    const list = section.querySelector<HTMLOListElement>('[data-role="list"]')!;
+    const empty = section.querySelector<HTMLElement>('[data-role="empty"]')!;
+    const form = section.querySelector<HTMLFormElement>('[data-role="form"]')!;
+    const status = section.querySelector<HTMLElement>('[data-role="status"]')!;
+
+    interface CommentItem {
+      id: string;
+      name: string;
+      message: string;
+      createdAt: string;
+    }
+
+    async function loadComments() {
+      try {
+        const res = await fetch(`/api/comments?slug=${encodeURIComponent(slug)}`);
+        const comments: CommentItem[] = await res.json();
+        loading.hidden = true;
+
+        if (comments.length === 0) {
+          empty.hidden = false;
+          return;
+        }
+
+        list.innerHTML = comments
+          .map(
+            (c) => `<li class="comment-item">
+              <div class="comment-item-head">
+                <strong>${escapeHtml(c.name)}</strong>
+                <time>${fmtDate(c.createdAt)}</time>
+              </div>
+              <p>${escapeHtml(c.message)}</p>
+            </li>`
+          )
+          .join('');
+        list.hidden = false;
+      } catch {
+        loading.textContent = 'Não foi possível carregar os comentários agora.';
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+
+      status.hidden = false;
+      status.textContent = 'Enviando…';
+      submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug,
+            name: formData.get('name'),
+            message: formData.get('message'),
+            honeypot: formData.get('honeypot'),
+          }),
+        });
+
+        if (!res.ok) throw new Error('falha no envio');
+
+        status.textContent = 'Obrigado! Seu comentário foi enviado e vai aparecer aqui assim que for aprovado.';
+        form.reset();
+      } catch {
+        status.textContent = 'Não foi possível enviar seu comentário agora. Tente de novo em instantes.';
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    loadComments();
+  });
+</script>
+
+<style>
+  .comments { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--color-border); }
+  .comments h2 { margin-bottom: 0.25rem; }
+  .comments-loading, .comments-empty { color: var(--color-text-muted); }
+
+  .comments-list { list-style: none; margin: 0 0 2rem; padding: 0; display: flex; flex-direction: column; gap: 1.25rem; }
+  .comment-item {
+    background: var(--color-surface);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .comment-item-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem; }
+  .comment-item-head strong { font-size: 0.95rem; }
+  .comment-item-head time { font-size: 0.78rem; color: var(--color-text-muted); }
+  .comment-item p { margin: 0; }
+
+  .comments-form { display: flex; flex-direction: column; gap: 0.5rem; max-width: 560px; }
+  .comments-form h3 { margin-bottom: 0; }
+  .comments-hint { margin-top: 0; color: var(--color-text-muted); font-size: 0.88rem; }
+  .comments-form label { font-weight: 600; margin-top: 0.4rem; }
+  .comments-form input[type='text'],
+  .comments-form textarea {
+    padding: 0.65rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    font: inherit;
+  }
+  .comments-honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .comments-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-weight: 400;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  .comments-consent input { width: auto; margin-top: 0.2rem; }
+  .comments-form button { margin-top: 0.75rem; align-self: flex-start; }
+  .comments-status { font-size: 0.88rem; color: var(--color-text-muted); }
+</style>
