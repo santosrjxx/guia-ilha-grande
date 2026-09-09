@@ -3,7 +3,8 @@ import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CookieConsent from '../components/CookieConsent.astro';
-import { DESIGN } from '../consts';
+import Analytics from '../components/Analytics.astro';
+import { ANALYTICS, DESIGN, isPending } from '../consts';
 import '../styles/global.css';
 
 interface Props {
@@ -25,6 +26,9 @@ const { title, description, image, type, schema } = Astro.props;
     <link rel="icon" href={DESIGN.faviconUrl} sizes="any" />
     <link rel="apple-touch-icon" href="/android-chrome-192x192.png" />
     <SEO title={title} description={description} image={image} type={type} schema={schema} />
+    {!isPending(ANALYTICS.searchConsoleVerification) && (
+      <meta name="google-site-verification" content={ANALYTICS.searchConsoleVerification} />
+    )}
     <style set:html={`:root {
       --color-bg: ${DESIGN.colors.background};
       --color-surface: ${DESIGN.colors.surface};
@@ -48,5 +52,6 @@ const { title, description, image, type, schema } = Astro.props;
     </main>
     <Footer />
     <CookieConsent />
+    <Analytics />
   </body>
 </html>

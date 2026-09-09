@@ -17,6 +17,11 @@ export const SITE = siteConfig.site as {
   founderName: string;
 };
 
+export const ANALYTICS = siteConfig.analytics as {
+  gaMeasurementId: string;
+  searchConsoleVerification: string;
+};
+
 export type SiloKey = 'onde-comer' | 'o-que-fazer' | 'onde-ficar' | 'guia-pratico';
 
 export const SILOS: Record<

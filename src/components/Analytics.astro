@@ -1,0 +1,37 @@
+---
+// Google Analytics 4, carregado só depois que o visitante aceita o aviso de cookies
+// (CookieConsent.astro) — assim não pesa no LCP da primeira visita e respeita a LGPD.
+// O ID vem de site-config.json (campo editável no CMS, aba "Configurações do Site").
+import { ANALYTICS, isPending } from '../consts';
+
+const gaId = ANALYTICS.gaMeasurementId;
+const enabled = !isPending(gaId);
+---
+
+{enabled && (
+  <script define:vars={{ gaId }} is:inline>
+    const STORAGE_KEY = 'cookie-consent-accepted';
+
+    function loadGA() {
+      if (window.__gaLoaded) return;
+      window.__gaLoaded = true;
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', gaId, { anonymize_ip: true });
+    }
+
+    if (localStorage.getItem(STORAGE_KEY)) {
+      loadGA();
+    } else {
+      document.addEventListener('cookie-consent-accepted', loadGA, { once: true });
+    }
+  </script>
+)}

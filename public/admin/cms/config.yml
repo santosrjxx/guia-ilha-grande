@@ -153,6 +153,19 @@ collections:
               - { label: Nome do fundador/autor (E-E-A-T), name: founderName, widget: string }
               - { label: Locale, name: locale, widget: string }
               - { label: Idioma (lang), name: lang, widget: string }
+          - label: "Google Analytics e Search Console"
+            name: analytics
+            widget: object
+            hint: "Configuração única — depois de preencher aqui, o site já envia dados pro Google Analytics e fica verificado no Search Console. Veja o passo a passo no README."
+            fields:
+              - label: "ID de Métricas do Google Analytics (GA4)"
+                name: gaMeasurementId
+                widget: string
+                hint: "No Google Analytics: Administrador > Fluxos de dados > clique no fluxo do site > copie o 'ID de métricas', formato G-XXXXXXXXXX."
+              - label: "Código de verificação do Google Search Console"
+                name: searchConsoleVerification
+                widget: string
+                hint: "No Search Console, ao adicionar a propriedade, escolha o método 'Tag HTML'. Ele mostra algo como <meta name=\"google-site-verification\" content=\"ABC123...\" /> — cole aqui SÓ o valor entre aspas depois de content=, sem o resto da tag."
           - label: "Aparência (Logo, Cores e Fontes)"
             name: design
             widget: object

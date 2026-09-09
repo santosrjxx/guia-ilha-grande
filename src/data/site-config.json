@@ -10,6 +10,10 @@
     "email": "guiadeilhagrande@gmail.com",
     "description": "Guia completo de Ilha Grande: onde comer, onde ficar, o que fazer e tudo que você precisa saber antes de viajar. Roteiros, dicas práticas e recomendações reais."
   },
+  "analytics": {
+    "gaMeasurementId": "[PENDENTE - editar no CMS]",
+    "searchConsoleVerification": "[PENDENTE - editar no CMS]"
+  },
   "silos": {
     "onde-comer": {
       "title": "Onde Comer",

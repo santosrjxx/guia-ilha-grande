@@ -3,7 +3,8 @@
 
 <div id="cookie-consent" class="cookie-consent" hidden>
   <p>
-    Usamos cookies essenciais ao funcionamento do site. Ao continuar navegando, você concorda com nossa
+    Usamos cookies essenciais ao funcionamento do site e, mediante seu consentimento, cookies de análise
+    (Google Analytics) para entender como o site é usado. Ao aceitar, você concorda com nossa
     <a href="/politica-de-privacidade/">Política de Privacidade</a>.
   </p>
   <button type="button" id="cookie-consent-accept" class="btn btn-primary">OK, entendi</button>
@@ -53,5 +54,6 @@
   document.getElementById('cookie-consent-accept')?.addEventListener('click', () => {
     localStorage.setItem(STORAGE_KEY, '1');
     if (banner) banner.hidden = true;
+    document.dispatchEvent(new Event('cookie-consent-accepted'));
   });
 </script>
