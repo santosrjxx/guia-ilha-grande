@@ -8,7 +8,14 @@ export default defineConfig({
   site: 'https://www.guiadeilhagrande.com.br',
   output: 'static',
   trailingSlash: 'always',
-  integrations: [sitemap(), mdx()],
+  integrations: [
+    sitemap({
+      // Painel /admin é noindex (não deve aparecer no Google) — não faz sentido oferecer
+      // essas URLs pro Googlebot rastrear via sitemap.
+      filter: (page) => !page.includes('/admin/'),
+    }),
+    mdx(),
+  ],
   compressHTML: true,
   build: {
     inlineStylesheets: 'always',
