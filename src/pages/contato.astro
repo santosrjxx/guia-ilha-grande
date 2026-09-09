@@ -1,7 +1,7 @@
 ---
 import { getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { SITE, isPending } from '../consts';
+import { SITE } from '../consts';
 
 const entry = await getEntry('pages', 'contato');
 const { Content } = await render(entry!);
@@ -53,14 +53,6 @@ const { Content } = await render(entry!);
       <aside class="contact-info">
         <h2>Outros canais</h2>
         <p><strong>E-mail:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
-        {!isPending(SITE.whatsapp) && (
-          <p>
-            <strong>WhatsApp:</strong>{' '}
-            <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer">
-              Enviar mensagem
-            </a>
-          </p>
-        )}
         <p>Quer anunciar seu restaurante, pousada ou passeio? <a href="/anuncie/">Veja nossa página de publicidade</a>.</p>
       </aside>
     </div>

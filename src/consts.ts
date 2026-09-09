@@ -13,7 +13,6 @@ export const SITE = siteConfig.site as {
   locale: string;
   lang: string;
   email: string;
-  whatsapp: string;
   founderName: string;
 };
 

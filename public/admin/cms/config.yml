@@ -149,7 +149,6 @@ collections:
               - { label: "Descrição (meta/SEO)", name: description, widget: text }
               - { label: URL do site, name: url, widget: string }
               - { label: E-mail de contato, name: email, widget: string }
-              - { label: WhatsApp (DDI+DDD+número, só dígitos), name: whatsapp, widget: string }
               - { label: Nome do fundador/autor (E-E-A-T), name: founderName, widget: string }
               - { label: Locale, name: locale, widget: string }
               - { label: Idioma (lang), name: lang, widget: string }
