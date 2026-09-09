@@ -1,11 +1,15 @@
 ---
+// Cada silo tem exatamente um artigo (a decisão é: se surgir um assunto novo, ele vira um
+// silo próprio, nunca um segundo artigo dentro de um silo existente) — então a URL raiz do
+// silo (ex.: /o-que-fazer/) mostra o artigo completo direto, sem página de listagem
+// intermediária. Se o silo ainda não tem artigo publicado, mostra um aviso simples.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import AffiliateCTA from '../../components/AffiliateCTA.astro';
 import { SILOS } from '../../consts';
 import type { SiloKey } from '../../consts';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export function getStaticPaths() {
   return (Object.keys(SILOS) as SiloKey[]).map((silo) => ({ params: { silo } }));
@@ -13,56 +17,60 @@ export function getStaticPaths() {
 
 const { silo: siloKey } = Astro.params as { silo: SiloKey };
 const silo = SILOS[siloKey];
-const articles = (await getCollection('articles', (a) => a.data.silo === siloKey && !a.data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const articles = await getCollection('articles', (a) => a.data.silo === siloKey && !a.data.draft);
+const article = articles[0];
+const Content = article ? (await render(article)).Content : null;
 ---
 
-<BaseLayout title={silo.heading} description={silo.shortDescription}>
-  <div class="container">
-    <Breadcrumbs items={[{ label: 'Início', href: '/' }, { label: silo.title, href: `/${siloKey}/` }]} />
-    <header class="silo-header">
-      <p class="badge">{silo.icon} Silo: {silo.title}</p>
-      <h1>{silo.heading}</h1>
-      <p class="silo-lead">{silo.shortDescription}</p>
-      {siloKey === 'onde-ficar' && (
-        <AffiliateCTA href="/hospedagem-ilha-grande/bk/" label="Ver disponibilidade no Booking.com" provider="booking" />
-      )}
-    </header>
-
-    <div class="grid grid-3">
-      {articles.map((article) => (
-        <a href={`/${siloKey}/${article.data.slug ?? article.id}/`} class="card">
-          {article.data.heroImage && (
-            <img
-              src={article.data.heroImage}
-              alt={article.data.heroImageAlt ?? article.data.title}
-              class="card-image"
-              loading="lazy"
-              width="1200"
-              height="675"
-            />
-          )}
-          <div class="card-body">
-            <h2>{article.data.title}</h2>
-            <p>{article.data.description}</p>
-          </div>
-        </a>
-      ))}
+{article && Content ? (
+  <ArticleLayout
+    title={article.data.title}
+    seoTitle={article.data.seoTitle}
+    description={article.data.description}
+    silo={siloKey}
+    path={siloKey}
+    heroImage={article.data.heroImage}
+    heroImageAlt={article.data.heroImageAlt}
+    heroImageWidth={article.data.heroImageWidth}
+    heroImageHeight={article.data.heroImageHeight}
+    pubDate={article.data.pubDate}
+    updatedDate={article.data.updatedDate}
+    author={article.data.author}
+    faq={article.data.faq}
+  >
+    {siloKey === 'onde-ficar' && (
+      <AffiliateCTA
+        slot="header-extra"
+        href="/hospedagem-ilha-grande/bk/"
+        label="Ver disponibilidade no Booking.com"
+        provider="booking"
+      />
+    )}
+    <Content />
+  </ArticleLayout>
+) : (
+  <BaseLayout title={silo.heading} description={silo.shortDescription}>
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Início', href: '/' }, { label: silo.title, href: `/${siloKey}/` }]} />
+      <header class="silo-header">
+        <p class="badge">{silo.icon} Silo: {silo.title}</p>
+        <h1>{silo.heading}</h1>
+        <p class="silo-lead">{silo.shortDescription}</p>
+      </header>
+      <p class="silo-empty">Em breve, conteúdo completo sobre isso. Volte em breve!</p>
     </div>
-
-    <AdSlot label={`Publicidade em ${silo.title}`} />
-  </div>
-</BaseLayout>
+  </BaseLayout>
+)}
 
 <style>
   .silo-header {
     max-width: 680px;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
   .silo-lead { color: var(--color-text-muted); font-size: 1.1rem; }
+  .silo-empty { color: var(--color-text-muted); padding-bottom: 3rem; }
 </style>

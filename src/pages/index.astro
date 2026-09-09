@@ -49,7 +49,7 @@ const websiteSchema = {
   <!-- HERO: destaque + abas Populares/Recentes -->
   <section class="section hero-section">
     <div class="container hero-grid">
-      <a href={`/${featuredArticle.data.silo}/${featuredArticle.data.slug ?? featuredArticle.id}/`} class="hero-feature">
+      <a href={`/${featuredArticle.data.silo}/`} class="hero-feature">
         <img
           src={featuredArticle.data.heroImage}
           alt={featuredArticle.data.heroImageAlt ?? featuredArticle.data.title}
@@ -76,7 +76,7 @@ const websiteSchema = {
         <ol class="tab-panel panel-popular">
           {popularArticles.map((article, i) => (
             <li>
-              <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="mini-post">
+              <a href={`/${article.data.silo}/`} class="mini-post">
                 <span class="mini-post-number">{i + 1}</span>
                 <img src={article.data.heroImage} alt="" width="70" height="70" loading="lazy" />
                 <span>
@@ -91,7 +91,7 @@ const websiteSchema = {
         <ol class="tab-panel panel-recent">
           {recentTabArticles.map((article, i) => (
             <li>
-              <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="mini-post">
+              <a href={`/${article.data.silo}/`} class="mini-post">
                 <span class="mini-post-number">{i + 1}</span>
                 <img src={article.data.heroImage} alt="" width="70" height="70" loading="lazy" />
                 <span>
@@ -112,7 +112,7 @@ const websiteSchema = {
       <div class="container">
         <h2>Escolha da Equipe <span class="title-deco" aria-hidden="true">〰️</span></h2>
         <div class="editors-grid">
-          <a href={`/${editorsPickMain.data.silo}/${editorsPickMain.data.slug ?? editorsPickMain.id}/`} class="editors-main">
+          <a href={`/${editorsPickMain.data.silo}/`} class="editors-main">
             <img src={editorsPickMain.data.heroImage} alt={editorsPickMain.data.heroImageAlt ?? editorsPickMain.data.title} width="1200" height="675" loading="lazy" />
             <div class="editors-main-body">
               <p class="badge">{SILOS[editorsPickMain.data.silo].title}</p>
@@ -124,7 +124,7 @@ const websiteSchema = {
             <ul class="editors-list">
               {editorsPickList.map((article) => (
                 <li>
-                  <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="compact-post">
+                  <a href={`/${article.data.silo}/`} class="compact-post">
                     <img src={article.data.heroImage} alt="" width="110" height="80" loading="lazy" />
                     <span>
                       <strong>{article.data.title}</strong>
@@ -147,7 +147,7 @@ const websiteSchema = {
         <h2>Mais Procurados <span class="title-deco" aria-hidden="true">〰️</span></h2>
         <div class="grid grid-4">
           {trendingGrid.map((article) => (
-            <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="card">
+            <a href={`/${article.data.silo}/`} class="card">
               <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} class="card-image" loading="lazy" width="1200" height="675" />
               <div class="card-body">
                 <p class="badge">{SILOS[article.data.silo].title}</p>
@@ -168,7 +168,7 @@ const websiteSchema = {
         <h2>Inspire-se <span class="title-deco" aria-hidden="true">〰️</span></h2>
         <div class="inspiration-grid">
           {inspirationDuo.map((article) => (
-            <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="inspiration-card">
+            <a href={`/${article.data.silo}/`} class="inspiration-card">
               <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width="900" height="600" loading="lazy" />
               <div class="inspiration-overlay">
                 <p class="badge badge-accent">{SILOS[article.data.silo].title}</p>
@@ -194,7 +194,7 @@ const websiteSchema = {
         <ul class="recent-list">
           {byDate.map((article) => (
             <li>
-              <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="recent-item">
+              <a href={`/${article.data.silo}/`} class="recent-item">
                 <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width="320" height="200" loading="lazy" />
                 <div class="recent-item-body">
                   <p class="recent-item-meta">{SILOS[article.data.silo].title} · {fmt(article.data.pubDate)}</p>
@@ -219,7 +219,7 @@ const websiteSchema = {
           <ol class="widget-list">
             {popularArticles.map((article, i) => (
               <li>
-                <a href={`/${article.data.silo}/${article.data.slug ?? article.id}/`} class="mini-post">
+                <a href={`/${article.data.silo}/`} class="mini-post">
                   <span class="mini-post-number">{i + 1}</span>
                   <img src={article.data.heroImage} alt="" width="60" height="60" loading="lazy" />
                   <span>
@@ -262,7 +262,7 @@ const websiteSchema = {
 
         <div class="widget">
           <h3>Destaque</h3>
-          <a href={`/${featuredArticle.data.silo}/${featuredArticle.data.slug ?? featuredArticle.id}/`} class="compact-post">
+          <a href={`/${featuredArticle.data.silo}/`} class="compact-post">
             <img src={featuredArticle.data.heroImage} alt="" width="110" height="80" loading="lazy" />
             <span>
               <strong>{featuredArticle.data.title}</strong>

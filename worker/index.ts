@@ -62,6 +62,11 @@ interface AffiliateLink {
 
 const AFFILIATE_LINKS = (affiliateLinks as { links: AffiliateLink[] }).links;
 
+// Mesmas 4 chaves de silo do site (SiloKey em src/consts.ts) — duplicado aqui em vez de
+// importado porque o worker roda num bundle separado do Astro; é só uma lista curta e
+// estável, então manter os dois em sincronia manualmente é aceitável.
+const SILO_KEYS = ['onde-comer', 'o-que-fazer', 'onde-ficar', 'guia-pratico'] as const;
+
 // Código de 2 letras anexado ao fim do link curto, derivado automaticamente do campo
 // "Provedor" escolhido no CMS — não é um campo separado no JSON, pra não ter como ficar
 // dessincronizado. Ex.: guiadeilhagrande.com.br/mochila-trilha/am/ (Amazon).
@@ -511,6 +516,14 @@ export default {
     // raiz. Uma página real SEMPRE tem prioridade — um link de afiliado só "ativa" quando
     // não existe nenhuma página com o mesmo endereço.
     const segments = pathname.split('/').filter(Boolean);
+
+    // Compatibilidade: cada silo passou a ter só um artigo, vivendo direto na raiz do silo
+    // (ex.: /o-que-fazer/) em vez de numa sub-URL própria (ex.: /o-que-fazer/o-que-fazer-em
+    // -ilha-grande/, formato antigo). Qualquer link antigo pra essa sub-URL — inclusive já
+    // indexado no Google — redireciona (301, preserva SEO) pra raiz do silo.
+    if (segments.length === 2 && (SILO_KEYS as readonly string[]).includes(segments[0])) {
+      return Response.redirect(`${new URL(request.url).origin}/${segments[0]}/`, 301);
+    }
 
     if (segments.length === 2) {
       // Formato atual: /<slug>/<código-do-provedor>/ (ex.: /mochila-trilha/am/).

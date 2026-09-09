@@ -13,7 +13,10 @@ interface Props {
   seoTitle?: string;
   description: string;
   silo: SiloKey;
-  slug: string;
+  // Caminho final da página (sem barra no início/fim), ex.: "o-que-fazer" — cada silo tem
+  // exatamente um artigo, que vive na raiz do silo, não numa sub-URL própria. Usado no
+  // breadcrumb, no schema e como identificador dos comentários (KV do Worker).
+  path: string;
   heroImage?: string;
   heroImageAlt?: string;
   heroImageWidth: number;
@@ -29,7 +32,7 @@ const {
   seoTitle,
   description,
   silo,
-  slug,
+  path,
   heroImage,
   heroImageAlt,
   heroImageWidth,
@@ -52,7 +55,7 @@ const articleSchema = {
   publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
   datePublished: pubDate.toISOString(),
   dateModified: (updatedDate ?? pubDate).toISOString(),
-  mainEntityOfPage: new URL(`/${silo}/${slug}/`, SITE.url).toString(),
+  mainEntityOfPage: new URL(`/${path}/`, SITE.url).toString(),
 };
 ---
 
@@ -67,8 +70,7 @@ const articleSchema = {
     <Breadcrumbs
       items={[
         { label: 'Início', href: '/' },
-        { label: siloInfo.title, href: `/${siloInfo.slug}/` },
-        { label: title, href: `/${silo}/${slug}/` },
+        { label: title, href: `/${path}/` },
       ]}
     />
 
@@ -76,6 +78,7 @@ const articleSchema = {
       <p class="badge">{siloInfo.icon} {siloInfo.title}</p>
       <h1>{title}</h1>
       <p class="article-lead">{description}</p>
+      <slot name="header-extra" />
     </header>
 
     {heroImage && (
@@ -100,7 +103,7 @@ const articleSchema = {
 
     <AdSlot label={`Publicidade em ${siloInfo.title}`} />
 
-    <Comments slug={`${silo}/${slug}`} />
+    <Comments slug={path} />
   </article>
 </BaseLayout>
 
