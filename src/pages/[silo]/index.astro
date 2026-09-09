@@ -6,7 +6,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import AffiliateCTA from '../../components/AffiliateCTA.astro';
 import { SILOS } from '../../consts';
 import type { SiloKey } from '../../consts';
 import { getCollection, render } from 'astro:content';
@@ -38,14 +37,6 @@ const Content = article ? (await render(article)).Content : null;
     author={article.data.author}
     faq={article.data.faq}
   >
-    {siloKey === 'onde-ficar' && (
-      <AffiliateCTA
-        slot="header-extra"
-        href="/hospedagem-ilha-grande/bk/"
-        label="Ver disponibilidade no Booking.com"
-        provider="booking"
-      />
-    )}
     <Content />
   </ArticleLayout>
 ) : (
