@@ -121,7 +121,7 @@ collections:
   - name: pages
     label: Páginas Institucionais
     label_singular: Página
-    description: "Textos de Sobre, Contato, Política de Privacidade e Política Editorial. Não crie nem apague itens aqui — as páginas do site apontam para estes 4 arquivos fixos."
+    description: "Textos de Sobre, Contato, Anuncie Conosco, Política de Privacidade e Política Editorial. Não crie nem apague itens aqui — as páginas do site apontam para estes 5 arquivos fixos."
     folder: src/content/pages
     create: false
     delete: false

@@ -1,7 +1,6 @@
 ---
 // Espaço de anúncio para donos de restaurantes, pousadas e guias locais.
-// Sem sponsorName preenchido, mostra CTA de venda do espaço (e-mail direto, via AD_CONTACT_URL).
-import { AD_CONTACT_URL } from '../consts';
+// Sem sponsorName preenchido, mostra CTA de venda do espaço (link pra página /anuncie/).
 
 interface Props {
   label?: string;
@@ -23,7 +22,7 @@ const { label = 'Publicidade local', sponsorName, sponsorUrl, sponsorImage } = A
     <>
       <p><strong>Seu restaurante, pousada ou passeio aqui.</strong></p>
       <p>Alcance milhares de turistas planejando a viagem para Ilha Grande.</p>
-      <a href={AD_CONTACT_URL} class="btn btn-outline">Anunciar neste espaço</a>
+      <a href="/anuncie/" class="btn btn-outline">Anunciar neste espaço</a>
     </>
   )}
 </div>

@@ -1,6 +1,6 @@
 // Configuração central do site. Dados editáveis (nome, contatos, silos, afiliados) vivem em
 // src/data/site-config.json — editável também pelo painel de admin (/admin). O que fica aqui
-// (SiloKey, NAV_LINKS, AD_CONTACT_URL) é estrutural e ligado às rotas do site.
+// (SiloKey, NAV_LINKS) é estrutural e ligado às rotas do site.
 
 import siteConfig from './data/site-config.json';
 import affiliateLinksData from './data/affiliate-links.json';
@@ -84,8 +84,6 @@ const PROVIDER_CODES: Record<AffiliateLink['provider'], string> = {
 
 export const goLink = (slug: string, provider: AffiliateLink['provider']) =>
   `/${slug}/${PROVIDER_CODES[provider]}/`;
-
-export const AD_CONTACT_URL = `mailto:${SITE.email}?subject=Quero anunciar no Guia Ilha Grande`;
 
 // Marcador para campos de dado real que ainda não foram preenchidos (ex.: WhatsApp,
 // tag de afiliado). Nunca deve aparecer visível pro visitante — todo trecho que

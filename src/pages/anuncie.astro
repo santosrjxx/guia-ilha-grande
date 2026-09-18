@@ -3,13 +3,13 @@ import { getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../consts';
 
-const entry = await getEntry('pages', 'contato');
+const entry = await getEntry('pages', 'anuncie');
 const { Content } = await render(entry!);
 ---
 
 <BaseLayout title={entry!.data.title} description={entry!.data.description}>
   <article class="container page">
-    <h1>Fale com a gente</h1>
+    <h1>Anuncie Conosco</h1>
     <div class="prose">
       <Content />
     </div>
@@ -20,25 +20,37 @@ const { Content } = await render(entry!);
         Confirme o endereço no primeiro envio de teste do FormSubmit.
       -->
       <form action={`https://formsubmit.co/${SITE.email}`} method="POST" class="contact-form">
-        <input type="hidden" name="_subject" value="Novo contato — Guia Ilha Grande" />
+        <input type="hidden" name="_subject" value="Novo pedido de anúncio — Guia Ilha Grande" />
         <input type="hidden" name="_template" value="table" />
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
 
-        <label for="name">Nome</label>
+        <label for="name">Seu nome</label>
         <input id="name" name="name" type="text" required />
+
+        <label for="business">Nome do negócio</label>
+        <input id="business" name="business" type="text" required />
+
+        <label for="businessType">Tipo de negócio</label>
+        <select id="businessType" name="businessType" required>
+          <option value="">Selecione</option>
+          <option>Pousada</option>
+          <option>Hotel</option>
+          <option>Hostel</option>
+          <option>Restaurante</option>
+          <option>Guia de turismo</option>
+          <option>Passeio / Agência</option>
+          <option>Transporte (barco, van, táxi)</option>
+          <option>Loja / Comércio local</option>
+          <option>Outro</option>
+        </select>
 
         <label for="email">E-mail</label>
         <input id="email" name="email" type="email" required />
 
-        <label for="subject">Assunto</label>
-        <select id="subject" name="assunto">
-          <option>Dúvida sobre viagem</option>
-          <option>Sugestão ou correção</option>
-          <option>Quero anunciar meu negócio</option>
-          <option>Outro</option>
-        </select>
+        <label for="phone">WhatsApp / Telefone</label>
+        <input id="phone" name="phone" type="tel" />
 
-        <label for="message">Mensagem</label>
+        <label for="message">Conte um pouco sobre o seu negócio</label>
         <textarea id="message" name="message" rows="5" required></textarea>
 
         <label class="consent-label" for="consent">
@@ -47,13 +59,13 @@ const { Content } = await render(entry!);
           tratamento dos meus dados para responder este contato.
         </label>
 
-        <button type="submit" class="btn btn-primary">Enviar mensagem</button>
+        <button type="submit" class="btn btn-primary">Quero anunciar meu negócio</button>
       </form>
 
       <aside class="contact-info">
         <h2>Outros canais</h2>
         <p><strong>E-mail:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
-        <p>Quer anunciar seu restaurante, pousada ou passeio? <a href="/anuncie/">Veja como anunciar</a>.</p>
+        <p>Prefere falar direto? Envie um e-mail com o assunto "Quero anunciar" que respondemos por lá também.</p>
       </aside>
     </div>
   </article>

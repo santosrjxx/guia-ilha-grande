@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSlot from '../components/AdSlot.astro';
-import { SITE, SILOS, AD_CONTACT_URL } from '../consts';
+import { SITE, SILOS } from '../consts';
 import { getCollection } from 'astro:content';
 
 const allArticles = (await getCollection('articles')).filter((a) => !a.data.draft);
@@ -287,7 +287,7 @@ const websiteSchema = {
         <h2>Tem um negócio em Ilha Grande?</h2>
         <p>Restaurantes, pousadas e guias de turismo podem anunciar diretamente para quem está planejando a viagem agora.</p>
       </div>
-      <a href={AD_CONTACT_URL} class="btn btn-primary">Quero anunciar</a>
+      <a href="/anuncie/" class="btn btn-primary">Quero anunciar</a>
     </div>
   </section>
 </BaseLayout>
