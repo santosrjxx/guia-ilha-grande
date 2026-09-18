@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ComparisonTable from '../components/ComparisonTable.astro';
 import { SITE } from '../consts';
+import anuncie from '../data/anuncie.json';
 ---
 
 <BaseLayout
@@ -9,15 +10,11 @@ import { SITE } from '../consts';
   description="Anuncie seu restaurante, pousada ou passeio no Guia Ilha Grande e alcance turistas que estão planejando a viagem agora."
 >
   <section class="container page">
-    <p class="badge">Publicidade local</p>
-    <h1>Coloque seu negócio na frente de quem já vai viajar para Ilha Grande</h1>
-    <p class="lead">
-      Nossos leitores não estão só navegando — estão no meio do planejamento da viagem,
-      decidindo onde comer, onde ficar e o que fazer. É o momento em que a decisão de compra
-      acontece.
-    </p>
+    <p class="badge">{anuncie.badge}</p>
+    <h1>{anuncie.headline}</h1>
+    <p class="lead">{anuncie.lead}</p>
     <a href={`mailto:${SITE.email}?subject=Quero anunciar no Guia Ilha Grande`} class="btn btn-primary">
-      Quero anunciar meu negócio
+      {anuncie.ctaButtonText}
     </a>
   </section>
 
@@ -25,23 +22,15 @@ import { SITE } from '../consts';
     <div class="container">
       <h2>Por que anunciar no {SITE.name}</h2>
       <div class="grid grid-3">
-        <div>
-          <h3>Público qualificado</h3>
-          <p>Tráfego 100% formado por pessoas pesquisando ativamente sobre Ilha Grande — sem desperdício de verba com público genérico.</p>
-        </div>
-        <div>
-          <h3>Anúncio contextual</h3>
-          <p>Seu espaço aparece dentro do conteúdo que o visitante já está lendo — em "Onde Comer", "Onde Ficar" ou "O Que Fazer" — não como um banner ignorado.</p>
-        </div>
-        <div>
-          <h3>Sem intermediários</h3>
-          <p>Contrato direto com o site, sem plataformas de anúncio genéricas. Você fala com quem escreve o conteúdo.</p>
-        </div>
+        {anuncie.whyCards.map((card) => (
+          <div>
+            <h3>{card.title}</h3>
+            <p>{card.text}</p>
+          </div>
+        ))}
       </div>
       <p class="disclaimer">
-        <em>[Dados de audiência — sessões mensais, origem de tráfego e principais páginas —
-        serão publicados aqui assim que o site tiver histórico de tráfego real no Google
-        Analytics/Search Console. Nunca publique números estimados como se fossem reais.]</em>
+        <em>{anuncie.audienceDisclaimer}</em>
       </p>
     </div>
   </section>
@@ -51,27 +40,13 @@ import { SITE } from '../consts';
     <ComparisonTable
       caption="Formatos de publicidade disponíveis"
       headers={["O que é", "Indicado para"]}
-      rows={[
-        {
-          name: "Banner na Home",
-          cells: ["Espaço de destaque na página inicial", "Marcas com maior orçamento, alta visibilidade"],
-        },
-        {
-          name: "Destaque em Silo",
-          cells: ["Espaço dentro de 'Onde Comer', 'Onde Ficar' ou 'O Que Fazer'", "Restaurantes, pousadas e passeios"],
-        },
-        {
-          name: "Publieditorial",
-          cells: ["Artigo dedicado ao seu negócio, com identificação clara de publicidade", "Quem quer contar a própria história"],
-        },
-        {
-          name: "Cupom / Oferta exclusiva",
-          cells: ["Destaque de uma oferta especial para leitores do site", "Conversão direta em reservas ou visitas"],
-        },
-      ]}
+      rows={anuncie.adFormats.map((format) => ({
+        name: format.name,
+        cells: [format.description, format.indicatedFor],
+      }))}
     />
     <p class="disclaimer">
-      <em>[Insira aqui a tabela de preços real por formato e período (mensal/trimestral) antes de publicar.]</em>
+      <em>{anuncie.pricingDisclaimer}</em>
     </p>
   </section>
 
@@ -79,12 +54,11 @@ import { SITE } from '../consts';
     <div class="container">
       <h2>Como funciona</h2>
       <ol class="steps">
-        <li>Você entra em contato pelo formulário ou e-mail abaixo;</li>
-        <li>Enviamos o media kit com formatos, prazos e valores atualizados;</li>
-        <li>Definimos juntos o melhor formato para o seu negócio e período de veiculação;</li>
-        <li>Seu anúncio entra no ar com identificação clara de publicidade, conforme as diretrizes do Google e do CDC.</li>
+        {anuncie.howItWorksSteps.map((step) => (
+          <li>{step}</li>
+        ))}
       </ol>
-      <a href="/contato/" class="btn btn-outline">Falar com a equipe</a>
+      <a href="/contato/" class="btn btn-outline">{anuncie.finalCtaText}</a>
     </div>
   </section>
 </BaseLayout>
