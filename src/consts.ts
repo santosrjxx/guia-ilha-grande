@@ -85,7 +85,7 @@ const PROVIDER_CODES: Record<AffiliateLink['provider'], string> = {
 export const goLink = (slug: string, provider: AffiliateLink['provider']) =>
   `/${slug}/${PROVIDER_CODES[provider]}/`;
 
-export const AD_CONTACT_URL = '/anuncie/';
+export const AD_CONTACT_URL = `mailto:${SITE.email}?subject=Quero anunciar no Guia Ilha Grande`;
 
 // Marcador para campos de dado real que ainda não foram preenchidos (ex.: WhatsApp,
 // tag de afiliado). Nunca deve aparecer visível pro visitante — todo trecho que
