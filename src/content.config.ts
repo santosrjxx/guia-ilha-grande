@@ -34,6 +34,42 @@ const articles = defineCollection({
           })
         )
         .nullish(),
+      // Cards exibidos após o texto do artigo (recomendação de pousada/restaurante/hotel
+      // e de produto sem preço) — campos estruturados em vez de HTML solto no corpo, porque
+      // o editor de blocos do CMS (Sveltia) não reconhece de volta um bloco de HTML já salvo
+      // como formulário editável ao reabrir o artigo (bug conhecido: github.com/sveltia/sveltia-cms/issues/410).
+      estabelecimentos: z
+        .array(
+          z.object({
+            tipo: z.enum(['pousada', 'restaurante', 'hotel']).default('pousada'),
+            foto: z.string(),
+            fotoAlt: z.string().nullish(),
+            nome: z.string(),
+            descricao: z.string(),
+            mapsUrl: z.string().nullish(),
+            bookingUrl: z.string().nullish(),
+            instagramUrl: z.string().nullish(),
+          })
+        )
+        .nullish(),
+      produtos: z
+        .array(
+          z.object({
+            foto: z.string(),
+            fotoAlt: z.string().nullish(),
+            selo: z.string().nullish(),
+            nome: z.string(),
+            porque: z.string(),
+            lojas: z.array(
+              z.object({
+                provider: z.enum(['amazon', 'mercadoLivre', 'booking', 'rentcar', 'outro']).default('amazon'),
+                label: z.string().default('Ver oferta'),
+                url: z.string(),
+              })
+            ),
+          })
+        )
+        .nullish(),
     }),
 });
 

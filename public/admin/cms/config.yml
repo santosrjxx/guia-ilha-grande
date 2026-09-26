@@ -55,7 +55,7 @@ collections:
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante), Card de Produto (recomendação de produto sem preço, com foto e botões de loja), Card de Estabelecimento (pousada/restaurante/hotel, com foto, Mapa e Instagram) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código)."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código). Pra recomendar uma pousada/restaurante ou um produto, use os campos \"Estabelecimentos recomendados\" e \"Produtos recomendados\" mais abaixo — eles aparecem como cards depois do texto do artigo."
         modes: ["rich_text"]
         buttons:
           - bold
@@ -68,9 +68,89 @@ collections:
           - quote
           - bulleted-list
           - numbered-list
-        editor_components: [image, destaque, card-produto, card-lugar, html]
+        editor_components: [image, destaque, html]
         media_folder: "/public/articles/inline"
         public_folder: "/articles/inline"
+      - label: Estabelecimentos recomendados
+        name: estabelecimentos
+        widget: list
+        required: false
+        summary: "{{fields.nome}}"
+        hint: "Cards de pousada/restaurante/hotel exibidos como recomendação após o texto do artigo, com foto, descrição e links (Mapa, Booking, Instagram)."
+        fields:
+          - label: Tipo
+            name: tipo
+            widget: select
+            options:
+              - { label: "🏨 Pousada", value: "pousada" }
+              - { label: "🍽️ Restaurante", value: "restaurante" }
+              - { label: "🏝️ Hotel", value: "hotel" }
+            default: pousada
+          - label: Foto do lugar
+            name: foto
+            widget: image
+            media_folder: "/public/articles/inline"
+            public_folder: "/articles/inline"
+            hint: "Ideal: paisagem 4:3 (ex.: 800×600px), foto real do lugar — não use banco de imagens."
+          - { label: "Texto alternativo da foto (alt)", name: fotoAlt, widget: string, required: false }
+          - { label: "Nome do estabelecimento", name: nome, widget: string }
+          - label: Descrição curta
+            name: descricao
+            widget: text
+            hint: "1–2 frases, até uns 140 caracteres — o \"porquê\" de ir."
+          - { label: "Link do Google Maps", name: mapsUrl, widget: string, required: false }
+          - { label: "Link do Booking", name: bookingUrl, widget: string, required: false }
+          - { label: "Link do Instagram", name: instagramUrl, widget: string, required: false }
+      - label: Produtos recomendados
+        name: produtos
+        widget: list
+        required: false
+        summary: "{{fields.nome}}"
+        hint: "Cards de produto (sem preço) exibidos após o texto do artigo, com foto e botões de loja."
+        fields:
+          - label: Foto do produto
+            name: foto
+            widget: image
+            media_folder: "/public/articles/inline"
+            public_folder: "/articles/inline"
+          - { label: "Texto alternativo da foto (alt)", name: fotoAlt, widget: string, required: false }
+          - label: Selo sobre a foto
+            name: selo
+            widget: string
+            required: false
+            hint: 'Categoria ou contexto de uso — ex.: "Pra trilha", "Pra praia". NUNCA uma alegação de teste (ex.: "testado pela equipe"). Deixe em branco pra não mostrar selo.'
+          - { label: "Nome do produto", name: nome, widget: string }
+          - label: Por que faz sentido pra quem vai a Ilha Grande
+            name: porque
+            widget: text
+            hint: "Frase curta de contexto/uso ligada à viagem (clima, trilha, praia). Não alegue ter testado o produto."
+          - label: Lojas (botões)
+            name: lojas
+            widget: list
+            min: 1
+            max: 3
+            summary: "{{fields.label}}"
+            fields:
+              - name: provider
+                label: Loja
+                widget: select
+                options:
+                  - { label: "📦 Amazon", value: "amazon" }
+                  - { label: "🛒 Mercado Livre", value: "mercadoLivre" }
+                  - { label: "🏨 Booking.com", value: "booking" }
+                  - { label: "🚗 Rentcars", value: "rentcar" }
+                  - { label: "🔗 Outra loja", value: "outro" }
+                default: amazon
+                hint: "Define a cor do botão (a cor real de cada marca converte mais do que um botão genérico)."
+              - name: label
+                label: Texto do botão
+                widget: string
+                default: "Ver oferta"
+                hint: 'Pra Amazon/Mercado Livre/Booking/Rentcars não precisa repetir o nome da loja — ele já aparece do lado esquerdo do botão. Se escolher "Outra loja", inclua o nome aqui (ex.: "Ver na Shopee").'
+              - name: url
+                label: Link
+                widget: string
+                hint: "Cole aqui o link curto criado em \"Links de Afiliados\" (ex.: /protetor-solar/am/), nunca a URL de destino direta."
       - label: Perguntas Frequentes (FAQ)
         name: faq
         widget: list

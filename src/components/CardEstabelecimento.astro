@@ -1,0 +1,107 @@
+---
+interface Props {
+  tipo: 'pousada' | 'restaurante' | 'hotel';
+  foto: string;
+  fotoAlt?: string | null;
+  nome: string;
+  descricao: string;
+  mapsUrl?: string | null;
+  bookingUrl?: string | null;
+  instagramUrl?: string | null;
+}
+
+const { tipo, foto, fotoAlt, nome, descricao, mapsUrl, bookingUrl, instagramUrl } = Astro.props;
+
+const TIPO_LABELS: Record<string, string> = {
+  pousada: '🏨 Pousada',
+  restaurante: '🍽️ Restaurante',
+  hotel: '🏝️ Hotel',
+};
+---
+
+<div class="card-lugar">
+  <div class="foto-wrap">
+    <img src={foto} alt={fotoAlt || nome} loading="lazy" width="800" height="600" />
+    <span class="tipo-badge">{TIPO_LABELS[tipo] ?? '📍 Estabelecimento'}</span>
+  </div>
+  <div class="conteudo">
+    <h3>{nome}</h3>
+    <p class="descricao">{descricao}</p>
+    <div class="links">
+      {mapsUrl && (
+        <a class="btn-link" href={mapsUrl} rel="noopener noreferrer" target="_blank">📍 Ver no Mapa ↗</a>
+      )}
+      {bookingUrl && (
+        <a class="btn-link booking" href={bookingUrl} rel="sponsored noopener noreferrer" target="_blank">🛏️ Reservar no Booking ↗</a>
+      )}
+      {instagramUrl && (
+        <a class="btn-link insta" href={instagramUrl} rel="noopener noreferrer" target="_blank">📷 Ver no Instagram ↗</a>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .card-lugar {
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 1.75rem 0;
+  }
+  .foto-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--color-surface);
+  }
+  .foto-wrap img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+  .tipo-badge {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-primary-dark);
+    background: rgba(255, 255, 255, 0.94);
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .conteudo { padding: 1.1rem 1.2rem 1.25rem; }
+  h3 { font-size: 1.1rem; margin: 0 0 0.45rem; }
+  .descricao { font-size: 0.94rem; color: var(--color-text); margin: 0 0 0.9rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  /* Mapa e Instagram preenchidos (não contorno) — botão sólido converte mais
+     que outline, e a cor de cada um remete ao app real. */
+  .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: #ea4335;
+    color: #fff;
+  }
+  .btn-link:hover { background: #d33426; }
+  .btn-link.booking { background: #003580; }
+  .btn-link.booking:hover { background: #002a66; }
+  .btn-link.insta {
+    background: linear-gradient(45deg, #feda75, #d62976 60%, #4f5bd5);
+    color: #fff;
+  }
+  .btn-link.insta:hover { filter: brightness(0.92); }
+</style>

@@ -161,181 +161,13 @@
         );
       }
 
-      CMS.registerEditorComponent({
-        id: 'card-produto',
-        label: '🃏 Card de Produto (sem preço)',
-        fields: [
-          {
-            name: 'foto',
-            label: 'Foto do produto',
-            widget: 'image',
-            media_folder: '/public/articles/inline',
-            public_folder: '/articles/inline',
-          },
-          { name: 'fotoAlt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
-          {
-            name: 'selo',
-            label: 'Selo sobre a foto',
-            widget: 'string',
-            required: false,
-            hint: 'Categoria ou contexto de uso — ex.: "Pra trilha", "Pra praia". NUNCA uma alegação de teste (ex.: "testado pela equipe"). Deixe em branco pra não mostrar selo.',
-          },
-          { name: 'nome', label: 'Nome do produto', widget: 'string' },
-          {
-            name: 'porque',
-            label: 'Por que faz sentido pra quem vai a Ilha Grande',
-            widget: 'text',
-            hint: 'Frase curta de contexto/uso ligada à viagem (clima, trilha, praia). Não alegue ter testado o produto.',
-          },
-          {
-            name: 'lojas',
-            label: 'Lojas (botões)',
-            widget: 'list',
-            min: 1,
-            max: 3,
-            summary: '{{fields.label}}',
-            fields: [
-              {
-                name: 'provider',
-                label: 'Loja',
-                widget: 'select',
-                options: [
-                  { label: '📦 Amazon', value: 'amazon' },
-                  { label: '🛒 Mercado Livre', value: 'mercadoLivre' },
-                  { label: '🏨 Booking.com', value: 'booking' },
-                  { label: '🚗 Rentcars', value: 'rentcar' },
-                  { label: '🔗 Outra loja', value: 'outro' },
-                ],
-                default: 'amazon',
-                hint: 'Define a cor do botão (a cor real de cada marca converte mais do que um botão genérico).',
-              },
-              {
-                name: 'label',
-                label: 'Texto do botão',
-                widget: 'string',
-                default: 'Ver oferta',
-                hint: 'Pra Amazon/Mercado Livre/Booking/Rentcars não precisa repetir o nome da loja — ele já aparece do lado esquerdo do botão. Se escolher "Outra loja", inclua o nome aqui (ex.: "Ver na Shopee").',
-              },
-              {
-                name: 'url',
-                label: 'Link',
-                widget: 'string',
-                hint: 'Cole aqui o link curto criado em "Links de Afiliados" (ex.: /protetor-solar/am/), nunca a URL de destino direta.',
-              },
-            ],
-          },
-        ],
-        // Não guarda JSON escondido: os campos são lidos de volta direto do HTML
-        // visível (igual ao bloco "Destaque"). Evita depender de sintaxe de
-        // comentário — HTML puro (<!-- -->) quebra o build em .mdx, e comentário
-        // de MDX ({/* */}) aparece como texto cru nesta pré-visualização, que
-        // renderiza o corpo como Markdown puro, não MDX.
-        pattern: /^<div class="card-produto">[\s\S]*<\/div>$/,
-        fromBlock: function (match) {
-          var block = match[0];
-          function pick(re) {
-            var m = block.match(re);
-            return m ? unescapeHtml(m[1]) : '';
-          }
-          var PROVIDER_FROM_CLASS = {
-            'btn-loja--amazon': 'amazon',
-            'btn-loja--mercadolivre': 'mercadoLivre',
-            'btn-loja--booking': 'booking',
-            'btn-loja--rentcar': 'rentcar',
-            'btn-loja--outro': 'outro',
-          };
-          var lojas = [];
-          var lojaRe = /<a class="btn-loja (btn-loja--[a-z]+)" href="([^"]*)"[^>]*>(?:<span class="loja-nome">[^<]*<\/span>)?<span class="loja-cta">([\s\S]*?)\s*↗<\/span><\/a>/g;
-          var lm;
-          while ((lm = lojaRe.exec(block))) {
-            lojas.push({
-              provider: PROVIDER_FROM_CLASS[lm[1]] || 'outro',
-              url: unescapeHtml(lm[2]),
-              label: unescapeHtml(lm[3]),
-            });
-          }
-          return {
-            foto: pick(/<img src="([^"]*)"/),
-            fotoAlt: pick(/<img[^>]*\balt="([^"]*)"/),
-            selo: pick(/<span class="tipo-badge">([^<]*)<\/span>/),
-            nome: pick(/<h3>([^<]*)<\/h3>/),
-            porque: pick(/<p class="why">([\s\S]*?)<\/p>/),
-            lojas: lojas,
-          };
-        },
-        toBlock: function (data) {
-          return renderCardProduto(data);
-        },
-        toPreview: function (data) {
-          return renderCardProduto(data);
-        },
-      });
-
-      CMS.registerEditorComponent({
-        id: 'card-lugar',
-        label: '🃏 Card de Estabelecimento',
-        fields: [
-          {
-            name: 'tipo',
-            label: 'Tipo',
-            widget: 'select',
-            options: [
-              { label: '🏨 Pousada', value: 'pousada' },
-              { label: '🍽️ Restaurante', value: 'restaurante' },
-              { label: '🏝️ Hotel', value: 'hotel' },
-            ],
-            default: 'pousada',
-          },
-          {
-            name: 'foto',
-            label: 'Foto do lugar',
-            widget: 'image',
-            media_folder: '/public/articles/inline',
-            public_folder: '/articles/inline',
-            hint: 'Ideal: paisagem 4:3 (ex.: 800×600px), foto real do lugar — não use banco de imagens.',
-          },
-          { name: 'fotoAlt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
-          { name: 'nome', label: 'Nome do estabelecimento', widget: 'string' },
-          {
-            name: 'descricao',
-            label: 'Descrição curta',
-            widget: 'text',
-            hint: '1–2 frases, até uns 140 caracteres — o "porquê" de ir.',
-          },
-          { name: 'mapsUrl', label: 'Link do Google Maps', widget: 'string', required: false },
-          { name: 'bookingUrl', label: 'Link do Booking', widget: 'string', required: false },
-          { name: 'instagramUrl', label: 'Link do Instagram', widget: 'string', required: false },
-        ],
-        pattern: /^<div class="card-lugar">[\s\S]*<\/div>$/,
-        fromBlock: function (match) {
-          var block = match[0];
-          function pick(re) {
-            var m = block.match(re);
-            return m ? unescapeHtml(m[1]) : '';
-          }
-          var tipoLabel = pick(/<span class="tipo-badge">([^<]*)<\/span>/);
-          var tipo =
-            Object.keys(TIPO_LUGAR_LABELS).find(function (key) {
-              return TIPO_LUGAR_LABELS[key] === tipoLabel;
-            }) || 'pousada';
-          return {
-            tipo: tipo,
-            foto: pick(/<img src="([^"]*)"/),
-            fotoAlt: pick(/<img[^>]*\balt="([^"]*)"/),
-            nome: pick(/<h3>([^<]*)<\/h3>/),
-            descricao: pick(/<p class="descricao">([\s\S]*?)<\/p>/),
-            mapsUrl: pick(/<a class="btn-link" href="([^"]*)"/),
-            bookingUrl: pick(/<a class="btn-link booking" href="([^"]*)"/),
-            instagramUrl: pick(/<a class="btn-link insta" href="([^"]*)"/),
-          };
-        },
-        toBlock: function (data) {
-          return renderCardLugar(data);
-        },
-        toPreview: function (data) {
-          return renderCardLugar(data);
-        },
-      });
+      // renderCardProduto/renderCardLugar não são mais usadas como Editor Components
+      // inseridos no corpo do artigo (o Sveltia CMS não reconhece de volta um bloco de
+      // HTML já salvo como formulário editável ao reabrir — bug conhecido:
+      // github.com/sveltia/sveltia-cms/issues/410). Os cards agora são campos
+      // estruturados próprios ("Estabelecimentos recomendados" / "Produtos
+      // recomendados", ver config.yml) sempre editados como formulário, e essas
+      // funções só servem para desenhar o preview do artigo mais abaixo.
 
       CMS.registerEditorComponent({
         id: 'html',
@@ -382,6 +214,8 @@
           };
           var heroImage = this.props.getAsset(data.get('heroImage'));
           var faq = data.get('faq');
+          var estabelecimentos = data.get('estabelecimentos');
+          var produtos = data.get('produtos');
 
           return h(
             'article',
@@ -397,6 +231,24 @@
                 style: { borderRadius: 'var(--radius)', marginBlock: '1.5rem' },
               }),
             h('div', { className: 'prose' }, this.props.widgetFor('body')),
+            estabelecimentos &&
+              estabelecimentos.size > 0 &&
+              h(
+                'div',
+                { className: 'cards-recomendados' },
+                estabelecimentos.toJS().map(function (item, i) {
+                  return h('div', { key: i, dangerouslySetInnerHTML: { __html: renderCardLugar(item) } });
+                })
+              ),
+            produtos &&
+              produtos.size > 0 &&
+              h(
+                'div',
+                { className: 'cards-recomendados' },
+                produtos.toJS().map(function (item, i) {
+                  return h('div', { key: i, dangerouslySetInnerHTML: { __html: renderCardProduto(item) } });
+                })
+              ),
             faq &&
               faq.size > 0 &&
               h(
