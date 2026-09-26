@@ -65,7 +65,7 @@
       // recomendados" do artigo, não aqui.
       CMS.registerEditorComponent({
         id: 'estabelecimento-marcador',
-        label: '📍 Card de Estabelecimento (posição)',
+        label: '📍 Posição do Card de Estabelecimento — pra editar foto/nome/descrição/links, use o campo "Estabelecimentos recomendados" mais abaixo no formulário',
         fields: [],
         pattern: /^%%estabelecimento%%$/,
         fromBlock: function () {
@@ -90,14 +90,14 @@
                 background: '#fff8ec',
               },
             },
-            '🏨 Aqui entra o próximo Card de Estabelecimento da lista "Estabelecimentos recomendados"'
+            '🏨 Aqui entra o Card de Estabelecimento — pra editar foto/nome/descrição/links, use o campo "Estabelecimentos recomendados" mais abaixo'
           );
         },
       });
 
       CMS.registerEditorComponent({
         id: 'produto-marcador',
-        label: '📍 Card de Produto (posição)',
+        label: '📍 Posição do Card de Produto — pra editar foto/nome/descrição/links, use o campo "Produtos recomendados" mais abaixo no formulário',
         fields: [],
         pattern: /^%%produto%%$/,
         fromBlock: function () {
@@ -122,7 +122,7 @@
                 background: '#fff8ec',
               },
             },
-            '🃏 Aqui entra o próximo Card de Produto da lista "Produtos recomendados"'
+            '🃏 Aqui entra o Card de Produto — pra editar foto/nome/descrição/links, use o campo "Produtos recomendados" mais abaixo'
           );
         },
       });
