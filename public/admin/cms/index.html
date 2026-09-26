@@ -133,6 +133,12 @@
             '<a class="btn-link" href="' + escapeHtml(data.mapsUrl) +
             '" rel="noopener noreferrer" target="_blank">📍 Ver no Mapa ↗</a>';
         }
+        if (data.bookingUrl) {
+          links +=
+            (links ? '\n      ' : '') +
+            '<a class="btn-link booking" href="' + escapeHtml(data.bookingUrl) +
+            '" rel="sponsored noopener noreferrer" target="_blank">🛏️ Reservar no Booking ↗</a>';
+        }
         if (data.instagramUrl) {
           links +=
             (links ? '\n      ' : '') +
@@ -297,6 +303,7 @@
             hint: '1–2 frases, até uns 140 caracteres — o "porquê" de ir.',
           },
           { name: 'mapsUrl', label: 'Link do Google Maps', widget: 'string', required: false },
+          { name: 'bookingUrl', label: 'Link do Booking', widget: 'string', required: false },
           { name: 'instagramUrl', label: 'Link do Instagram', widget: 'string', required: false },
         ],
         pattern: /^<div class="card-lugar">[\s\S]*<\/div>$/,
@@ -318,6 +325,7 @@
             nome: pick(/<h3>([^<]*)<\/h3>/),
             descricao: pick(/<p class="descricao">([\s\S]*?)<\/p>/),
             mapsUrl: pick(/<a class="btn-link" href="([^"]*)"/),
+            bookingUrl: pick(/<a class="btn-link booking" href="([^"]*)"/),
             instagramUrl: pick(/<a class="btn-link insta" href="([^"]*)"/),
           };
         },
