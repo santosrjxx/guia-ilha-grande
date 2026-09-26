@@ -55,7 +55,7 @@ collections:
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código). Pra recomendar uma pousada/restaurante ou um produto, use os campos \"Estabelecimentos recomendados\" e \"Produtos recomendados\" mais abaixo — eles aparecem como cards depois do texto do artigo."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código). Pra recomendar uma pousada/restaurante ou um produto, preencha os campos \"Estabelecimentos recomendados\" e \"Produtos recomendados\" mais abaixo e escreva sozinho, num parágrafo próprio, o marcador %%estabelecimento%% ou %%produto%% no ponto exato do texto onde o card deve aparecer (o 1º marcador usa o 1º item da lista, o 2º usa o 2º, e assim por diante)."
         modes: ["rich_text"]
         buttons:
           - bold
@@ -76,7 +76,7 @@ collections:
         widget: list
         required: false
         summary: "{{fields.nome}}"
-        hint: "Cards de pousada/restaurante/hotel exibidos como recomendação após o texto do artigo, com foto, descrição e links (Mapa, Booking, Instagram)."
+        hint: "Card de pousada/restaurante/hotel, com foto, descrição e links (Mapa, Booking, Instagram). Pra ele aparecer no artigo, escreva %%estabelecimento%% num parágrafo sozinho no corpo do texto, no ponto onde ele deve entrar (veja o campo \"Conteúdo do artigo\")."
         fields:
           - label: Tipo
             name: tipo
@@ -106,7 +106,7 @@ collections:
         widget: list
         required: false
         summary: "{{fields.nome}}"
-        hint: "Cards de produto (sem preço) exibidos após o texto do artigo, com foto e botões de loja."
+        hint: "Card de produto (sem preço), com foto e botões de loja. Pra ele aparecer no artigo, escreva %%produto%% num parágrafo sozinho no corpo do texto, no ponto onde ele deve entrar (veja o campo \"Conteúdo do artigo\")."
         fields:
           - label: Foto do produto
             name: foto
