@@ -135,8 +135,10 @@ const collisions = AFFILIATE_LINKS.filter((l) => reservedRootSlugs.has(l.slug));
             const inactive = r.active === false ? ' <em>(inativo)</em>' : '';
             return `<tr>
               <td>
-                <button type="button" class="copy-btn" data-url="${escapeHtml(r.shortUrl)}">📋</button>
-                <a href="${escapeHtml(r.shortUrl)}" target="_blank" rel="noopener">${escapeHtml(r.shortUrl)}</a>${inactive}
+                <div class="link-cell">
+                  <a href="${escapeHtml(r.shortUrl)}" target="_blank" rel="noopener">${escapeHtml(r.shortUrl)}</a>${inactive}
+                  <button type="button" class="copy-btn" data-url="${escapeHtml(r.shortUrl)}">Copiar</button>
+                </div>
               </td>
               <td>${escapeHtml(r.label)}</td>
               <td>${escapeHtml(r.provider)}</td>
@@ -155,7 +157,7 @@ const collisions = AFFILIATE_LINKS.filter((l) => reservedRootSlugs.has(l.slug));
             try {
               await navigator.clipboard.writeText(url);
               const original = btn.textContent;
-              btn.textContent = '✅';
+              btn.textContent = 'Copiado!';
               setTimeout(() => (btn.textContent = original), 1200);
             } catch {
               // clipboard indisponível (ex.: navegador antigo) — o link já fica visível ao lado pra copiar manualmente
@@ -251,7 +253,19 @@ const collisions = AFFILIATE_LINKS.filter((l) => reservedRootSlugs.has(l.slug));
       th, td { border: 1px solid var(--color-border); padding: 0.6rem 0.75rem; text-align: left; font-size: 0.9rem; }
       th { background: #f4f8f7; }
       td.num, th.num { text-align: right; }
-      .copy-btn { border: none; background: none; cursor: pointer; font-size: 0.9rem; margin-right: 0.3rem; }
+      .link-cell { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+      .copy-btn {
+        border: 1px solid var(--color-border);
+        background: #fff;
+        color: var(--color-primary-dark);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .copy-btn:hover { background: var(--color-surface); }
 
       .forget-link {
         margin-top: 1rem;
