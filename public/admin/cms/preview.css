@@ -172,6 +172,20 @@ blockquote {
 }
 .callout-importante::before { content: '❗ Importante'; color: var(--color-accent-dark); }
 
+/* Caixinha do marcador de posição do Card de Estabelecimento/Produto (ver
+   public/admin/cms/index.html) — só existe na edição/prévia do CMS, nunca
+   aparece no site publicado (lá o marcador vira o card de verdade). */
+.marcador-card {
+  border: 2px dashed var(--color-accent-dark);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-accent-dark);
+  background: var(--color-sponsored);
+}
+
 /* Card de Produto e Card de Estabelecimento — espelha o CSS de
    src/layouts/ArticleLayout.astro (mesmas classes), só que sem o wrapper
    :global() do Astro, já que aqui é uma folha de estilo simples. */

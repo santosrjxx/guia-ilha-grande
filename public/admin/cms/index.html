@@ -58,6 +58,43 @@
         },
       });
 
+      // Marcador de posição pro Card de Estabelecimento/Produto (ver src/remark-inline-cards.mjs
+      // no build do site). Sem campos: só existe pra trocar o texto cru "%%estabelecimento%%" /
+      // "%%produto%%" por uma caixinha identificável na edição e na prévia — o conteúdo de
+      // verdade (foto, nome, descrição...) mora nos campos "Estabelecimentos/Produtos
+      // recomendados" do artigo, não aqui.
+      CMS.registerEditorComponent({
+        id: 'estabelecimento-marcador',
+        label: '📍 Card de Estabelecimento (posição)',
+        fields: [],
+        pattern: /^%%estabelecimento%%$/,
+        fromBlock: function () {
+          return {};
+        },
+        toBlock: function () {
+          return '%%estabelecimento%%';
+        },
+        toPreview: function () {
+          return '<div class="marcador-card">🏨 Aqui entra o próximo Card de Estabelecimento da lista "Estabelecimentos recomendados"</div>';
+        },
+      });
+
+      CMS.registerEditorComponent({
+        id: 'produto-marcador',
+        label: '📍 Card de Produto (posição)',
+        fields: [],
+        pattern: /^%%produto%%$/,
+        fromBlock: function () {
+          return {};
+        },
+        toBlock: function () {
+          return '%%produto%%';
+        },
+        toPreview: function () {
+          return '<div class="marcador-card">🃏 Aqui entra o próximo Card de Produto da lista "Produtos recomendados"</div>';
+        },
+      });
+
       function escapeHtml(str) {
         return (str || '').replace(/[&<>"']/g, function (c) {
           return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -76,98 +113,6 @@
           .replace(/&gt;/g, '>')
           .replace(/&amp;/g, '&');
       }
-
-      // Cor de cada loja é a cor real da marca (laranja da Amazon, amarelo do
-      // Mercado Livre etc.) — botão reconhecível de cara converte mais do que
-      // um botão genérico da cor do site. O nome da loja aparece em texto
-      // (não a logo oficial: a da Amazon nem existe em bibliotecas de ícone
-      // abertas — foi removida por risco de marca — e a do Mercado Livre só
-      // existe pro Mercado Pago, marca irmã diferente).
-      var PROVIDER_INFO = {
-        amazon: { cls: 'btn-loja--amazon', nome: 'amazon' },
-        mercadoLivre: { cls: 'btn-loja--mercadolivre', nome: 'Mercado Livre' },
-        booking: { cls: 'btn-loja--booking', nome: 'Booking.com' },
-        rentcar: { cls: 'btn-loja--rentcar', nome: 'Rentcars' },
-      };
-
-      function renderCardProduto(data) {
-        var lojas = (data.lojas || [])
-          .map(function (loja) {
-            var info = PROVIDER_INFO[loja.provider];
-            var cls = 'btn-loja ' + (info ? info.cls : 'btn-loja--outro');
-            var nomeSpan = info ? '<span class="loja-nome">' + info.nome + '</span>' : '';
-            return (
-              '<a class="' + cls + '" href="' + escapeHtml(loja.url || '#') +
-              '" rel="sponsored noopener noreferrer" target="_blank">' +
-              nomeSpan + '<span class="loja-cta">' + escapeHtml(loja.label || 'Ver oferta') + ' ↗</span></a>'
-            );
-          })
-          .join('\n      ');
-        return (
-          '<div class="card-produto">\n' +
-          '  <div class="foto-wrap">\n' +
-          '    <img src="' + escapeHtml(data.foto || '') + '" alt="' + escapeHtml(data.fotoAlt || data.nome || '') +
-          '" loading="lazy" width="600" height="450" />\n' +
-          (data.selo ? '    <span class="tipo-badge">' + escapeHtml(data.selo) + '</span>\n' : '') +
-          '  </div>\n' +
-          '  <div class="conteudo">\n' +
-          '    <h3>' + escapeHtml(data.nome || '') + '</h3>\n' +
-          '    <p class="why">' + escapeHtml(data.porque || '') + '</p>\n' +
-          '    <div class="ctas">\n      ' + lojas + '\n    </div>\n' +
-          '    <p class="disclosure">Link de afiliado — sem custo extra pra você.</p>\n' +
-          '  </div>\n' +
-          '</div>'
-        );
-      }
-
-      var TIPO_LUGAR_LABELS = {
-        pousada: '🏨 Pousada',
-        restaurante: '🍽️ Restaurante',
-        hotel: '🏝️ Hotel',
-      };
-
-      function renderCardLugar(data) {
-        var links = '';
-        if (data.mapsUrl) {
-          links +=
-            '<a class="btn-link" href="' + escapeHtml(data.mapsUrl) +
-            '" rel="noopener noreferrer" target="_blank">📍 Ver no Mapa ↗</a>';
-        }
-        if (data.bookingUrl) {
-          links +=
-            (links ? '\n      ' : '') +
-            '<a class="btn-link booking" href="' + escapeHtml(data.bookingUrl) +
-            '" rel="sponsored noopener noreferrer" target="_blank">🛏️ Reservar no Booking ↗</a>';
-        }
-        if (data.instagramUrl) {
-          links +=
-            (links ? '\n      ' : '') +
-            '<a class="btn-link insta" href="' + escapeHtml(data.instagramUrl) +
-            '" rel="noopener noreferrer" target="_blank">📷 Ver no Instagram ↗</a>';
-        }
-        return (
-          '<div class="card-lugar">\n' +
-          '  <div class="foto-wrap">\n' +
-          '    <img src="' + escapeHtml(data.foto || '') + '" alt="' + escapeHtml(data.fotoAlt || data.nome || '') +
-          '" loading="lazy" width="800" height="600" />\n' +
-          '    <span class="tipo-badge">' + (TIPO_LUGAR_LABELS[data.tipo] || '📍 Estabelecimento') + '</span>\n' +
-          '  </div>\n' +
-          '  <div class="conteudo">\n' +
-          '    <h3>' + escapeHtml(data.nome || '') + '</h3>\n' +
-          '    <p class="descricao">' + escapeHtml(data.descricao || '') + '</p>\n' +
-          '    <div class="links">\n      ' + links + '\n    </div>\n' +
-          '  </div>\n' +
-          '</div>'
-        );
-      }
-
-      // renderCardProduto/renderCardLugar não são mais usadas como Editor Components
-      // inseridos no corpo do artigo (o Sveltia CMS não reconhece de volta um bloco de
-      // HTML já salvo como formulário editável ao reabrir — bug conhecido:
-      // github.com/sveltia/sveltia-cms/issues/410). Os cards agora são campos
-      // estruturados próprios ("Estabelecimentos recomendados" / "Produtos
-      // recomendados", ver config.yml) sempre editados como formulário, e essas
-      // funções só servem para desenhar o preview do artigo mais abaixo.
 
       CMS.registerEditorComponent({
         id: 'html',
@@ -214,8 +159,6 @@
           };
           var heroImage = this.props.getAsset(data.get('heroImage'));
           var faq = data.get('faq');
-          var estabelecimentos = data.get('estabelecimentos');
-          var produtos = data.get('produtos');
 
           return h(
             'article',
@@ -231,24 +174,6 @@
                 style: { borderRadius: 'var(--radius)', marginBlock: '1.5rem' },
               }),
             h('div', { className: 'prose' }, this.props.widgetFor('body')),
-            estabelecimentos &&
-              estabelecimentos.size > 0 &&
-              h(
-                'div',
-                { className: 'cards-recomendados' },
-                estabelecimentos.toJS().map(function (item, i) {
-                  return h('div', { key: i, dangerouslySetInnerHTML: { __html: renderCardLugar(item) } });
-                })
-              ),
-            produtos &&
-              produtos.size > 0 &&
-              h(
-                'div',
-                { className: 'cards-recomendados' },
-                produtos.toJS().map(function (item, i) {
-                  return h('div', { key: i, dangerouslySetInnerHTML: { __html: renderCardProduto(item) } });
-                })
-              ),
             faq &&
               faq.size > 0 &&
               h(

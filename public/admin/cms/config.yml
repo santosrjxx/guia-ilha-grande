@@ -55,7 +55,7 @@ collections:
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante) ou Código HTML (para colar embed do Google Maps, YouTube etc. sem precisar mexer em código). Pra recomendar uma pousada/restaurante ou um produto, preencha os campos \"Estabelecimentos recomendados\" e \"Produtos recomendados\" mais abaixo e escreva sozinho, num parágrafo próprio, o marcador %%estabelecimento%% ou %%produto%% no ponto exato do texto onde o card deve aparecer (o 1º marcador usa o 1º item da lista, o 2º usa o 2º, e assim por diante)."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante), Código HTML (para colar embed do Google Maps, YouTube etc.) ou os marcadores de posição do Card de Estabelecimento/Produto. Pra recomendar uma pousada/restaurante ou um produto: primeiro preencha os campos \"Estabelecimentos recomendados\" ou \"Produtos recomendados\" mais abaixo, depois clique em \"Inserir\" no ponto exato do texto onde o card deve aparecer e escolha o marcador correspondente (o 1º marcador usa o 1º item da lista, o 2º usa o 2º, e assim por diante)."
         modes: ["rich_text"]
         buttons:
           - bold
@@ -68,7 +68,7 @@ collections:
           - quote
           - bulleted-list
           - numbered-list
-        editor_components: [image, destaque, html]
+        editor_components: [image, destaque, html, estabelecimento-marcador, produto-marcador]
         media_folder: "/public/articles/inline"
         public_folder: "/articles/inline"
       - label: Estabelecimentos recomendados
