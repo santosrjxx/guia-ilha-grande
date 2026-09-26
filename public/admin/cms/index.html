@@ -75,7 +75,23 @@
           return '%%estabelecimento%%';
         },
         toPreview: function () {
-          return '<div class="marcador-card">🏨 Aqui entra o próximo Card de Estabelecimento da lista "Estabelecimentos recomendados"</div>';
+          return h(
+            'div',
+            {
+              className: 'marcador-card',
+              style: {
+                border: '2px dashed #96601c',
+                borderRadius: '10px',
+                padding: '1rem 1.25rem',
+                margin: '1.5rem 0',
+                textAlign: 'center',
+                fontWeight: 700,
+                color: '#96601c',
+                background: '#fff8ec',
+              },
+            },
+            '🏨 Aqui entra o próximo Card de Estabelecimento da lista "Estabelecimentos recomendados"'
+          );
         },
       });
 
@@ -91,7 +107,23 @@
           return '%%produto%%';
         },
         toPreview: function () {
-          return '<div class="marcador-card">🃏 Aqui entra o próximo Card de Produto da lista "Produtos recomendados"</div>';
+          return h(
+            'div',
+            {
+              className: 'marcador-card',
+              style: {
+                border: '2px dashed #96601c',
+                borderRadius: '10px',
+                padding: '1rem 1.25rem',
+                margin: '1.5rem 0',
+                textAlign: 'center',
+                fontWeight: 700,
+                color: '#96601c',
+                background: '#fff8ec',
+              },
+            },
+            '🃏 Aqui entra o próximo Card de Produto da lista "Produtos recomendados"'
+          );
         },
       });
 
