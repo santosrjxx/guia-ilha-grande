@@ -30,6 +30,27 @@ export const SILOS: Record<
   Object.entries(siteConfig.silos).map(([slug, data]) => [slug, { ...data, slug }])
 ) as Record<SiloKey, { title: string; heading: string; slug: SiloKey; shortDescription: string; icon: string }>;
 
+// Transforma texto livre num slug de URL (minúsculas, sem acento, só letras/números/hífen).
+// Usado como fallback quando o artigo não tem o campo "Slug" preenchido no CMS.
+export const slugify = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+type ArticleLike = { data: { silo: SiloKey; slug?: string | null; title: string } };
+
+// Slug final do artigo: usa o campo "Slug" do CMS se preenchido, senão deriva do título.
+export const articleSlug = (article: ArticleLike) => article.data.slug || slugify(article.data.title);
+
+// URL completa do artigo. Cada silo pode ter vários artigos — o silo define só a categoria
+// (hub em /[silo]/, que lista os artigos), e cada artigo vive na sua própria sub-URL
+// /[silo]/[slug]/, independente dos outros artigos do mesmo silo.
+export const articleUrl = (article: ArticleLike) => `/${article.data.silo}/${articleSlug(article)}/`;
+
 export const NAV_LINKS = [
   { href: '/', label: 'Início' },
   { href: '/onde-comer/', label: SILOS['onde-comer'].title },

@@ -1,0 +1,40 @@
+---
+// Página de um artigo específico. Um silo pode ter vários artigos — o campo "Silo
+// (categoria)" do CMS só define em qual hub (/[silo]/) o artigo aparece listado; cada
+// artigo tem sua própria URL aqui, em /[silo]/[slug]/, e nunca disputa espaço com outro
+// artigo do mesmo silo.
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+import { SILOS, articleSlug } from '../../../consts';
+import type { SiloKey } from '../../../consts';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', (a) => !a.data.draft);
+  return articles.map((article) => ({
+    params: { silo: article.data.silo, slug: articleSlug(article) },
+    props: { article },
+  }));
+}
+
+const { silo: siloKey } = Astro.params as { silo: SiloKey; slug: string };
+const { article } = Astro.props as { article: Awaited<ReturnType<typeof getCollection<'articles'>>>[number] };
+const { Content } = await render(article);
+---
+
+<ArticleLayout
+  title={article.data.title}
+  seoTitle={article.data.seoTitle}
+  description={article.data.description}
+  silo={siloKey}
+  path={`${siloKey}/${articleSlug(article)}`}
+  heroImage={article.data.heroImage}
+  heroImageAlt={article.data.heroImageAlt}
+  heroImageWidth={article.data.heroImageWidth}
+  heroImageHeight={article.data.heroImageHeight}
+  pubDate={article.data.pubDate}
+  updatedDate={article.data.updatedDate}
+  author={article.data.author}
+  faq={article.data.faq}
+>
+  <Content />
+</ArticleLayout>
