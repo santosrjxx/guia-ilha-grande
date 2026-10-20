@@ -46,10 +46,26 @@ type ArticleLike = { data: { silo: SiloKey; slug?: string | null; title: string 
 // Slug final do artigo: usa o campo "Slug" do CMS se preenchido, senão deriva do título.
 export const articleSlug = (article: ArticleLike) => article.data.slug || slugify(article.data.title);
 
-// URL completa do artigo. Cada silo pode ter vários artigos — o silo define só a categoria
-// (hub em /[silo]/, que lista os artigos), e cada artigo vive na sua própria sub-URL
-// /[silo]/[slug]/, independente dos outros artigos do mesmo silo.
-export const articleUrl = (article: ArticleLike) => `/${article.data.silo}/${articleSlug(article)}/`;
+// Artigo "pilar" de cada silo — o único que ocupa a URL raiz da categoria (ex.: /guia-pratico/),
+// igual sempre foi. Fixo aqui no código (não é um campo do CMS) justamente pra nunca ser
+// trocado sem querer só por escolher a categoria de um artigo novo no painel — pra trocar o
+// pilar de um silo, é preciso mexer neste mapa. Artigos que têm essa categoria mas não são
+// o pilar (ex.: "Barca para Ilha Grande" em "guia-pratico") ganham uma URL própria e direta
+// na raiz do site (/[slug]/) — a categoria neles vira só uma etiqueta, não muda a silo.
+export const SILO_PILLAR_SLUG: Record<SiloKey, string> = {
+  'onde-comer': 'onde-comer-ilha-grande',
+  'o-que-fazer': 'o-que-fazer-em-ilha-grande',
+  'onde-ficar': 'onde-ficar-em-ilha-grande',
+  'guia-pratico': 'como-chegar-custos-e-logistica',
+};
+
+export const isPillarArticle = (article: ArticleLike) =>
+  SILO_PILLAR_SLUG[article.data.silo] === articleSlug(article);
+
+// URL completa do artigo: o pilar de cada silo mora na URL raiz da categoria (ex.: /guia-pratico/);
+// qualquer outro artigo mora direto na raiz do site (ex.: /barca-ilha-grande-horarios-precos/).
+export const articleUrl = (article: ArticleLike) =>
+  isPillarArticle(article) ? `/${article.data.silo}/` : `/${articleSlug(article)}/`;
 
 export const NAV_LINKS = [
   { href: '/', label: 'Início' },

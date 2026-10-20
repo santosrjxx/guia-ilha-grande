@@ -1,13 +1,16 @@
 ---
-// Hub do silo (categoria): lista todos os artigos daquele silo, cada um com sua própria
-// URL em /[silo]/[slug]/ (veja [silo]/[slug]/index.astro). O campo "Silo (categoria)" no
-// CMS só define em qual hub o artigo entra — nunca troca ou substitui outro artigo já
-// publicado na mesma categoria. Se o silo ainda não tem artigo publicado, mostra um aviso.
+// Cada silo tem exatamente um artigo "pilar" fixo (definido em SILO_PILLAR_SLUG, em
+// consts.ts) — então a URL raiz do silo (ex.: /guia-pratico/) mostra o artigo completo
+// direto, sem página de listagem intermediária. Outros artigos que usam essa mesma
+// categoria (campo "Silo" no CMS) NÃO aparecem aqui — eles vivem na própria URL deles,
+// direto na raiz do site (veja src/pages/[slug]/index.astro). Se o silo ainda não tem
+// o artigo pilar publicado, mostra um aviso simples.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
-import { SILOS, articleUrl } from '../../consts';
+import { SILOS, SILO_PILLAR_SLUG, articleSlug } from '../../consts';
 import type { SiloKey } from '../../consts';
-import { getCollection } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 
 export function getStaticPaths() {
   return (Object.keys(SILOS) as SiloKey[]).map((silo) => ({ params: { silo } }));
@@ -15,52 +18,42 @@ export function getStaticPaths() {
 
 const { silo: siloKey } = Astro.params as { silo: SiloKey };
 const silo = SILOS[siloKey];
-const articles = (await getCollection('articles', (a) => a.data.silo === siloKey && !a.data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
-
-const fmt = (d: Date) =>
-  d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const articles = await getCollection('articles', (a) => a.data.silo === siloKey && !a.data.draft);
+const article = articles.find((a) => articleSlug(a) === SILO_PILLAR_SLUG[siloKey]);
+const Content = article ? (await render(article)).Content : null;
 ---
 
-<BaseLayout title={silo.heading} description={silo.shortDescription}>
-  <div class="container">
-    <Breadcrumbs items={[{ label: 'Início', href: '/' }, { label: silo.title, href: `/${siloKey}/` }]} />
-    <header class="silo-header">
-      <p class="badge">{silo.icon} Silo: {silo.title}</p>
-      <h1>{silo.heading}</h1>
-      <p class="silo-lead">{silo.shortDescription}</p>
-    </header>
-
-    {articles.length > 0 ? (
-      <ul class="silo-grid">
-        {articles.map((article) => (
-          <li>
-            <a href={articleUrl(article)} class="card">
-              {article.data.heroImage && (
-                <img
-                  src={article.data.heroImage}
-                  alt={article.data.heroImageAlt ?? article.data.title}
-                  class="card-image"
-                  loading="lazy"
-                  width="1200"
-                  height="675"
-                />
-              )}
-              <div class="card-body">
-                <p class="recent-item-meta">{fmt(article.data.pubDate)}</p>
-                <h2>{article.data.title}</h2>
-                <p>{article.data.description}</p>
-              </div>
-            </a>
-          </li>
-        ))}
-      </ul>
-    ) : (
+{article && Content ? (
+  <ArticleLayout
+    title={article.data.title}
+    seoTitle={article.data.seoTitle}
+    description={article.data.description}
+    silo={siloKey}
+    path={siloKey}
+    heroImage={article.data.heroImage}
+    heroImageAlt={article.data.heroImageAlt}
+    heroImageWidth={article.data.heroImageWidth}
+    heroImageHeight={article.data.heroImageHeight}
+    pubDate={article.data.pubDate}
+    updatedDate={article.data.updatedDate}
+    author={article.data.author}
+    faq={article.data.faq}
+  >
+    <Content />
+  </ArticleLayout>
+) : (
+  <BaseLayout title={silo.heading} description={silo.shortDescription}>
+    <div class="container">
+      <Breadcrumbs items={[{ label: 'Início', href: '/' }, { label: silo.title, href: `/${siloKey}/` }]} />
+      <header class="silo-header">
+        <p class="badge">{silo.icon} Silo: {silo.title}</p>
+        <h1>{silo.heading}</h1>
+        <p class="silo-lead">{silo.shortDescription}</p>
+      </header>
       <p class="silo-empty">Em breve, conteúdo completo sobre isso. Volte em breve!</p>
-    )}
-  </div>
-</BaseLayout>
+    </div>
+  </BaseLayout>
+)}
 
 <style>
   .silo-header {
@@ -73,22 +66,4 @@ const fmt = (d: Date) =>
   }
   .silo-lead { color: var(--color-text-muted); font-size: 1.1rem; }
   .silo-empty { color: var(--color-text-muted); padding-bottom: 3rem; }
-
-  .silo-grid {
-    list-style: none;
-    margin: 0 0 3rem;
-    padding: 0;
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 640px) {
-    .silo-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  .card { display: block; text-decoration: none; color: inherit; border: 1px solid var(--color-border); border-radius: var(--radius); overflow: hidden; background: #fff; }
-  .card-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
-  .card-body { padding: 1.1rem 1.25rem; }
-  .card-body h2 { margin: 0.2rem 0 0.4rem; font-size: 1.15rem; }
-  .card-body p { margin: 0; color: var(--color-text-muted); }
-  .recent-item-meta { font-size: 0.8rem; color: var(--color-text-muted); margin: 0; }
 </style>

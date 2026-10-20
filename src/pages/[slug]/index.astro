@@ -1,0 +1,42 @@
+---
+// Página de um artigo que usa uma categoria (campo "Silo" no CMS) mas não é o artigo pilar
+// dela (veja SILO_PILLAR_SLUG em consts.ts) — ele vive direto na raiz do site, com sua
+// própria URL fixa, sem disputar espaço com o pilar nem com outros artigos da mesma
+// categoria. A categoria continua servindo pra classificar/filtrar o artigo (badge, menu,
+// contagem na home), só não decide mais qual artigo aparece em qual URL.
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { articleSlug, isPillarArticle } from '../../consts';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', (a) => !a.data.draft);
+  return articles
+    .filter((article) => !isPillarArticle(article))
+    .map((article) => ({
+      params: { slug: articleSlug(article) },
+      props: { article },
+    }));
+}
+
+const { article } = Astro.props as { article: Awaited<ReturnType<typeof getCollection<'articles'>>>[number] };
+const { Content } = await render(article);
+const slug = articleSlug(article);
+---
+
+<ArticleLayout
+  title={article.data.title}
+  seoTitle={article.data.seoTitle}
+  description={article.data.description}
+  silo={article.data.silo}
+  path={slug}
+  heroImage={article.data.heroImage}
+  heroImageAlt={article.data.heroImageAlt}
+  heroImageWidth={article.data.heroImageWidth}
+  heroImageHeight={article.data.heroImageHeight}
+  pubDate={article.data.pubDate}
+  updatedDate={article.data.updatedDate}
+  author={article.data.author}
+  faq={article.data.faq}
+>
+  <Content />
+</ArticleLayout>

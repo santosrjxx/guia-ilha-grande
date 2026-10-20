@@ -13,7 +13,8 @@ interface Props {
   seoTitle?: string;
   description: string;
   silo: SiloKey;
-  // Caminho final da página (sem barra no início/fim), ex.: "guia-pratico/barca-para-ilha-grande".
+  // Caminho final da página (sem barra no início/fim): "guia-pratico" pro artigo pilar da
+  // silo, ou o slug do artigo pra qualquer outro (ex.: "barca-ilha-grande-horarios-precos").
   // Usado no breadcrumb, no schema e como identificador dos comentários (KV do Worker).
   path: string;
   heroImage?: string;
