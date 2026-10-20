@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSlot from '../components/AdSlot.astro';
+import CmsImage from '../components/CmsImage.astro';
 import { SITE, SILOS, articleUrl } from '../consts';
 import { getCollection } from 'astro:content';
 
@@ -50,11 +51,11 @@ const websiteSchema = {
   <section class="section hero-section">
     <div class="container hero-grid">
       <a href={articleUrl(featuredArticle)} class="hero-feature">
-        <img
+        <CmsImage
           src={featuredArticle.data.heroImage}
           alt={featuredArticle.data.heroImageAlt ?? featuredArticle.data.title}
-          width="1200"
-          height="675"
+          width={1200}
+          height={675}
           loading="eager"
           fetchpriority="high"
         />
@@ -78,7 +79,7 @@ const websiteSchema = {
             <li>
               <a href={articleUrl(article)} class="mini-post">
                 <span class="mini-post-number">{i + 1}</span>
-                <img src={article.data.heroImage} alt="" width="70" height="70" loading="lazy" />
+                <CmsImage src={article.data.heroImage} alt="" width={70} height={70} loading="lazy" />
                 <span>
                   <strong>{article.data.title}</strong>
                   <time>{fmt(article.data.pubDate)}</time>
@@ -93,7 +94,7 @@ const websiteSchema = {
             <li>
               <a href={articleUrl(article)} class="mini-post">
                 <span class="mini-post-number">{i + 1}</span>
-                <img src={article.data.heroImage} alt="" width="70" height="70" loading="lazy" />
+                <CmsImage src={article.data.heroImage} alt="" width={70} height={70} loading="lazy" />
                 <span>
                   <strong>{article.data.title}</strong>
                   <time>{fmt(article.data.pubDate)}</time>
@@ -113,7 +114,7 @@ const websiteSchema = {
         <h2>Escolha da Equipe <span class="title-deco" aria-hidden="true">〰️</span></h2>
         <div class="editors-grid">
           <a href={articleUrl(editorsPickMain)} class="editors-main">
-            <img src={editorsPickMain.data.heroImage} alt={editorsPickMain.data.heroImageAlt ?? editorsPickMain.data.title} width="1200" height="675" loading="lazy" />
+            <CmsImage src={editorsPickMain.data.heroImage} alt={editorsPickMain.data.heroImageAlt ?? editorsPickMain.data.title} width={1200} height={675} loading="lazy" />
             <div class="editors-main-body">
               <p class="badge">{SILOS[editorsPickMain.data.silo].title}</p>
               <h3>{editorsPickMain.data.title}</h3>
@@ -125,7 +126,7 @@ const websiteSchema = {
               {editorsPickList.map((article) => (
                 <li>
                   <a href={articleUrl(article)} class="compact-post">
-                    <img src={article.data.heroImage} alt="" width="110" height="80" loading="lazy" />
+                    <CmsImage src={article.data.heroImage} alt="" width={110} height={80} loading="lazy" />
                     <span>
                       <strong>{article.data.title}</strong>
                       <time>{fmt(article.data.pubDate)}</time>
@@ -148,7 +149,7 @@ const websiteSchema = {
         <div class="grid grid-4">
           {trendingGrid.map((article) => (
             <a href={articleUrl(article)} class="card">
-              <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} class="card-image" loading="lazy" width="1200" height="675" />
+              <CmsImage src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} class="card-image" loading="lazy" width={1200} height={675} />
               <div class="card-body">
                 <p class="badge">{SILOS[article.data.silo].title}</p>
                 <h3>{article.data.title}</h3>
@@ -169,7 +170,7 @@ const websiteSchema = {
         <div class="inspiration-grid">
           {inspirationDuo.map((article) => (
             <a href={articleUrl(article)} class="inspiration-card">
-              <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width="900" height="600" loading="lazy" />
+              <CmsImage src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width={900} height={600} loading="lazy" />
               <div class="inspiration-overlay">
                 <p class="badge badge-accent">{SILOS[article.data.silo].title}</p>
                 <h3>{article.data.title}</h3>
@@ -195,7 +196,7 @@ const websiteSchema = {
           {byDate.map((article) => (
             <li>
               <a href={articleUrl(article)} class="recent-item">
-                <img src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width="320" height="200" loading="lazy" />
+                <CmsImage src={article.data.heroImage} alt={article.data.heroImageAlt ?? article.data.title} width={320} height={200} loading="lazy" />
                 <div class="recent-item-body">
                   <p class="recent-item-meta">{SILOS[article.data.silo].title} · {fmt(article.data.pubDate)}</p>
                   <h3>{article.data.title}</h3>
@@ -221,7 +222,7 @@ const websiteSchema = {
               <li>
                 <a href={articleUrl(article)} class="mini-post">
                   <span class="mini-post-number">{i + 1}</span>
-                  <img src={article.data.heroImage} alt="" width="60" height="60" loading="lazy" />
+                  <CmsImage src={article.data.heroImage} alt="" width={60} height={60} loading="lazy" />
                   <span>
                     <strong>{article.data.title}</strong>
                     <time>{fmt(article.data.pubDate)}</time>
@@ -263,7 +264,7 @@ const websiteSchema = {
         <div class="widget">
           <h3>Destaque</h3>
           <a href={articleUrl(featuredArticle)} class="compact-post">
-            <img src={featuredArticle.data.heroImage} alt="" width="110" height="80" loading="lazy" />
+            <CmsImage src={featuredArticle.data.heroImage} alt="" width={110} height={80} loading="lazy" />
             <span>
               <strong>{featuredArticle.data.title}</strong>
               <time>{fmt(featuredArticle.data.pubDate)}</time>

@@ -1,0 +1,33 @@
+---
+// <img> otimizado pra imagem enviada pelo CMS: redimensiona, comprime e converte formato
+// automaticamente via astro:assets (só a cópia espelhada em src/assets/cms passa por isso —
+// veja src/lib/cms-images.ts). Se a imagem ainda não foi espelhada (upload muito recente que
+// o build ainda não processou), cai pra uma <img> comum com o caminho original, sem quebrar
+// a página.
+import { Image } from 'astro:assets';
+import { resolveCmsImage } from '../lib/cms-images';
+
+interface Props {
+  src?: string | null;
+  alt: string;
+  width: number;
+  height: number;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const { src, alt, width, height, class: className, loading = 'lazy', fetchpriority } = Astro.props;
+const resolved = resolveCmsImage(src);
+// Nunca pede um tamanho maior que o arquivo original (evita upscale) — só a largura é
+// passada pro Astro; a altura é calculada automaticamente preservando a proporção real do
+// arquivo (o enquadramento na proporção do layout fica por conta do object-fit no CSS,
+// igual já funcionava antes com <img> simples).
+const targetWidth = resolved ? Math.min(width, resolved.width) : width;
+---
+
+{resolved ? (
+  <Image src={resolved} alt={alt} width={targetWidth} quality={65} class={className} loading={loading} fetchpriority={fetchpriority} />
+) : src ? (
+  <img src={src} alt={alt} width={width} height={height} class={className} loading={loading} fetchpriority={fetchpriority} />
+) : null}

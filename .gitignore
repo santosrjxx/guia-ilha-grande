@@ -1,5 +1,6 @@
 dist/
 .astro/
+src/assets/cms/
 node_modules/
 .env
 .dev.vars

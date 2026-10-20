@@ -5,6 +5,7 @@ import AuthorBox from '../components/AuthorBox.astro';
 import FAQ from '../components/FAQ.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Comments from '../components/Comments.astro';
+import CmsImage from '../components/CmsImage.astro';
 import { SITE, SILOS } from '../consts';
 import type { SiloKey } from '../consts';
 
@@ -81,7 +82,7 @@ const articleSchema = {
     </header>
 
     {heroImage && (
-      <img
+      <CmsImage
         src={heroImage}
         alt={heroImageAlt ?? title}
         width={heroImageWidth}
