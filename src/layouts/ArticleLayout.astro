@@ -206,6 +206,25 @@ const articleSchema = {
     text-align: center;
   }
 
+  /* Embed colado no bloco "Código HTML" do CMS (ex.: iframe do Google Maps/YouTube)
+     vem com width/height fixos em pixels do snippet oficial — sem isso, estoura a
+     largura da tela no celular. aspect-ratio por host porque o iframe não herda uma
+     proporção intrínseca dos atributos width/height como img/video herdam. */
+  .prose :global(iframe) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border: 0;
+    border-radius: var(--radius);
+    margin: 1.75rem 0;
+  }
+  .prose :global(iframe[src*="youtube.com"]),
+  .prose :global(iframe[src*="youtu.be"]) {
+    aspect-ratio: 16 / 9;
+  }
+
   /* Card de Produto (sem preço) e Card de Estabelecimento (pousada/restaurante/hotel).
      Os dados vêm de campos de formulário do CMS ("Estabelecimentos recomendados" /
      "Produtos recomendados"), mas a renderização em si é HTML puro, gerado no build a
