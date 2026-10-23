@@ -58,13 +58,15 @@
         },
       });
 
-      // Imagem com legenda de crédito embaixo (ex.: "Foto: João Silva/Unsplash") — pra fotos
-      // de terceiros/bancos de imagem que exigem atribuição. Vira um <figure>/<figcaption>
-      // real no HTML (bom pra acessibilidade e semântica), estilizado em ArticleLayout.astro
-      // (classe .foto-credito) e espelhado aqui em preview.css pra já aparecer igual na prévia.
+      // Única forma de inserir imagem no corpo do artigo (substitui o componente genérico
+      // "image" do Decap/Sveltia) — crédito é opcional, pra não ter dois botões parecidos
+      // na hora de inserir imagem (um "normal" e outro "com crédito") confundindo quem edita.
+      // Vira um <figure>/<figcaption> real no HTML só quando o crédito é preenchido (bom pra
+      // acessibilidade e semântica), estilizado em ArticleLayout.astro (classe .foto-credito)
+      // e espelhado aqui em preview.css pra já aparecer igual na prévia.
       CMS.registerEditorComponent({
         id: 'foto-com-credito',
-        label: 'Foto com crédito',
+        label: 'Imagem',
         fields: [
           {
             name: 'foto',
@@ -76,24 +78,26 @@
           { name: 'alt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
           {
             name: 'credito',
-            label: 'Crédito da foto',
+            label: 'Crédito da foto (opcional)',
             widget: 'string',
-            hint: 'Ex.: "Foto: João Silva/Unsplash". Aparece como legenda pequena embaixo da imagem.',
+            required: false,
+            hint: 'Deixe em branco se a foto não precisar de crédito (ex.: foto própria). Preencha com algo como "Foto: João Silva/Unsplash" pra fotos de terceiros/bancos de imagem — aparece como legenda pequena embaixo da imagem.',
           },
         ],
-        pattern: /^<figure class="foto-credito">\n<img src="([^"]*)" alt="([^"]*)" loading="lazy" \/>\n<figcaption>([\s\S]*?)<\/figcaption>\n<\/figure>$/,
+        pattern: /^<figure class="foto-credito">\n<img src="([^"]*)" alt="([^"]*)" loading="lazy" \/>(?:\n<figcaption>([\s\S]*?)<\/figcaption>)?\n<\/figure>$/,
         fromBlock: function (match) {
           return {
             foto: unescapeHtml(match[1]),
             alt: unescapeHtml(match[2]),
-            credito: unescapeHtml(match[3]),
+            credito: match[3] ? unescapeHtml(match[3]) : '',
           };
         },
         toBlock: function (obj) {
+          var figcaption = obj.credito ? '\n<figcaption>' + escapeHtml(obj.credito) + '</figcaption>' : '';
           return (
             '<figure class="foto-credito">\n' +
-            '<img src="' + escapeHtml(obj.foto || '') + '" alt="' + escapeHtml(obj.alt || '') + '" loading="lazy" />\n' +
-            '<figcaption>' + escapeHtml(obj.credito || '') + '</figcaption>\n' +
+            '<img src="' + escapeHtml(obj.foto || '') + '" alt="' + escapeHtml(obj.alt || '') + '" loading="lazy" />' +
+            figcaption + '\n' +
             '</figure>'
           );
         },
@@ -107,7 +111,7 @@
             'figure',
             { className: 'foto-credito' },
             obj.foto ? h('img', { src: src, alt: obj.alt || '' }) : null,
-            h('figcaption', {}, obj.credito || '')
+            obj.credito ? h('figcaption', {}, obj.credito) : null
           );
         },
       });
