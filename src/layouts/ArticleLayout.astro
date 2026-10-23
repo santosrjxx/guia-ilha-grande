@@ -27,6 +27,7 @@ interface Props {
   updatedDate?: Date;
   author: string;
   faq?: { question: string; answer: string }[];
+  ctaText?: string;
 }
 
 const {
@@ -44,9 +45,15 @@ const {
   updatedDate,
   author,
   faq,
+  ctaText,
 } = Astro.props;
 
 const siloInfo = SILOS[silo];
+
+// Texto padrão quando o campo "CTA final" fica em branco no CMS — cobre o caso comum sem
+// exigir que o editor preencha em todo artigo.
+const DEFAULT_CTA_TEXT =
+  'Já visitou algum lugar deste guia ou tem uma dica que não está aqui? Conta nos comentários — isso ajuda muita gente que está planejando a viagem agora.';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -118,6 +125,10 @@ const articleSchema = {
 
     {faq && faq.length > 0 && <FAQ items={faq} />}
 
+    <div class="callout-cta">
+      <p>{ctaText || DEFAULT_CTA_TEXT}</p>
+    </div>
+
     <AdSlot label={`Publicidade em ${siloInfo.title}`} />
 
     <Comments slug={path} />
@@ -167,7 +178,10 @@ const articleSchema = {
     background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
   }
   .prose :global(.callout-importante::before) { content: '❗ Importante'; color: var(--color-accent-dark); }
-  .prose :global(.callout-cta) {
+  /* Sem o prefixo ".prose": precisa casar tanto com o bloco inserido manualmente no meio do
+     texto (dentro de .prose, vindo do MDX) quanto com o CTA automático renderizado aqui
+     embaixo depois do FAQ (fora de .prose, autorado direto neste componente). */
+  :global(.callout-cta) {
     margin: 2rem 0;
     padding: 1.75rem 2rem;
     border-radius: var(--radius);
@@ -176,7 +190,7 @@ const articleSchema = {
     text-align: center;
     font-weight: 600;
   }
-  .prose :global(.callout-cta p) { margin: 0; }
+  :global(.callout-cta p) { margin: 0; }
 
   .prose :global(figure.foto-credito) { margin: 1.75rem 0; }
   .prose :global(figure.foto-credito img) {

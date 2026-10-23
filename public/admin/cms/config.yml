@@ -169,6 +169,11 @@ collections:
         fields:
           - { label: Pergunta, name: question, widget: string }
           - { label: Resposta, name: answer, widget: text }
+      - label: "CTA final (opcional)"
+        name: ctaText
+        widget: text
+        required: false
+        hint: "Caixa verde de chamada que aparece automaticamente no fim do artigo, depois do FAQ (não precisa inserir nada no corpo do texto). Deixe em branco pra usar o texto padrão (convite genérico pra comentar)."
 
       # --- SEO e detalhes técnicos: preenche uma vez e raramente mexe de novo ---
       - label: "Meta descrição (SEO)"
