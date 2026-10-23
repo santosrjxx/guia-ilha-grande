@@ -52,10 +52,15 @@ collections:
         media_folder: "/public/articles"
         public_folder: "/articles"
       - { label: "Texto alternativo da imagem (alt)", name: heroImageAlt, widget: string, required: false }
+      - label: "Crédito da foto de destaque (opcional)"
+        name: heroImageCredit
+        widget: string
+        required: false
+        hint: 'Ex.: "Foto: João Silva/Unsplash". Quando preenchido, aparece como legenda pequena embaixo da imagem de destaque.'
       - label: Conteúdo do artigo
         name: body
         widget: markdown
-        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante), Código HTML (para colar embed do Google Maps, YouTube etc.) ou os marcadores de posição do Card de Estabelecimento/Produto. Pra recomendar uma pousada/restaurante ou um produto: primeiro preencha os campos \"Estabelecimentos recomendados\" ou \"Produtos recomendados\" mais abaixo, depois clique em \"Inserir\" no ponto exato do texto onde o card deve aparecer e escolha o marcador correspondente (o 1º marcador usa o 1º item da lista, o 2º usa o 2º, e assim por diante)."
+        hint: "Barra de ferramentas: títulos (H2 a H4), negrito, listas, links e imagens. Clique no botão \"Inserir\" da barra de ferramentas para adicionar um bloco especial: Destaque (caixa colorida de dica/atenção/importante), Foto com Crédito (imagem com legenda de crédito embaixo, pra fotos de terceiros/bancos de imagem que exigem atribuição), Código HTML (para colar embed do Google Maps, YouTube etc.) ou os marcadores de posição do Card de Estabelecimento/Produto. Pra recomendar uma pousada/restaurante ou um produto: primeiro preencha os campos \"Estabelecimentos recomendados\" ou \"Produtos recomendados\" mais abaixo, depois clique em \"Inserir\" no ponto exato do texto onde o card deve aparecer e escolha o marcador correspondente (o 1º marcador usa o 1º item da lista, o 2º usa o 2º, e assim por diante)."
         modes: ["rich_text"]
         buttons:
           - bold
@@ -68,7 +73,7 @@ collections:
           - quote
           - bulleted-list
           - numbered-list
-        editor_components: [image, destaque, html, estabelecimento-marcador, produto-marcador]
+        editor_components: [image, foto-com-credito, destaque, html, estabelecimento-marcador, produto-marcador]
         media_folder: "/public/articles/inline"
         public_folder: "/articles/inline"
       - label: Estabelecimentos recomendados

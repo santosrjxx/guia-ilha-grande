@@ -14,6 +14,7 @@ const articles = defineCollection({
       silo: z.enum(['onde-comer', 'o-que-fazer', 'onde-ficar', 'guia-pratico']),
       heroImage: z.string().nullish(),
       heroImageAlt: z.string().nullish(),
+      heroImageCredit: z.string().nullish(),
       // Dimensões reais da imagem (evita layout shift no hero do artigo, que é
       // renderizado responsivo sem object-fit). Padrão 16:9, igual às ilustrações
       // SVG do site — só precisa ser preenchido quando a imagem for uma foto com

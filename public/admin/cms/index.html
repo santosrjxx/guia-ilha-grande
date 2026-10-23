@@ -58,6 +58,60 @@
         },
       });
 
+      // Imagem com legenda de crédito embaixo (ex.: "Foto: João Silva/Unsplash") — pra fotos
+      // de terceiros/bancos de imagem que exigem atribuição. Vira um <figure>/<figcaption>
+      // real no HTML (bom pra acessibilidade e semântica), estilizado em ArticleLayout.astro
+      // (classe .foto-credito) e espelhado aqui em preview.css pra já aparecer igual na prévia.
+      CMS.registerEditorComponent({
+        id: 'foto-com-credito',
+        label: 'Foto com crédito',
+        fields: [
+          {
+            name: 'foto',
+            label: 'Foto',
+            widget: 'image',
+            media_folder: '/public/articles/inline',
+            public_folder: '/articles/inline',
+          },
+          { name: 'alt', label: 'Texto alternativo da foto (alt)', widget: 'string', required: false },
+          {
+            name: 'credito',
+            label: 'Crédito da foto',
+            widget: 'string',
+            hint: 'Ex.: "Foto: João Silva/Unsplash". Aparece como legenda pequena embaixo da imagem.',
+          },
+        ],
+        pattern: /^<figure class="foto-credito">\n<img src="([^"]*)" alt="([^"]*)" loading="lazy" \/>\n<figcaption>([\s\S]*?)<\/figcaption>\n<\/figure>$/,
+        fromBlock: function (match) {
+          return {
+            foto: unescapeHtml(match[1]),
+            alt: unescapeHtml(match[2]),
+            credito: unescapeHtml(match[3]),
+          };
+        },
+        toBlock: function (obj) {
+          return (
+            '<figure class="foto-credito">\n' +
+            '<img src="' + escapeHtml(obj.foto || '') + '" alt="' + escapeHtml(obj.alt || '') + '" loading="lazy" />\n' +
+            '<figcaption>' + escapeHtml(obj.credito || '') + '</figcaption>\n' +
+            '</figure>'
+          );
+        },
+        toPreview: function (obj, getAsset) {
+          var src = obj.foto || '';
+          if (getAsset && obj.foto) {
+            var asset = getAsset(obj.foto);
+            if (asset) src = asset.toString();
+          }
+          return h(
+            'figure',
+            { className: 'foto-credito' },
+            obj.foto ? h('img', { src: src, alt: obj.alt || '' }) : null,
+            h('figcaption', {}, obj.credito || '')
+          );
+        },
+      });
+
       // Marcador de posição pro Card de Estabelecimento/Produto (ver src/remark-inline-cards.mjs
       // no build do site). Sem campos: só existe pra trocar o texto cru "%%estabelecimento%%" /
       // "%%produto%%" por uma caixinha identificável na edição e na prévia — o conteúdo de
@@ -190,6 +244,7 @@
             'guia-pratico': 'Guia Prático',
           };
           var heroImage = this.props.getAsset(data.get('heroImage'));
+          var heroImageCredit = data.get('heroImageCredit');
           var faq = data.get('faq');
 
           return h(
@@ -199,12 +254,18 @@
             h('h1', {}, data.get('title')),
             h('p', { className: 'article-lead', style: { color: 'var(--color-text-muted)', fontSize: '1.1rem' } }, data.get('description')),
             heroImage &&
-              h('img', {
-                src: heroImage.toString(),
-                alt: data.get('heroImageAlt') || data.get('title'),
-                className: 'hero-image',
-                style: { borderRadius: 'var(--radius)', marginBlock: '1.5rem' },
-              }),
+              h(
+                'figure',
+                { style: { marginBlock: '1.5rem' } },
+                h('img', {
+                  src: heroImage.toString(),
+                  alt: data.get('heroImageAlt') || data.get('title'),
+                  className: 'hero-image',
+                  style: { borderRadius: 'var(--radius)', marginBottom: heroImageCredit ? '0.5rem' : 0 },
+                }),
+                heroImageCredit &&
+                  h('figcaption', { style: { fontSize: '0.85rem', color: 'var(--color-text-muted)', textAlign: 'center' } }, heroImageCredit)
+              ),
             h('div', { className: 'prose' }, this.props.widgetFor('body')),
             faq &&
               faq.size > 0 &&

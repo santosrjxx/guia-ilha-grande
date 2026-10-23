@@ -20,6 +20,7 @@ interface Props {
   path: string;
   heroImage?: string;
   heroImageAlt?: string;
+  heroImageCredit?: string;
   heroImageWidth: number;
   heroImageHeight: number;
   pubDate: Date;
@@ -36,6 +37,7 @@ const {
   path,
   heroImage,
   heroImageAlt,
+  heroImageCredit,
   heroImageWidth,
   heroImageHeight,
   pubDate,
@@ -82,15 +84,30 @@ const articleSchema = {
     </header>
 
     {heroImage && (
-      <CmsImage
-        src={heroImage}
-        alt={heroImageAlt ?? title}
-        width={heroImageWidth}
-        height={heroImageHeight}
-        loading="eager"
-        fetchpriority="high"
-        class="hero-image"
-      />
+      heroImageCredit ? (
+        <figure class="hero-figure">
+          <CmsImage
+            src={heroImage}
+            alt={heroImageAlt ?? title}
+            width={heroImageWidth}
+            height={heroImageHeight}
+            loading="eager"
+            fetchpriority="high"
+            class="hero-image"
+          />
+          <figcaption>{heroImageCredit}</figcaption>
+        </figure>
+      ) : (
+        <CmsImage
+          src={heroImage}
+          alt={heroImageAlt ?? title}
+          width={heroImageWidth}
+          height={heroImageHeight}
+          loading="eager"
+          fetchpriority="high"
+          class="hero-image"
+        />
+      )
     )}
 
     <AuthorBox author={author} updatedDate={updatedDate ?? pubDate} />
@@ -112,6 +129,9 @@ const articleSchema = {
   .article-header { margin-bottom: 1.5rem; }
   .article-lead { color: var(--color-text-muted); font-size: 1.1rem; }
   .hero-image { border-radius: var(--radius); margin-bottom: 1.5rem; }
+  .hero-figure { margin: 0 0 1.5rem; }
+  .hero-figure .hero-image { margin-bottom: 0.5rem; }
+  .hero-figure figcaption { font-size: 0.85rem; color: var(--color-text-muted); text-align: center; }
   .prose :global(h2) { margin-top: 2.25rem; }
   .prose :global(ul), .prose :global(ol) { padding-left: 1.25rem; }
   .prose :global(blockquote) {
@@ -147,6 +167,20 @@ const articleSchema = {
     background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
   }
   .prose :global(.callout-importante::before) { content: '❗ Importante'; color: var(--color-accent-dark); }
+
+  .prose :global(figure.foto-credito) { margin: 1.75rem 0; }
+  .prose :global(figure.foto-credito img) {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: var(--radius);
+  }
+  .prose :global(figure.foto-credito figcaption) {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
 
   /* Card de Produto (sem preço) e Card de Estabelecimento (pousada/restaurante/hotel).
      Os dados vêm de campos de formulário do CMS ("Estabelecimentos recomendados" /
