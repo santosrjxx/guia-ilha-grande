@@ -34,17 +34,11 @@ collections:
     identifier_field: title
     summary: "{{title}} — {{silo}}"
     sortable_fields: [title, pubDate, silo]
-    # Só aqui (não no painel inteiro): "Salvar" abre uma branch + Pull Request no GitHub
-    # (rascunho, badge "Draft") em vez de publicar direto; só "Salvar e Publicar"
-    # (direct_publish) manda pro ar na hora. "preview" (em vez de "editorial_workflow") é
-    # de propósito: só 1 estágio de rascunho, sem pergunta "Mark as Ready" a cada salvamento
-    # (editorial_workflow com 2+ estágios pergunta isso toda vez). Token OAuth já pedia
-    # escopo "repo" (worker/index.ts), que já cobre criar/mesclar Pull Request — nenhuma
-    # permissão nova precisou ser dada. Páginas institucionais, dados do site e links de
-    # afiliado continuam publicando direto (não têm esse campo aqui).
-    publish_mode:
-      type: preview
-      direct_publish: true
+    # NÃO reative "publish_mode: preview"/"editorial_workflow" aqui — testado em produção e
+    # causava erro intermitente "A requested file or directory could not be found" ao salvar
+    # artigos com imagem nova, derrubando trabalho real do editor no meio da escrita (2x no
+    # mesmo artigo). Voltou a publicar direto (igual Páginas/Config/Links), com o campo
+    # "Rascunho" de novo abaixo controlando visibilidade no site.
     fields:
       # --- Essencial: o que você mexe em quase todo artigo ---
       - { label: "Título (H1 da página)", name: title, widget: string, hint: "Título principal, exibido no topo do artigo." }
@@ -211,6 +205,7 @@ collections:
         widget: list
         default: []
         required: false
+      - { label: Rascunho (não publica no site), name: draft, widget: boolean, default: false }
       - { label: Popular, name: popular, widget: boolean, default: false }
 
   - name: pages
