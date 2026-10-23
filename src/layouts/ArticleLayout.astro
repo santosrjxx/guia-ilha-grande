@@ -167,6 +167,16 @@ const articleSchema = {
     background: color-mix(in srgb, var(--color-accent) 20%, var(--color-surface));
   }
   .prose :global(.callout-importante::before) { content: '❗ Importante'; color: var(--color-accent-dark); }
+  .prose :global(.callout-cta) {
+    margin: 2rem 0;
+    padding: 1.75rem 2rem;
+    border-radius: var(--radius);
+    background: var(--color-primary);
+    color: #fff;
+    text-align: center;
+    font-weight: 600;
+  }
+  .prose :global(.callout-cta p) { margin: 0; }
 
   .prose :global(figure.foto-credito) { margin: 1.75rem 0; }
   .prose :global(figure.foto-credito img) {

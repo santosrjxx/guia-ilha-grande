@@ -58,6 +58,32 @@
         },
       });
 
+      // Caixa verde sólida (cor --color-primary do site) com texto branco centralizado — pro
+      // CTA de engajamento no final do artigo (ex.: convite pra comentar). Visual sólido,
+      // diferente do "Destaque" (que tem fundo clarinho e borda colorida).
+      CMS.registerEditorComponent({
+        id: 'cta',
+        label: 'CTA (caixa verde de chamada)',
+        fields: [
+          {
+            name: 'texto',
+            label: 'Texto do CTA',
+            widget: 'text',
+            hint: 'Ideal no final do artigo — ex.: convite pra comentar ou ler outro guia. Texto fica centralizado em caixa verde sólida.',
+          },
+        ],
+        pattern: /^<div class="callout-cta">\n\n([\s\S]*?)\n\n<\/div>$/,
+        fromBlock: function (match) {
+          return { texto: match[1] };
+        },
+        toBlock: function (obj) {
+          return '<div class="callout-cta">\n\n' + (obj.texto || '') + '\n\n</div>';
+        },
+        toPreview: function (obj) {
+          return '<div class="callout-cta">' + (obj.texto || '') + '</div>';
+        },
+      });
+
       // Única forma de inserir imagem no corpo do artigo (substitui o componente genérico
       // "image" do Decap/Sveltia) — crédito é opcional, pra não ter dois botões parecidos
       // na hora de inserir imagem (um "normal" e outro "com crédito") confundindo quem edita.

@@ -172,6 +172,17 @@ blockquote {
 }
 .callout-importante::before { content: '❗ Importante'; color: var(--color-accent-dark); }
 
+.callout-cta {
+  margin: 2rem 0;
+  padding: 1.75rem 2rem;
+  border-radius: var(--radius);
+  background: var(--color-primary);
+  color: #fff;
+  text-align: center;
+  font-weight: 600;
+}
+.callout-cta p { margin: 0; }
+
 /* Caixinha do marcador de posição do Card de Estabelecimento/Produto (ver
    public/admin/cms/index.html) — só existe na edição/prévia do CMS, nunca
    aparece no site publicado (lá o marcador vira o card de verdade). */
