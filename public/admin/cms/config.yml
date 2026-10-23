@@ -35,14 +35,15 @@ collections:
     summary: "{{title}} — {{silo}}"
     sortable_fields: [title, pubDate, silo]
     # Só aqui (não no painel inteiro): "Salvar" abre uma branch + Pull Request no GitHub
-    # (rascunho) em vez de publicar direto; só "Salvar e Publicar" (direct_publish) manda
-    # pro ar na hora. Sem estágio "Em Revisão" (não faz sentido com só 1 pessoa editando).
-    # Token OAuth já pedia escopo "repo" (worker/index.ts), que já cobre criar/mesclar Pull
-    # Request — nenhuma permissão nova precisou ser dada. Páginas institucionais, dados do
-    # site e links de afiliado continuam publicando direto (não têm esse campo aqui).
+    # (rascunho, badge "Draft") em vez de publicar direto; só "Salvar e Publicar"
+    # (direct_publish) manda pro ar na hora. "preview" (em vez de "editorial_workflow") é
+    # de propósito: só 1 estágio de rascunho, sem pergunta "Mark as Ready" a cada salvamento
+    # (editorial_workflow com 2+ estágios pergunta isso toda vez). Token OAuth já pedia
+    # escopo "repo" (worker/index.ts), que já cobre criar/mesclar Pull Request — nenhuma
+    # permissão nova precisou ser dada. Páginas institucionais, dados do site e links de
+    # afiliado continuam publicando direto (não têm esse campo aqui).
     publish_mode:
-      type: editorial_workflow
-      stages: [draft, pending_publish]
+      type: preview
       direct_publish: true
     fields:
       # --- Essencial: o que você mexe em quase todo artigo ---
