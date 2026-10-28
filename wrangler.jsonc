@@ -14,11 +14,20 @@
     // Por padrão (sem isso), um request que bate com um arquivo estático existente (ex.:
     // /admin/ → dist/admin/index.html) é respondido direto pelo "Asset Worker" do
     // Cloudflare e NUNCA passa pelo nosso worker/index.ts — só os requests sem match
-    // (fallback) chegam até o fetch() handler abaixo. Como worker/index.ts precisa
-    // interceptar toda resposta de /admin/* pra sobrescrever o header
-    // Content-Security-Policy (CSP permissiva só pro painel, estrita pro resto do site
-    // via public/_headers), /admin/* é forçado a passar pelo nosso Worker primeiro.
-    "run_worker_first": ["/admin/*"]
+    // (fallback) chegam até o fetch() handler abaixo.
+    //
+    // PRECISA SER "true" (todas as rotas), não só ["/admin/*"]: com "not_found_handling":
+    // "404-page" ativo, o Asset Worker passou a responder ELE MESMO com a página 404
+    // estática sempre que nenhum arquivo bate — e isso acontece ANTES do nosso fetch(),
+    // pra qualquer rota fora de run_worker_first. Isso derrubou TODAS as rotas dinâmicas
+    // que não correspondem a um arquivo físico em dist/ (/api/auth, /go/stats.json, o
+    // catch-all de link de afiliado em /<slug>/<provedor>/, etc. — ver worker/index.ts),
+    // porque nenhuma delas tinha chance de rodar: o 404 estático já tinha respondido antes.
+    // Com "true", TODO request passa pelo nosso fetch() primeiro; ele mesmo chama
+    // env.ASSETS.fetch() internamente (linha ~512) quando não é nenhuma rota dinâmica
+    // conhecida, preservando o comportamento normal de assets e a página 404-page real
+    // pra paths que não existem de verdade.
+    "run_worker_first": true
   },
   "kv_namespaces": [
     {
