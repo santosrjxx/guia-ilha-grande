@@ -1,6 +1,7 @@
 ---
 // Espaço de anúncio para donos de restaurantes, pousadas e guias locais.
 // Sem sponsorName preenchido, mostra CTA de venda do espaço (link pra página /anuncie/).
+import CmsImage from './CmsImage.astro';
 
 interface Props {
   label?: string;
@@ -15,7 +16,9 @@ const { label = 'Publicidade local', sponsorName, sponsorUrl, sponsorImage } = A
   <p class="badge">Publicidade</p>
   {sponsorName ? (
     <a href={sponsorUrl} rel="sponsored noopener noreferrer" target="_blank" class="sponsor-link">
-      {sponsorImage && <img src={sponsorImage} alt={sponsorName} loading="lazy" />}
+      {sponsorImage && (
+        <CmsImage src={sponsorImage} alt={sponsorName} width={160} height={60} loading="lazy" class="sponsor-image" />
+      )}
       <strong>{sponsorName}</strong>
     </a>
   ) : (

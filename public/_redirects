@@ -1,0 +1,13 @@
+# Redireciona (301, preserva SEO/backlinks) os slugs dos 7 "artigos de exemplo" que
+# ficaram no ar em produção por ~1 semana (31/ago a 07/set/2026, ver commit d168eba)
+# antes de serem apagados quando o conteúdo real entrou pelo CMS. Risco de terem sido
+# indexados/linkados é baixo mas não-zero (site novo, mas já em produção) — redireciona
+# pro artigo/silo real que cobre o mesmo assunto hoje, em vez de deixar 404.
+# Mapeamento por tema: revisar com Maria/Genilson se o destino ainda faz sentido.
+/como-chegar-a-ilha-grande/      /guia-pratico/                 301
+/o-que-levar-na-mala/            /guia-pratico/                 301
+/onde-comer-vila-do-abraao/      /onde-comer/                   301
+/restaurantes-pos-trilha/        /onde-comer/                   301
+/trilha-pico-do-papagaio/        /o-que-fazer/                  301
+/praia-de-lopes-mendes/          /melhores-praias-ilha-grande/  301
+/vila-do-abraao-vs-outras-praias/ /melhores-praias-ilha-grande/ 301

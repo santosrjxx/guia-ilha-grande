@@ -510,6 +510,22 @@ export default {
     }
 
     const assetResponse = await env.ASSETS.fetch(request);
+
+    // /admin (Sveltia CMS) precisa de uma CSP mais permissiva do que o resto do site
+    // (carrega o bundle via unpkg.com e usa eval internamente). Em vez de afrouxar a
+    // CSP de public/_headers pra todo o site — o que vazaria unsafe-eval/unpkg.com pras
+    // páginas públicas também — a CSP pública fica estrita em _headers e aqui
+    // sobrescrevemos o header só pras respostas de /admin. Mantém exatamente a mesma
+    // CSP permissiva que já existia antes dessa mudança (ver histórico de public/_headers).
+    if (pathname.startsWith('/admin')) {
+      const response = new Response(assetResponse.body, assetResponse);
+      response.headers.set(
+        'Content-Security-Policy',
+        "default-src 'self'; img-src 'self' data: blob: https:; frame-src 'self' blob: https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.googletagmanager.com https://static.cloudflareinsights.com; font-src 'self' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://api.github.com https://github.com https://unpkg.com https://cdn.jsdelivr.net https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'"
+      );
+      return response;
+    }
+
     if (assetResponse.status !== 404) return assetResponse;
 
     // Nenhuma página ou artigo real bate com esse endereço: tenta como link de afiliado na

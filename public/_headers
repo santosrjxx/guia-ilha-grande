@@ -3,14 +3,16 @@
 # As respostas geradas pelo próprio worker (/api/auth, /api/callback) têm seus
 # headers definidos em worker/index.ts, pois não passam pelo binding ASSETS.
 #
-# Uma única CSP para o site inteiro, incluindo /admin: quando duas regras de
-# _headers combinam para o mesmo request (ex.: "/*" e "/admin/*" batendo na
-# mesma URL), o Cloudflare envia as DUAS linhas Content-Security-Policy, e o
-# navegador aplica a interseção das duas (a mais restritiva prevalece em cada
-# diretiva) — não a última sobrescrevendo a primeira. Duas CSPs diferentes
-# aqui quebrariam o carregamento do decap-cms.js via unpkg no /admin. Por
-# isso a CSP abaixo já inclui o que o painel precisa (unpkg.com, unsafe-eval),
-# mesmo não sendo usado pelas páginas públicas.
+# A CSP abaixo vale pro SITE PÚBLICO. O painel /admin precisa de uma CSP mais
+# permissiva (carrega o bundle do Sveltia CMS via unpkg.com e usa eval
+# internamente) — em vez de afrouxar essa regra pra todo o site, o worker
+# (worker/index.ts) intercepta a resposta de env.ASSETS.fetch() e SOBRESCREVE
+# o header Content-Security-Policy só quando pathname começa com /admin.
+# Assim o site público nunca herda 'unsafe-eval'/unpkg.com/cdn.jsdelivr.net, que
+# só existem por causa do painel. 'unsafe-inline' em script-src ainda é
+# necessário aqui fora do /admin: o snippet do GA4 (src/components/Analytics.astro)
+# usa <script is:inline>, que o Astro mantém inline no HTML (não vira arquivo
+# externo com hash como os outros <script> do site).
 
 /*
   X-Content-Type-Options: nosniff
@@ -18,4 +20,26 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob: https:; frame-src 'self' blob: https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://www.googletagmanager.com https://static.cloudflareinsights.com; font-src 'self' https://cdn.jsdelivr.net https://unpkg.com; connect-src 'self' https://api.github.com https://github.com https://unpkg.com https://cdn.jsdelivr.net https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
+  Content-Security-Policy: default-src 'self'; img-src 'self' data: blob: https:; frame-src 'self' blob: https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://static.cloudflareinsights.com; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://cloudflareinsights.com; form-action 'self' https://formsubmit.co; frame-ancestors 'none'; base-uri 'self'
+
+# Cache de entrega (Core Web Vitals / TTFB em visita repetida). Nenhuma destas regras
+# define header já presente em "/*" acima, então ambos os blocos se somam na mesma
+# resposta sem conflito (confirmado: duas regras diferentes de _headers batendo na mesma
+# URL fazem o Cloudflare enviar os headers dos dois blocos).
+#
+# /_astro/* = build do Astro (JS/imagens otimizadas) com hash de conteúdo no nome do
+# arquivo (ex.: logo-header.Ie0gD_cR_1YXhh5.webp) — conteúdo novo sempre gera nome novo,
+# então "immutable" por 1 ano é seguro.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# /articles/* e /uploads/* = upload direto do usuário via painel /admin (Sveltia CMS),
+# SEM hash no nome — se o Genilson/usuário substituir a imagem mantendo o mesmo nome de
+# arquivo, um cache "immutable" de 1 ano serviria a versão antiga pra quem já visitou.
+# max-age curto + stale-while-revalidate longo: visita repetida ainda pega do cache
+# (rápido), mas o navegador busca a versão nova em paralelo em vez de ficar travado por
+# um ano servindo o arquivo antigo.
+/articles/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=2592000
+/uploads/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=2592000

@@ -153,6 +153,22 @@ summary { font-weight: 700; cursor: pointer; }
   padding: 1.25rem;
   text-align: center;
 }
+.sponsor-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: inherit;
+}
+/* Logo enviada pelo anunciante no CMS: proporção real varia, então a imagem fica
+   contida numa caixa fixa (sem esticar/distorcer) pra não dar CLS quando o link
+   de sponsor for preenchido. */
+.sponsor-image {
+  width: 160px;
+  height: 60px;
+  object-fit: contain;
+}
 
 .skip-link {
   position: absolute;

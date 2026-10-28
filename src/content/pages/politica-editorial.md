@@ -5,7 +5,7 @@ description: "Como o Guia Ilha Grande produz, atualiza e monetiza seu conteúdo,
 
 ## Independência editorial
 
-As recomendações do Guia Ilha Grande são definidas exclusivamente pela nossa equipe editorial, com base em experiência de viagem, fontes oficiais e feedback de leitores. Nenhum anunciante ou parceiro de afiliação tem poder de decisão sobre o conteúdo dos artigos.
+As recomendações do Guia Ilha Grande são definidas exclusivamente pela nossa equipe editorial, com base em apuração direta junto a quem administra os locais, fontes oficiais e feedback de leitores. Nenhum anunciante ou parceiro de afiliação tem poder de decisão sobre o conteúdo dos artigos.
 
 ## Uso de links de afiliados
 

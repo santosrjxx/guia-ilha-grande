@@ -5,7 +5,20 @@
   "main": "worker/index.ts",
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // Sem isso, requests sem match caem com status 404 correto (bom pra SEO) mas corpo
+    // vazio — o visitante via uma tela branca em vez da página 404.astro (com links de
+    // navegação). "404-page" faz o Asset Worker servir dist/404.html com status 404
+    // sempre que nenhum asset bate, antes mesmo de chegar no fallback do worker/index.ts.
+    "not_found_handling": "404-page",
+    // Por padrão (sem isso), um request que bate com um arquivo estático existente (ex.:
+    // /admin/ → dist/admin/index.html) é respondido direto pelo "Asset Worker" do
+    // Cloudflare e NUNCA passa pelo nosso worker/index.ts — só os requests sem match
+    // (fallback) chegam até o fetch() handler abaixo. Como worker/index.ts precisa
+    // interceptar toda resposta de /admin/* pra sobrescrever o header
+    // Content-Security-Policy (CSP permissiva só pro painel, estrita pro resto do site
+    // via public/_headers), /admin/* é forçado a passar pelo nosso Worker primeiro.
+    "run_worker_first": ["/admin/*"]
   },
   "kv_namespaces": [
     {
