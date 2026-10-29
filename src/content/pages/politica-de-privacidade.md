@@ -3,7 +3,7 @@ title: "Política de Privacidade"
 description: "Como o Guia Ilha Grande trata dados pessoais, cookies e formulários de contato, em conformidade com a LGPD."
 ---
 
-*Última atualização: 1 de setembro de 2026*
+*Última atualização: 28 de outubro de 2026*
 
 Esta política explica como o Guia Ilha Grande coleta, usa e protege informações pessoais, em conformidade com a Lei Geral de Proteção de Dados (LGPD — Lei nº 13.709/2018).
 
@@ -26,6 +26,12 @@ Os formulários do site são processados pelo serviço terceiro [FormSubmit](htt
 ## Links de afiliados e cookies de terceiros
 
 Ao clicar em links de afiliados (Amazon, Mercado Livre, Booking.com, Rentcars), você é redirecionado para o site do parceiro, que possui sua própria política de privacidade e pode utilizar cookies próprios para rastrear a origem da indicação.
+
+## Publicidade e fornecedores terceirizados
+
+Este site pode exibir publicidade fornecida por fornecedores terceirizados, incluindo o Google. O Google e seus parceiros publicitários usam cookies de terceiros (como o cookie DART) para exibir anúncios com base em visitas anteriores do usuário a este site e a outros sites na internet.
+
+Você pode desativar o uso de cookies para publicidade personalizada acessando as [configurações de anúncios do Google](https://adssettings.google.com) ou, para outros fornecedores participantes, a [página de preferências de anúncios da Your Online Choices / aboutads.info](http://www.aboutads.info).
 
 ## Seus direitos
 
