@@ -1,14 +1,30 @@
 ---
+import { Image } from 'astro:assets';
 import { SITE } from '../consts';
+import founderPhoto from '../assets/author/moises-silva.png';
 interface Props {
   author?: string;
   updatedDate?: Date;
 }
 const { author = SITE.founderName, updatedDate } = Astro.props;
+const isFounder = author === SITE.founderName;
 ---
 
 <aside class="author-box" aria-label="Sobre o autor">
-  <div class="avatar" aria-hidden="true">👤</div>
+  {isFounder ? (
+    <Image
+      src={founderPhoto}
+      alt={`Foto de ${author}`}
+      width={88}
+      height={88}
+      format="webp"
+      quality={70}
+      class="avatar avatar--photo"
+      loading="lazy"
+    />
+  ) : (
+    <div class="avatar" aria-hidden="true">👤</div>
+  )}
   <div>
     <p class="author-name">Escrito por {author}</p>
     <p class="author-bio">
@@ -48,6 +64,11 @@ const { author = SITE.founderName, updatedDate } = Astro.props;
     align-items: center;
     justify-content: center;
     font-size: 1.3rem;
+  }
+  .avatar--photo {
+    object-fit: cover;
+    display: block;
+    box-shadow: 0 0 0 1px var(--color-surface), 0 0 0 2px var(--color-border);
   }
   .author-name { font-weight: 700; margin: 0 0 0.25rem; }
   .author-bio { margin: 0 0 0.35rem; font-size: 0.9rem; color: var(--color-text-muted); }
