@@ -1,0 +1,304 @@
+---
+// Widget de previsão do tempo em tempo real para Vila do Abraão (principal ponto de
+// entrada de Ilha Grande — de lá a maioria dos visitantes segue por trilha/barco pro
+// resto da ilha, então é a referência mais útil pra quem está planejando a viagem).
+// Coordenadas: -23.14, -44.17 (sugeridas no brief, mantidas).
+//
+// Fonte: Open-Meteo (https://api.open-meteo.com) — API pública, sem API key.
+// O fetch roda inteiramente no client via <script> (Astro extrai como arquivo externo
+// com hash no build, carregado com defer automático — não bloqueia parsing/LCP).
+// HTML inicial já renderiza um skeleton estático visível sem depender de JS rodar,
+// então não há CLS nem "buraco vazio" se o script falhar ou demorar.
+//
+// Cache leve em localStorage por 30min: evita refetch a cada reload da mesma sessão.
+---
+
+<div class="weather-widget" id="weather-widget" data-lat="-23.14" data-lon="-44.17">
+  <p class="weather-widget__label">Previsão agora · Vila do Abraão</p>
+  <div class="weather-widget__body" aria-live="polite" id="weather-widget-body">
+    <div class="weather-widget__skeleton" aria-hidden="true">
+      <span class="weather-widget__skeleton-icon"></span>
+      <span class="weather-widget__skeleton-line"></span>
+    </div>
+    <span class="visually-hidden">Carregando previsão do tempo.</span>
+  </div>
+</div>
+
+<style>
+  .weather-widget {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-block: 1.5rem;
+    max-width: 100%;
+  }
+
+  .weather-widget__label {
+    margin: 0 0 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+  }
+
+  .weather-widget__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.5rem;
+  }
+
+  /* Skeleton: evita CLS enquanto o fetch roda (ou se o JS nunca rodar). */
+  .weather-widget__skeleton {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  .weather-widget__skeleton-icon,
+  .weather-widget__skeleton-line {
+    display: block;
+    border-radius: var(--radius);
+    background: linear-gradient(
+      90deg,
+      var(--color-border) 25%,
+      #eef3f1 37%,
+      var(--color-border) 63%
+    );
+    background-size: 400% 100%;
+    animation: weather-widget-shimmer 1.4s ease infinite;
+  }
+  .weather-widget__skeleton-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .weather-widget__skeleton-line {
+    height: 1rem;
+    flex: 1;
+    max-width: 14rem;
+  }
+  @keyframes weather-widget-shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .weather-widget__skeleton-icon,
+    .weather-widget__skeleton-line {
+      animation: none;
+    }
+  }
+
+  .weather-widget__icon {
+    font-size: 2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .weather-widget__main {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .weather-widget__temp {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
+  }
+
+  .weather-widget__condition {
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+
+  .weather-widget__meta {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    width: 100%;
+  }
+
+  .weather-widget__fallback {
+    font-size: 0.95rem;
+    color: var(--color-text);
+  }
+  .weather-widget__fallback a {
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+</style>
+
+<script>
+  // Mapa de weather_code (WMO) -> { texto em pt-BR, emoji com rótulo acessível }.
+  // Cobre os códigos documentados pela Open-Meteo (0 a 99); código fora da tabela cai
+  // no fallback genérico "Condição variável" em vez de quebrar o widget.
+  const WEATHER_CODES: Record<number, { label: string; icon: string }> = {
+    0: { label: 'Céu limpo', icon: '☀️' },
+    1: { label: 'Predominantemente limpo', icon: '🌤️' },
+    2: { label: 'Parcialmente nublado', icon: '⛅' },
+    3: { label: 'Nublado', icon: '☁️' },
+    45: { label: 'Neblina', icon: '🌫️' },
+    48: { label: 'Neblina com geada', icon: '🌫️' },
+    51: { label: 'Garoa leve', icon: '🌦️' },
+    53: { label: 'Garoa moderada', icon: '🌦️' },
+    55: { label: 'Garoa forte', icon: '🌧️' },
+    56: { label: 'Garoa congelante leve', icon: '🌧️' },
+    57: { label: 'Garoa congelante forte', icon: '🌧️' },
+    61: { label: 'Chuva leve', icon: '🌧️' },
+    63: { label: 'Chuva moderada', icon: '🌧️' },
+    65: { label: 'Chuva forte', icon: '🌧️' },
+    66: { label: 'Chuva congelante leve', icon: '🌧️' },
+    67: { label: 'Chuva congelante forte', icon: '🌧️' },
+    71: { label: 'Neve leve', icon: '🌨️' },
+    73: { label: 'Neve moderada', icon: '🌨️' },
+    75: { label: 'Neve forte', icon: '🌨️' },
+    77: { label: 'Grãos de neve', icon: '🌨️' },
+    80: { label: 'Pancadas de chuva leves', icon: '🌧️' },
+    81: { label: 'Pancadas de chuva moderadas', icon: '🌧️' },
+    82: { label: 'Pancadas de chuva fortes', icon: '⛈️' },
+    85: { label: 'Pancadas de neve leves', icon: '🌨️' },
+    86: { label: 'Pancadas de neve fortes', icon: '🌨️' },
+    95: { label: 'Tempestade', icon: '⛈️' },
+    96: { label: 'Tempestade com granizo leve', icon: '⛈️' },
+    99: { label: 'Tempestade com granizo forte', icon: '⛈️' },
+  };
+
+  const FALLBACK_CONDITION = { label: 'Condição variável', icon: '🌡️' };
+  const CACHE_KEY = 'weather-widget-cache-v1';
+  const CACHE_TTL_MS = 30 * 60 * 1000; // 30 min
+  const FETCH_TIMEOUT_MS = 6000;
+
+  interface CachedWeather {
+    temp: number;
+    code: number;
+    humidity: number;
+    fetchedAt: number;
+  }
+
+  function readCache(): CachedWeather | null {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as CachedWeather;
+      if (Date.now() - parsed.fetchedAt > CACHE_TTL_MS) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCache(data: CachedWeather) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    } catch {
+      // localStorage indisponível (modo privado, quota etc.) — só não cacheia, sem quebrar.
+    }
+  }
+
+  function minutesAgoLabel(fetchedAt: number): string {
+    const minutes = Math.max(0, Math.round((Date.now() - fetchedAt) / 60000));
+    if (minutes < 1) return 'atualizado agora';
+    if (minutes === 1) return 'atualizado há 1 min';
+    return `atualizado há ${minutes} min`;
+  }
+
+  function renderWeather(body: HTMLElement, data: CachedWeather) {
+    const condition = WEATHER_CODES[data.code] ?? FALLBACK_CONDITION;
+    body.innerHTML = '';
+
+    const icon = document.createElement('span');
+    icon.className = 'weather-widget__icon';
+    icon.setAttribute('role', 'img');
+    icon.setAttribute('aria-label', condition.label);
+    icon.textContent = condition.icon;
+
+    const main = document.createElement('div');
+    main.className = 'weather-widget__main';
+
+    const temp = document.createElement('span');
+    temp.className = 'weather-widget__temp';
+    temp.textContent = `${Math.round(data.temp)}°C`;
+
+    const conditionText = document.createElement('span');
+    conditionText.className = 'weather-widget__condition';
+    conditionText.textContent = condition.label;
+
+    main.append(temp, conditionText);
+
+    const meta = document.createElement('span');
+    meta.className = 'weather-widget__meta';
+    meta.textContent = `Umidade ${Math.round(data.humidity)}% · ${minutesAgoLabel(data.fetchedAt)}`;
+
+    body.append(icon, main, meta);
+  }
+
+  function renderFallback(body: HTMLElement) {
+    body.innerHTML = '';
+    const fallback = document.createElement('p');
+    fallback.className = 'weather-widget__fallback';
+    fallback.innerHTML =
+      'Não foi possível carregar a previsão agora. Consulte a previsão atualizada direto no ' +
+      '<a href="https://www.google.com/search?q=previsão+do+tempo+ilha+grande+rj" target="_blank" rel="noopener noreferrer">Google</a>.';
+    body.appendChild(fallback);
+  }
+
+  async function fetchWeather(lat: string, lon: string): Promise<CachedWeather> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,relative_humidity_2m&timezone=America%2FSao_Paulo`;
+      const response = await fetch(url, { signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const json = await response.json();
+      const current = json?.current;
+      if (
+        !current ||
+        typeof current.temperature_2m !== 'number' ||
+        typeof current.weather_code !== 'number'
+      ) {
+        throw new Error('Formato de resposta inesperado');
+      }
+
+      return {
+        temp: current.temperature_2m,
+        code: current.weather_code,
+        humidity: typeof current.relative_humidity_2m === 'number' ? current.relative_humidity_2m : 0,
+        fetchedAt: Date.now(),
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  function init() {
+    const widget = document.getElementById('weather-widget');
+    const body = document.getElementById('weather-widget-body');
+    if (!widget || !body) return;
+
+    const lat = widget.dataset.lat ?? '-23.14';
+    const lon = widget.dataset.lon ?? '-44.17';
+
+    const cached = readCache();
+    if (cached) {
+      renderWeather(body, cached);
+      return;
+    }
+
+    fetchWeather(lat, lon)
+      .then((data) => {
+        writeCache(data);
+        renderWeather(body, data);
+      })
+      .catch(() => {
+        renderFallback(body);
+      });
+  }
+
+  init();
+</script>
