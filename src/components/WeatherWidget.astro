@@ -93,81 +93,188 @@
     }
   }
 
-  .weather-widget__icon {
-    font-size: 2rem;
-    line-height: 1;
+  /*
+   * :global() a partir daqui: estes elementos nascem via document.createElement()
+   * no <script> do client, depois do build — não existem no template estático,
+   * então o Astro nunca grava o atributo data-astro-cid-* neles. Sem :global(),
+   * estas regras ficam com um seletor escopado que nunca bate em nada e o CSS
+   * é silenciosamente descartado (achado real: ícone/temperatura/condição
+   * saíam como texto corrido, sem flex, sem espaçamento).
+   */
+  :global(.weather-widget__icon) {
+    width: 2.25rem;
+    height: 2.25rem;
     flex-shrink: 0;
+    display: inline-flex;
+    color: var(--color-primary-dark);
+  }
+  :global(.weather-widget__icon svg) {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
 
-  .weather-widget__main {
+  :global(.weather-widget__main) {
     display: flex;
     flex-direction: column;
     gap: 0.1rem;
   }
 
-  .weather-widget__temp {
+  :global(.weather-widget__temp) {
     font-size: 1.4rem;
     font-weight: 800;
     color: var(--color-primary-dark);
   }
 
-  .weather-widget__condition {
+  :global(.weather-widget__condition) {
     font-size: 0.95rem;
     color: var(--color-text);
   }
 
-  .weather-widget__meta {
+  :global(.weather-widget__meta) {
     font-size: 0.8rem;
     color: var(--color-text-muted);
     width: 100%;
   }
 
-  .weather-widget__fallback {
+  :global(.weather-widget__fallback) {
     font-size: 0.95rem;
     color: var(--color-text);
   }
-  .weather-widget__fallback a {
+  :global(.weather-widget__fallback a) {
     color: var(--color-primary);
     font-weight: 700;
+  }
+
+  /* Transição suave do skeleton pro conteúdo real: só transform/opacity (sem custo de layout/CLS). */
+  @keyframes weather-widget-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(2px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  :global(.weather-widget__icon),
+  :global(.weather-widget__main),
+  :global(.weather-widget__meta),
+  :global(.weather-widget__fallback) {
+    animation: weather-widget-fade-in 220ms ease-out both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.weather-widget__icon),
+    :global(.weather-widget__main),
+    :global(.weather-widget__meta),
+    :global(.weather-widget__fallback) {
+      animation: none;
+    }
   }
 </style>
 
 <script>
-  // Mapa de weather_code (WMO) -> { texto em pt-BR, emoji com rótulo acessível }.
+  // Mapa de weather_code (WMO) -> { texto em pt-BR, categoria visual do ícone }.
   // Cobre os códigos documentados pela Open-Meteo (0 a 99); código fora da tabela cai
   // no fallback genérico "Condição variável" em vez de quebrar o widget.
-  const WEATHER_CODES: Record<number, { label: string; icon: string }> = {
-    0: { label: 'Céu limpo', icon: '☀️' },
-    1: { label: 'Predominantemente limpo', icon: '🌤️' },
-    2: { label: 'Parcialmente nublado', icon: '⛅' },
-    3: { label: 'Nublado', icon: '☁️' },
-    45: { label: 'Neblina', icon: '🌫️' },
-    48: { label: 'Neblina com geada', icon: '🌫️' },
-    51: { label: 'Garoa leve', icon: '🌦️' },
-    53: { label: 'Garoa moderada', icon: '🌦️' },
-    55: { label: 'Garoa forte', icon: '🌧️' },
-    56: { label: 'Garoa congelante leve', icon: '🌧️' },
-    57: { label: 'Garoa congelante forte', icon: '🌧️' },
-    61: { label: 'Chuva leve', icon: '🌧️' },
-    63: { label: 'Chuva moderada', icon: '🌧️' },
-    65: { label: 'Chuva forte', icon: '🌧️' },
-    66: { label: 'Chuva congelante leve', icon: '🌧️' },
-    67: { label: 'Chuva congelante forte', icon: '🌧️' },
-    71: { label: 'Neve leve', icon: '🌨️' },
-    73: { label: 'Neve moderada', icon: '🌨️' },
-    75: { label: 'Neve forte', icon: '🌨️' },
-    77: { label: 'Grãos de neve', icon: '🌨️' },
-    80: { label: 'Pancadas de chuva leves', icon: '🌧️' },
-    81: { label: 'Pancadas de chuva moderadas', icon: '🌧️' },
-    82: { label: 'Pancadas de chuva fortes', icon: '⛈️' },
-    85: { label: 'Pancadas de neve leves', icon: '🌨️' },
-    86: { label: 'Pancadas de neve fortes', icon: '🌨️' },
-    95: { label: 'Tempestade', icon: '⛈️' },
-    96: { label: 'Tempestade com granizo leve', icon: '⛈️' },
-    99: { label: 'Tempestade com granizo forte', icon: '⛈️' },
+  // 7 categorias cobrem as ~27 condições (não precisa 1 SVG por código).
+  type IconCategory = 'sun' | 'partly-cloudy' | 'cloudy' | 'fog' | 'rain' | 'snow' | 'storm';
+
+  const WEATHER_CODES: Record<number, { label: string; category: IconCategory }> = {
+    0: { label: 'Céu limpo', category: 'sun' },
+    1: { label: 'Predominantemente limpo', category: 'partly-cloudy' },
+    2: { label: 'Parcialmente nublado', category: 'partly-cloudy' },
+    3: { label: 'Nublado', category: 'cloudy' },
+    45: { label: 'Neblina', category: 'fog' },
+    48: { label: 'Neblina com geada', category: 'fog' },
+    51: { label: 'Garoa leve', category: 'rain' },
+    53: { label: 'Garoa moderada', category: 'rain' },
+    55: { label: 'Garoa forte', category: 'rain' },
+    56: { label: 'Garoa congelante leve', category: 'rain' },
+    57: { label: 'Garoa congelante forte', category: 'rain' },
+    61: { label: 'Chuva leve', category: 'rain' },
+    63: { label: 'Chuva moderada', category: 'rain' },
+    65: { label: 'Chuva forte', category: 'rain' },
+    66: { label: 'Chuva congelante leve', category: 'rain' },
+    67: { label: 'Chuva congelante forte', category: 'rain' },
+    71: { label: 'Neve leve', category: 'snow' },
+    73: { label: 'Neve moderada', category: 'snow' },
+    75: { label: 'Neve forte', category: 'snow' },
+    77: { label: 'Grãos de neve', category: 'snow' },
+    80: { label: 'Pancadas de chuva leves', category: 'rain' },
+    81: { label: 'Pancadas de chuva moderadas', category: 'rain' },
+    82: { label: 'Pancadas de chuva fortes', category: 'storm' },
+    85: { label: 'Pancadas de neve leves', category: 'snow' },
+    86: { label: 'Pancadas de neve fortes', category: 'snow' },
+    95: { label: 'Tempestade', category: 'storm' },
+    96: { label: 'Tempestade com granizo leve', category: 'storm' },
+    99: { label: 'Tempestade com granizo forte', category: 'storm' },
   };
 
-  const FALLBACK_CONDITION = { label: 'Condição variável', icon: '🌡️' };
+  const FALLBACK_CONDITION: { label: string; category: IconCategory } = {
+    label: 'Condição variável',
+    category: 'cloudy',
+  };
+
+  // Ícones SVG inline (sem dependência nova, sem arquivo externo) agrupados por
+  // categoria visual. aria-hidden porque são decorativos — a condição já é texto
+  // normal e visível (.weather-widget__condition), lido por qualquer leitor de tela
+  // via aria-live do container pai, então o ícone não precisa (e não deve) repetir
+  // a informação com role="img"/aria-label.
+  const ICONS: Record<IconCategory, string> = {
+    sun: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="5" fill="var(--color-accent)" stroke="var(--color-accent-dark)" stroke-width="1.3"/>
+      <g stroke="var(--color-accent-dark)" stroke-width="1.6" stroke-linecap="round">
+        <line x1="12" y1="1.5" x2="12" y2="4"/>
+        <line x1="12" y1="20" x2="12" y2="22.5"/>
+        <line x1="1.5" y1="12" x2="4" y2="12"/>
+        <line x1="20" y1="12" x2="22.5" y2="12"/>
+        <line x1="4.5" y1="4.5" x2="6.2" y2="6.2"/>
+        <line x1="17.8" y1="17.8" x2="19.5" y2="19.5"/>
+        <line x1="4.5" y1="19.5" x2="6.2" y2="17.8"/>
+        <line x1="17.8" y1="6.2" x2="19.5" y2="4.5"/>
+      </g>
+    </svg>`,
+    'partly-cloudy': `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="4" fill="var(--color-accent)" stroke="var(--color-accent-dark)" stroke-width="1.2"/>
+      <path d="M6 20h11a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 10.8 3.8 3.8 0 0 0 6 20Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>`,
+    cloudy: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 19h11a4.3 4.3 0 0 0 .6-8.55A6 6 0 0 0 6.7 9.4 4.2 4.2 0 0 0 6.5 19Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>`,
+    fog: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 9.5h9a3.5 3.5 0 0 0 .4-6.98A4.8 4.8 0 0 0 6.9 4.9 3.4 3.4 0 0 0 6 9.5Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.5" stroke-linejoin="round"/>
+      <g stroke="var(--color-primary-dark)" stroke-width="1.5" stroke-linecap="round">
+        <line x1="3" y1="13.5" x2="21" y2="13.5"/>
+        <line x1="5" y1="17" x2="19" y2="17"/>
+        <line x1="3" y1="20.5" x2="21" y2="20.5"/>
+      </g>
+    </svg>`,
+    rain: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 14h11a4.3 4.3 0 0 0 .6-8.55A6 6 0 0 0 6.7 4.4 4.2 4.2 0 0 0 6.5 14Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.6" stroke-linejoin="round"/>
+      <g stroke="var(--color-primary)" stroke-width="1.6" stroke-linecap="round">
+        <line x1="8" y1="17" x2="7" y2="21"/>
+        <line x1="12.5" y1="17" x2="11.5" y2="21"/>
+        <line x1="17" y1="17" x2="16" y2="21"/>
+      </g>
+    </svg>`,
+    snow: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 13h10.5a4.1 4.1 0 0 0 .6-8.15A5.7 5.7 0 0 0 6.9 3.5 4 4 0 0 0 6.5 13Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.6" stroke-linejoin="round"/>
+      <g stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round">
+        <line x1="8" y1="16" x2="8" y2="22"/>
+        <line x1="5.3" y1="17.5" x2="10.7" y2="20.5"/>
+        <line x1="10.7" y1="17.5" x2="5.3" y2="20.5"/>
+        <line x1="16" y1="16" x2="16" y2="22"/>
+        <line x1="13.3" y1="17.5" x2="18.7" y2="20.5"/>
+        <line x1="18.7" y1="17.5" x2="13.3" y2="20.5"/>
+      </g>
+    </svg>`,
+    storm: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6.5 13h10.5a4.1 4.1 0 0 0 .6-8.15A5.7 5.7 0 0 0 6.9 3.5 4 4 0 0 0 6.5 13Z" fill="var(--color-surface)" stroke="var(--color-primary-dark)" stroke-width="1.6" stroke-linejoin="round"/>
+      <path d="M13 13.5 9.5 18.5h3L10.5 22.5 16 16.5h-3.2Z" fill="var(--color-accent)" stroke="var(--color-accent-dark)" stroke-width="1" stroke-linejoin="round"/>
+    </svg>`,
+  };
+
   const CACHE_KEY = 'weather-widget-cache-v1';
   const CACHE_TTL_MS = 30 * 60 * 1000; // 30 min
   const FETCH_TIMEOUT_MS = 6000;
@@ -210,11 +317,12 @@
     const condition = WEATHER_CODES[data.code] ?? FALLBACK_CONDITION;
     body.innerHTML = '';
 
+    // Ícone é decorativo (aria-hidden dentro do próprio SVG) — a condição já vale
+    // como texto normal visível e acessível logo abaixo, sem duplicar anúncio pra
+    // leitor de tela.
     const icon = document.createElement('span');
     icon.className = 'weather-widget__icon';
-    icon.setAttribute('role', 'img');
-    icon.setAttribute('aria-label', condition.label);
-    icon.textContent = condition.icon;
+    icon.innerHTML = ICONS[condition.category];
 
     const main = document.createElement('div');
     main.className = 'weather-widget__main';
